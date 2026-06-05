@@ -2,7 +2,7 @@ import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 
 export const dynamic = "force-dynamic";
-
+export const revalidate = 0;
 export default async function EconomyPage() {
   const { data, error } = await supabase
     .from("economy_items")
