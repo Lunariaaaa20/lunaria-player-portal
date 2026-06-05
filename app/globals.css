@@ -342,3 +342,74 @@
 .content {
   padding-bottom: 90px;
 }
+
+.rule-groups {
+  display: grid;
+  gap: 28px;
+}
+
+.rule-group {
+  scroll-margin-top: 24px;
+}
+
+.rule-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.rule-card {
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.78);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.rule-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.rule-card h4 {
+  margin: 0;
+  color: var(--gold);
+  font-size: 1.05rem;
+}
+
+.rule-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rule-badges span {
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.rule-summary {
+  color: var(--text);
+  margin: 0 0 10px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.rule-full {
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 700px) {
+  .rule-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
