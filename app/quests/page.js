@@ -6,32 +6,22 @@ export const revalidate = 0;
 
 const rankOrder = ["Common", "Uncommon", "Dangerous", "Special"];
 
-export default async function QuestsPage() {
-  const { data, error } = await supabase
+export default async function QuestBoardPage() {
+  const { data: quests, error } = await supabase
     .from("quests")
-    .select("title, rank, type, mode, location, status, objective, monster_target, reward, possible_loot, description, admin_notes, created_at")
+    .select("*")
+    .in("status", ["Available", "Ongoing", "Completed"])
     .order("rank", { ascending: true })
     .order("title", { ascending: true });
 
-  const quests = data || [];
+  const safeQuests = quests || [];
 
   const groupedQuests = rankOrder
     .map((rank) => ({
       rank,
-      quests: quests.filter((quest) => quest.rank === rank),
+      quests: safeQuests.filter((quest) => quest.rank === rank),
     }))
     .filter((group) => group.quests.length > 0);
-
-  const uncategorizedQuests = quests.filter(
-    (quest) => !rankOrder.includes(quest.rank)
-  );
-
-  if (uncategorizedQuests.length > 0) {
-    groupedQuests.push({
-      rank: "Other",
-      quests: uncategorizedQuests,
-    });
-  }
 
   return (
     <div className="page">
@@ -55,48 +45,55 @@ export default async function QuestsPage() {
       <main className="content">
         <section className="hero">
           <h1>QUEST BOARD</h1>
-          <p>Daftar misi resmi Lunaria berdasarkan rank, mode, lokasi, risiko, objektif, reward, dan possible loot.</p>
+          <p>
+            Daftar misi resmi Lunaria berdasarkan rank, mode, lokasi, risiko,
+            objektif, reward, dan possible loot.
+          </p>
         </section>
 
         <section className="section">
           <h2>Available Quests</h2>
 
-          {error && <p>Gagal mengambil data quests: {error.message}</p>}
+          {error && (
+            <p className="admin-message">
+              Gagal memuat quest: {error.message}
+            </p>
+          )}
 
-          <div className="category-summary">
+          <div className="category-tabs">
             {groupedQuests.map((group) => (
-              <a key={group.rank} href={`#${group.rank}`}>
+              <a href={`#${group.rank}`} key={group.rank}>
                 {group.rank} <span>{group.quests.length}</span>
               </a>
             ))}
           </div>
 
-          <div className="quest-groups">
-            {groupedQuests.map((group) => (
-              <section className="quest-group" id={group.rank} key={group.rank}>
-                <div className="group-header">
+          {groupedQuests.length === 0 ? (
+            <p className="muted">Belum ada quest public yang tersedia.</p>
+          ) : (
+            groupedQuests.map((group) => (
+              <div className="quest-group" id={group.rank} key={group.rank}>
+                <div className="group-title-row">
                   <h3>{group.rank} Quest</h3>
                   <span>{group.quests.length} quests</span>
                 </div>
 
-                <div className="quest-card-grid">
+                <div className="quest-grid">
                   {group.quests.map((quest) => (
-                    <article className="quest-card" key={quest.title}>
-                      <div className="quest-card-top">
+                    <article className="quest-card" key={quest.id}>
+                      <div className="quest-card-header">
                         <h4>{quest.title}</h4>
-                        <span className="badge">{quest.status}</span>
+                        <span className="status-pill">{quest.status}</span>
                       </div>
 
-                      <div className="quest-badges">
+                      <div className="tag-row">
                         <span>{quest.rank}</span>
                         <span>{quest.type}</span>
                         <span>{quest.mode}</span>
                         <span>{quest.location}</span>
                       </div>
 
-                      {quest.description && (
-                        <p className="quest-description">{quest.description}</p>
-                      )}
+                      <p className="quest-description">{quest.description}</p>
 
                       {quest.objective && (
                         <div className="quest-block">
@@ -128,9 +125,9 @@ export default async function QuestsPage() {
                     </article>
                   ))}
                 </div>
-              </section>
-            ))}
-          </div>
+              </div>
+            ))
+          )}
         </section>
       </main>
     </div>
