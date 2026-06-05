@@ -44,6 +44,40 @@ export default function AdminRulesPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [priorityFilter, setPriorityFilter] = useState("All");
+
+  const filteredRules = rules.filter((rule) => {
+    const keyword = searchQuery.toLowerCase().trim();
+
+    const matchesSearch =
+      !keyword ||
+      rule.rule_title?.toLowerCase().includes(keyword) ||
+      rule.category?.toLowerCase().includes(keyword) ||
+      rule.status?.toLowerCase().includes(keyword) ||
+      rule.priority?.toLowerCase().includes(keyword);
+
+    const matchesCategory =
+      categoryFilter === "All" || rule.category === categoryFilter;
+
+    const matchesStatus =
+      statusFilter === "All" || rule.status === statusFilter;
+
+    const matchesPriority =
+      priorityFilter === "All" || rule.priority === priorityFilter;
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesPriority;
+  });
+
+  function clearFilters() {
+    setSearchQuery("");
+    setCategoryFilter("All");
+    setStatusFilter("All");
+    setPriorityFilter("All");
+  }
+
   async function loadRules(currentPassword = password) {
     setLoading(true);
     setMessage("");
@@ -336,11 +370,57 @@ export default function AdminRulesPage() {
                 </button>
               </div>
 
+              <div className="admin-filter-panel">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search title, category, priority, or status..."
+                />
+
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {categories.map((category) => (
+                    <option key={category}>{category}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {statusOptions.map((status) => (
+                    <option key={status}>{status}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {priorityOptions.map((priority) => (
+                    <option key={priority}>{priority}</option>
+                  ))}
+                </select>
+
+                <button className="admin-secondary" type="button" onClick={clearFilters}>
+                  Clear Filter
+                </button>
+              </div>
+
+              <p className="muted">
+                Showing {filteredRules.length} of {rules.length} rules.
+              </p>
+
               <div className="admin-list">
-                {rules.length === 0 ? (
-                  <p className="muted">Belum ada rule yang dimuat.</p>
+                {filteredRules.length === 0 ? (
+                  <p className="muted">Tidak ada rule yang cocok dengan filter.</p>
                 ) : (
-                  rules.map((rule) => (
+                  filteredRules.map((rule) => (
                     <div className="admin-list-item" key={rule.id}>
                       <div>
                         <strong>{rule.rule_title}</strong>
