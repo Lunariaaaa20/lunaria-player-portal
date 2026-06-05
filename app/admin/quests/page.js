@@ -35,6 +35,35 @@ export default function AdminPage() {
   const [manageLoading, setManageLoading] = useState(false);
   const [manageMessage, setManageMessage] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rankFilter, setRankFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [modeFilter, setModeFilter] = useState("All");
+
+  const filteredQuests = quests.filter((quest) => {
+    const keyword = searchQuery.toLowerCase().trim();
+
+    const matchesSearch =
+      !keyword ||
+      quest.title?.toLowerCase().includes(keyword) ||
+      quest.location?.toLowerCase().includes(keyword) ||
+      quest.status?.toLowerCase().includes(keyword) ||
+      quest.rank?.toLowerCase().includes(keyword);
+
+    const matchesRank = rankFilter === "All" || quest.rank === rankFilter;
+    const matchesStatus = statusFilter === "All" || quest.status === statusFilter;
+    const matchesMode = modeFilter === "All" || quest.mode === modeFilter;
+
+    return matchesSearch && matchesRank && matchesStatus && matchesMode;
+  });
+
+  function clearFilters() {
+    setSearchQuery("");
+    setRankFilter("All");
+    setStatusFilter("All");
+    setModeFilter("All");
+  }
+
   async function loadQuests(currentPassword = password) {
     setManageLoading(true);
     setManageMessage("");
@@ -416,11 +445,52 @@ export default function AdminPage() {
 
               {manageMessage && <p className="admin-message">{manageMessage}</p>}
 
+              <div className="admin-filter-panel">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search title, location, rank, or status..."
+                />
+
+                <select value={rankFilter} onChange={(e) => setRankFilter(e.target.value)}>
+                  <option>All</option>
+                  <option>Common</option>
+                  <option>Uncommon</option>
+                  <option>Dangerous</option>
+                  <option>Special</option>
+                </select>
+
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <option>All</option>
+                  <option>Available</option>
+                  <option>Ongoing</option>
+                  <option>Completed</option>
+                  <option>Closed</option>
+                  <option>Unavailable</option>
+                  <option>Draft</option>
+                </select>
+
+                <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)}>
+                  <option>All</option>
+                  <option>Solo</option>
+                  <option>Duo</option>
+                  <option>Party</option>
+                </select>
+
+                <button className="admin-secondary" type="button" onClick={clearFilters}>
+                  Clear Filter
+                </button>
+              </div>
+
+              <p className="muted">
+                Showing {filteredQuests.length} of {quests.length} quests.
+              </p>
+
               <div className="admin-list">
-                {quests.length === 0 ? (
-                  <p className="muted">Belum ada quest yang dimuat.</p>
+                {filteredQuests.length === 0 ? (
+                  <p className="muted">Tidak ada quest yang cocok dengan filter.</p>
                 ) : (
-                  quests.map((quest) => (
+                  filteredQuests.map((quest) => (
                     <div className="admin-list-item" key={quest.id}>
                       <div>
                         <strong>{quest.title}</strong>
