@@ -224,8 +224,10 @@ export default function AdminEconomyPage() {
           <Link href="/quests">Quest Board</Link>
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
-          <Link href="/admin">Quest Admin</Link>
+          <Link href="/admin">Admin Dashboard</Link>
+          <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
+          <Link href="/admin/rules">Rules Admin</Link>
         </nav>
       </aside>
 

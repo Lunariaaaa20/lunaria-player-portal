@@ -42,6 +42,7 @@ export default function AdminDashboardPage() {
           <Link href="/admin">Admin Dashboard</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
+          <Link href="/admin/rules">Rules Admin</Link>
         </nav>
       </aside>
 
