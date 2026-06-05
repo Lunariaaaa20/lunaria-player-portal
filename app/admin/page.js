@@ -27,6 +27,7 @@ export default function AdminPage() {
   const [loginMessage, setLoginMessage] = useState("");
 
   const [form, setForm] = useState(initialForm);
+  const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -76,10 +77,67 @@ export default function AdminPage() {
     }));
   }
 
+  function startEdit(quest) {
+    setEditingId(quest.id);
+    setMessage("");
+
+    setForm({
+      title: quest.title || "",
+      rank: quest.rank || "Common",
+      type: quest.type || "Action",
+      mode: quest.mode || "Solo",
+      location: quest.location || "",
+      status: quest.status || "Available",
+      objective: quest.objective || "",
+      monster_target: quest.monster_target || "",
+      reward: quest.reward || "",
+      possible_loot: quest.possible_loot || "",
+      description: quest.description || "",
+      admin_notes: quest.admin_notes || "",
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(initialForm);
+    setMessage("");
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setLoading(true);
     setMessage("");
+
+    if (editingId) {
+      const response = await fetch("/api/admin/quests", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({
+          id: editingId,
+          ...form,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setMessage(result.error || "Gagal update quest.");
+        setLoading(false);
+        return;
+      }
+
+      setMessage("Quest berhasil diupdate. Quest Board akan ikut berubah.");
+      setEditingId(null);
+      setForm(initialForm);
+      setLoading(false);
+      await loadQuests();
+      return;
+    }
 
     const { error } = await supabase.from("quests").insert([form]);
 
@@ -118,6 +176,10 @@ export default function AdminPage() {
       setManageMessage(result.error || "Gagal menghapus quest.");
       setManageLoading(false);
       return;
+    }
+
+    if (editingId === quest.id) {
+      cancelEdit();
     }
 
     setManageMessage(`Quest "${quest.title}" berhasil dihapus.`);
@@ -176,7 +238,19 @@ export default function AdminPage() {
         ) : (
           <>
             <section className="section">
-              <h2>Create New Quest</h2>
+              <div className="admin-section-header">
+                <h2>{editingId ? "Edit Quest" : "Create New Quest"}</h2>
+
+                {editingId && (
+                  <button
+                    className="admin-secondary"
+                    type="button"
+                    onClick={cancelEdit}
+                  >
+                    Cancel Edit
+                  </button>
+                )}
+              </div>
 
               <form className="admin-form" onSubmit={handleSubmit}>
                 <div className="form-grid">
@@ -316,7 +390,11 @@ export default function AdminPage() {
                 </label>
 
                 <button className="admin-submit" type="submit" disabled={loading}>
-                  {loading ? "Saving..." : "Save Quest"}
+                  {loading
+                    ? "Saving..."
+                    : editingId
+                    ? "Update Quest"
+                    : "Save Quest"}
                 </button>
 
                 {message && <p className="admin-message">{message}</p>}
@@ -351,14 +429,25 @@ export default function AdminPage() {
                         </p>
                       </div>
 
-                      <button
-                        className="admin-danger"
-                        type="button"
-                        onClick={() => deleteQuest(quest)}
-                        disabled={manageLoading}
-                      >
-                        Delete
-                      </button>
+                      <div className="admin-actions">
+                        <button
+                          className="admin-secondary"
+                          type="button"
+                          onClick={() => startEdit(quest)}
+                          disabled={manageLoading}
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="admin-danger"
+                          type="button"
+                          onClick={() => deleteQuest(quest)}
+                          disabled={manageLoading}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
