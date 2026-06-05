@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 
+const ADMIN_PASSWORD = "lunaria-admin";
+
 const initialForm = {
   title: "",
   rank: "Common",
@@ -20,9 +22,25 @@ const initialForm = {
 };
 
 export default function AdminPage() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [password, setPassword] = useState("");
+  const [loginMessage, setLoginMessage] = useState("");
+
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  function handleLogin(event) {
+    event.preventDefault();
+
+    if (password === ADMIN_PASSWORD) {
+      setUnlocked(true);
+      setLoginMessage("");
+      return;
+    }
+
+    setLoginMessage("Password salah.");
+  }
 
   function updateField(field, value) {
     setForm((current) => ({
@@ -71,156 +89,182 @@ export default function AdminPage() {
       <main className="content">
         <section className="hero">
           <h1>ADMIN PANEL</h1>
-          <p>Panel pengelolaan data Lunaria. Tahap awal: tambah quest baru langsung ke Supabase.</p>
+          <p>Panel pengelolaan data Lunaria. Akses dibatasi untuk admin.</p>
         </section>
 
-        <section className="section">
-          <h2>Create New Quest</h2>
+        {!unlocked ? (
+          <section className="section admin-lock">
+            <h2>Admin Access</h2>
+            <p>Masukkan password admin untuk membuka form pengelolaan quest.</p>
 
-          <form className="admin-form" onSubmit={handleSubmit}>
-            <div className="form-grid">
+            <form className="admin-form" onSubmit={handleLogin}>
               <label>
-                Quest Title
+                Password
                 <input
-                  value={form.title}
-                  onChange={(e) => updateField("title", e.target.value)}
-                  placeholder="Contoh: Glowcap Drift"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Masukkan password admin"
+                  required
+                />
+              </label>
+
+              <button className="admin-submit" type="submit">
+                Unlock Admin Panel
+              </button>
+
+              {loginMessage && <p className="admin-message">{loginMessage}</p>}
+            </form>
+          </section>
+        ) : (
+          <section className="section">
+            <h2>Create New Quest</h2>
+
+            <form className="admin-form" onSubmit={handleSubmit}>
+              <div className="form-grid">
+                <label>
+                  Quest Title
+                  <input
+                    value={form.title}
+                    onChange={(e) => updateField("title", e.target.value)}
+                    placeholder="Contoh: Glowcap Drift"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Rank
+                  <select
+                    value={form.rank}
+                    onChange={(e) => updateField("rank", e.target.value)}
+                  >
+                    <option>Common</option>
+                    <option>Uncommon</option>
+                    <option>Dangerous</option>
+                    <option>Special</option>
+                  </select>
+                </label>
+
+                <label>
+                  Type
+                  <select
+                    value={form.type}
+                    onChange={(e) => updateField("type", e.target.value)}
+                  >
+                    <option>Action</option>
+                    <option>Santai</option>
+                  </select>
+                </label>
+
+                <label>
+                  Mode
+                  <select
+                    value={form.mode}
+                    onChange={(e) => updateField("mode", e.target.value)}
+                  >
+                    <option>Solo</option>
+                    <option>Duo</option>
+                    <option>Party</option>
+                  </select>
+                </label>
+
+                <label>
+                  Location
+                  <input
+                    value={form.location}
+                    onChange={(e) => updateField("location", e.target.value)}
+                    placeholder="Contoh: Everglow Forest"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Status
+                  <select
+                    value={form.status}
+                    onChange={(e) => updateField("status", e.target.value)}
+                  >
+                    <option>Available</option>
+                    <option>Ongoing</option>
+                    <option>Completed</option>
+                    <option>Closed</option>
+                    <option>Unavailable</option>
+                    <option>Draft</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                Description
+                <textarea
+                  value={form.description}
+                  onChange={(e) => updateField("description", e.target.value)}
+                  placeholder="Deskripsi quest..."
+                  rows="5"
                   required
                 />
               </label>
 
               <label>
-                Rank
-                <select
-                  value={form.rank}
-                  onChange={(e) => updateField("rank", e.target.value)}
-                >
-                  <option>Common</option>
-                  <option>Uncommon</option>
-                  <option>Dangerous</option>
-                  <option>Special</option>
-                </select>
-              </label>
-
-              <label>
-                Type
-                <select
-                  value={form.type}
-                  onChange={(e) => updateField("type", e.target.value)}
-                >
-                  <option>Action</option>
-                  <option>Santai</option>
-                </select>
-              </label>
-
-              <label>
-                Mode
-                <select
-                  value={form.mode}
-                  onChange={(e) => updateField("mode", e.target.value)}
-                >
-                  <option>Solo</option>
-                  <option>Duo</option>
-                  <option>Party</option>
-                </select>
-              </label>
-
-              <label>
-                Location
-                <input
-                  value={form.location}
-                  onChange={(e) => updateField("location", e.target.value)}
-                  placeholder="Contoh: Everglow Forest"
+                Objective
+                <textarea
+                  value={form.objective}
+                  onChange={(e) => updateField("objective", e.target.value)}
+                  placeholder="Objective quest..."
+                  rows="4"
                   required
                 />
               </label>
 
               <label>
-                Status
-                <select
-                  value={form.status}
-                  onChange={(e) => updateField("status", e.target.value)}
-                >
-                  <option>Available</option>
-                  <option>Ongoing</option>
-                  <option>Completed</option>
-                  <option>Closed</option>
-                  <option>Unavailable</option>
-                  <option>Draft</option>
-                </select>
+                Monster / Target
+                <textarea
+                  value={form.monster_target}
+                  onChange={(e) => updateField("monster_target", e.target.value)}
+                  placeholder="Monster, target, atau objek utama quest..."
+                  rows="4"
+                />
               </label>
-            </div>
 
-            <label>
-              Description
-              <textarea
-                value={form.description}
-                onChange={(e) => updateField("description", e.target.value)}
-                placeholder="Deskripsi quest..."
-                rows="5"
-                required
-              />
-            </label>
+              <label>
+                Reward
+                <textarea
+                  value={form.reward}
+                  onChange={(e) => updateField("reward", e.target.value)}
+                  placeholder="Contoh: 2S–3S"
+                  rows="3"
+                  required
+                />
+              </label>
 
-            <label>
-              Objective
-              <textarea
-                value={form.objective}
-                onChange={(e) => updateField("objective", e.target.value)}
-                placeholder="Objective quest..."
-                rows="4"
-                required
-              />
-            </label>
+              <label>
+                Possible Loot
+                <textarea
+                  value={form.possible_loot}
+                  onChange={(e) => updateField("possible_loot", e.target.value)}
+                  placeholder="Loot dan kegunaannya..."
+                  rows="4"
+                />
+              </label>
 
-            <label>
-              Monster / Target
-              <textarea
-                value={form.monster_target}
-                onChange={(e) => updateField("monster_target", e.target.value)}
-                placeholder="Monster, target, atau objek utama quest..."
-                rows="4"
-              />
-            </label>
+              <label>
+                Admin Notes
+                <textarea
+                  value={form.admin_notes}
+                  onChange={(e) => updateField("admin_notes", e.target.value)}
+                  placeholder="Catatan internal admin..."
+                  rows="3"
+                />
+              </label>
 
-            <label>
-              Reward
-              <textarea
-                value={form.reward}
-                onChange={(e) => updateField("reward", e.target.value)}
-                placeholder="Contoh: 2S–3S"
-                rows="3"
-                required
-              />
-            </label>
+              <button className="admin-submit" type="submit" disabled={loading}>
+                {loading ? "Saving..." : "Save Quest"}
+              </button>
 
-            <label>
-              Possible Loot
-              <textarea
-                value={form.possible_loot}
-                onChange={(e) => updateField("possible_loot", e.target.value)}
-                placeholder="Loot dan kegunaannya..."
-                rows="4"
-              />
-            </label>
-
-            <label>
-              Admin Notes
-              <textarea
-                value={form.admin_notes}
-                onChange={(e) => updateField("admin_notes", e.target.value)}
-                placeholder="Catatan internal admin..."
-                rows="3"
-              />
-            </label>
-
-            <button className="admin-submit" type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save Quest"}
-            </button>
-
-            {message && <p className="admin-message">{message}</p>}
-          </form>
-        </section>
+              {message && <p className="admin-message">{message}</p>}
+            </form>
+          </section>
+        )}
       </main>
     </div>
   );
