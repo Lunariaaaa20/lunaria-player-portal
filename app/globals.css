@@ -636,3 +636,146 @@
     flex: 1;
   }
 }
+
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 26px;
+}
+
+.category-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.74);
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-weight: 700;
+}
+
+.category-tabs a span {
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+.quest-group {
+  scroll-margin-top: 90px;
+  margin-top: 28px;
+}
+
+.group-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.group-title-row h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 24px;
+}
+
+.group-title-row span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.quest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.quest-card {
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.78);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.quest-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.quest-card-header h4 {
+  margin: 0;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.status-pill {
+  border: 1px solid rgba(190, 160, 95, 0.28);
+  background: rgba(190, 160, 95, 0.12);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-row span {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 13px;
+}
+
+.quest-description {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.quest-block {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.quest-block strong {
+  display: block;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.quest-block p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+@media (max-width: 700px) {
+  .quest-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quest-card-header {
+    flex-direction: column;
+  }
+
+  .status-pill {
+    width: fit-content;
+  }
+}
