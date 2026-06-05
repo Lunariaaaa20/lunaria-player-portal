@@ -8,7 +8,24 @@ export default async function EconomyPage() {
       .from("economy_items")
           .select("item_name, category, price_value, currency_type, availability, location, description")
               .order("item_name", { ascending: true });
+if (error) {
+            return (
+                  <div className="page">
+                          <aside className="sidebar">
+                                    <div className="logo">LUNARIA</div>
+                                              <div className="subtitle">Economy System</div>
+                                                      </aside>
 
+                                                              <main className="content">
+                                                                        <section className="panel">
+                                                                                    <h1>ECONOMY ERROR</h1>
+                                                                                                <p>{error.message}</p>
+                                                                                                          </section>
+                                                                                                                  </main>
+                                                                                                                        </div>
+                                                                                                                            );
+                                                                                                                              }
+}
                 return (
                     <div className="page">
                           <aside className="sidebar">
@@ -39,6 +56,7 @@ export default async function EconomyPage() {
 
                                                                                                                                                                                                                                               <section className="section">
                                                                                                                                                                                                                                                         <h2>Economy Records</h2>
+<p>Rows loaded: {data?.length ?? 0}</p>
 
                                                                                                                                                                                                                                                                   {error && <p>Gagal mengambil data economy.</p>}
 
@@ -70,4 +88,4 @@ export default async function EconomyPage() {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         </main>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </div>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rref

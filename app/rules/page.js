@@ -9,7 +9,24 @@ export default async function RulesPage() {
           .select("rule_title, category, access, priority, status, summary, full_rule")
               .eq("access", "Public")
                   .order("rule_title", { ascending: true });
+if (error) {
+          return (
+              <div className="page">
+                    <aside className="sidebar">
+                            <div className="logo">LUNARIA</div>
+                                    <div className="subtitle">Rules & Guide</div>
+                                          </aside>
 
+                                                <main className="content">
+                                                        <section className="panel">
+                                                                  <h1>RULES ERROR</h1>
+                                                                            <p>{error.message}</p>
+                                                                                    </section>
+                                                                                          </main>
+                                                                                              </div>
+                                                                                                );
+                                                                                                }
+}
                     return (
                         <div className="page">
                               <aside className="sidebar">
@@ -58,4 +75,4 @@ export default async function RulesPage() {
                                                                                                                                                                                                                                                                                                                                                                                                                                             </main>
                                                                                                                                                                                                                                                                                                                                                                                                                                                 </div>
                                                                                                                                                                                                                                                                                                                                                                                                                                                   );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                  
