@@ -221,3 +221,120 @@
                                                                                                                                                                                                                                                                                       }
                                                                                                                                                                                                                                                                                       
 }
+.category-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 28px;
+}
+
+.category-summary a {
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.75);
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.category-summary span {
+  color: var(--gold);
+  margin-left: 6px;
+}
+
+.economy-groups {
+  display: grid;
+  gap: 28px;
+}
+
+.economy-group {
+  scroll-margin-top: 24px;
+}
+
+.group-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+}
+
+.group-header h3 {
+  color: var(--gold);
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.group-header span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.economy-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.economy-card {
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.78);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.economy-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.economy-card h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.economy-price {
+  color: var(--gold);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 14px 0 10px;
+}
+
+.economy-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.economy-meta span {
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+
+.economy-card p {
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 700px) {
+  .economy-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .group-header {
+    align-items: start;
+    flex-direction: column;
+  }
+}
