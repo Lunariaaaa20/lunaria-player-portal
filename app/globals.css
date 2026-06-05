@@ -1,0 +1,223 @@
+:root {
+      --bg: #07090d;
+        --panel: #10151d;
+          --panel-soft: #151b24;
+            --border: #2b3340;
+              --gold: #c8a45d;
+                --text: #f1efe8;
+                  --muted: #9ca3af;
+                  }
+
+                  * {
+                    box-sizing: border-box;
+                    }
+
+                    body {
+                      margin: 0;
+                        background:
+                            radial-gradient(circle at top, rgba(38, 51, 71, 0.8), transparent 35%),
+                                linear-gradient(180deg, #080b10 0%, #050608 100%);
+                                  color: var(--text);
+                                    font-family: Arial, Helvetica, sans-serif;
+                                    }
+
+                                    a {
+                                      color: inherit;
+                                        text-decoration: none;
+                                        }
+
+                                        .page {
+                                          min-height: 100vh;
+                                            display: flex;
+                                            }
+
+                                            .sidebar {
+                                              width: 260px;
+                                                border-right: 1px solid var(--border);
+                                                  background: rgba(8, 11, 16, 0.92);
+                                                    padding: 24px 18px;
+                                                    }
+
+                                                    .logo {
+                                                      font-family: Georgia, serif;
+                                                        font-size: 26px;
+                                                          letter-spacing: 3px;
+                                                            color: var(--gold);
+                                                              margin-bottom: 6px;
+                                                              }
+
+                                                              .subtitle {
+                                                                color: var(--muted);
+                                                                  font-size: 13px;
+                                                                    margin-bottom: 28px;
+                                                                    }
+
+                                                                    .nav {
+                                                                      display: grid;
+                                                                        gap: 10px;
+                                                                        }
+
+                                                                        .nav a {
+                                                                          padding: 11px 12px;
+                                                                            border: 1px solid transparent;
+                                                                              border-radius: 10px;
+                                                                                color: #d8d8d8;
+                                                                                  font-size: 14px;
+                                                                                  }
+
+                                                                                  .nav a:hover {
+                                                                                    border-color: var(--gold);
+                                                                                      background: rgba(200, 164, 93, 0.08);
+                                                                                      }
+
+                                                                                      .main {
+                                                                                        flex: 1;
+                                                                                          padding: 28px;
+                                                                                          }
+
+                                                                                          .hero {
+                                                                                            border: 1px solid var(--border);
+                                                                                              border-radius: 18px;
+                                                                                                padding: 34px;
+                                                                                                  min-height: 240px;
+                                                                                                    background:
+                                                                                                        linear-gradient(90deg, rgba(7, 9, 13, 0.9), rgba(7, 9, 13, 0.45)),
+                                                                                                            radial-gradient(circle at right, rgba(200, 164, 93, 0.18), transparent 40%);
+                                                                                                            }
+
+                                                                                                            .hero h1 {
+                                                                                                              margin: 0;
+                                                                                                                font-family: Georgia, serif;
+                                                                                                                  font-size: 44px;
+                                                                                                                    letter-spacing: 4px;
+                                                                                                                      color: var(--gold);
+                                                                                                                      }
+
+                                                                                                                      .hero p {
+                                                                                                                        max-width: 680px;
+                                                                                                                          color: #d0d5dd;
+                                                                                                                            line-height: 1.7;
+                                                                                                                            }
+
+                                                                                                                            .grid {
+                                                                                                                              display: grid;
+                                                                                                                                grid-template-columns: repeat(4, minmax(0, 1fr));
+                                                                                                                                  gap: 16px;
+                                                                                                                                    margin-top: 22px;
+                                                                                                                                    }
+
+                                                                                                                                    .card {
+                                                                                                                                      border: 1px solid var(--border);
+                                                                                                                                        background: rgba(16, 21, 29, 0.86);
+                                                                                                                                          border-radius: 16px;
+                                                                                                                                            padding: 18px;
+                                                                                                                                            }
+
+                                                                                                                                            .card h3 {
+                                                                                                                                              margin: 0 0 8px;
+                                                                                                                                                color: var(--gold);
+                                                                                                                                                }
+
+                                                                                                                                                .card p {
+                                                                                                                                                  color: var(--muted);
+                                                                                                                                                    margin: 0;
+                                                                                                                                                      font-size: 14px;
+                                                                                                                                                      }
+
+                                                                                                                                                      .section {
+                                                                                                                                                        margin-top: 24px;
+                                                                                                                                                          border: 1px solid var(--border);
+                                                                                                                                                            border-radius: 18px;
+                                                                                                                                                              background: rgba(16, 21, 29, 0.75);
+                                                                                                                                                                padding: 22px;
+                                                                                                                                                                }
+
+                                                                                                                                                                .section h2 {
+                                                                                                                                                                  margin-top: 0;
+                                                                                                                                                                    font-family: Georgia, serif;
+                                                                                                                                                                      color: var(--gold);
+                                                                                                                                                                      }
+
+                                                                                                                                                                      .table {
+                                                                                                                                                                        width: 100%;
+                                                                                                                                                                          border-collapse: collapse;
+                                                                                                                                                                            margin-top: 12px;
+                                                                                                                                                                            }
+
+                                                                                                                                                                            .table th,
+                                                                                                                                                                            .table td {
+                                                                                                                                                                              border-bottom: 1px solid var(--border);
+                                                                                                                                                                                text-align: left;
+                                                                                                                                                                                  padding: 12px;
+                                                                                                                                                                                    font-size: 14px;
+                                                                                                                                                                                    }
+
+                                                                                                                                                                                    .table th {
+                                                                                                                                                                                      color: var(--gold);
+                                                                                                                                                                                        font-weight: 600;
+                                                                                                                                                                                        }
+
+                                                                                                                                                                                        .badge {
+                                                                                                                                                                                          display: inline-block;
+                                                                                                                                                                                            padding: 4px 9px;
+                                                                                                                                                                                              border-radius: 999px;
+                                                                                                                                                                                                background: rgba(200, 164, 93, 0.12);
+                                                                                                                                                                                                  color: var(--gold);
+                                                                                                                                                                                                    border: 1px solid rgba(200, 164, 93, 0.35);
+                                                                                                                                                                                                      font-size: 12px;
+                                                                                                                                                                                                      }
+
+                                                                                                                                                                                                      .form {
+                                                                                                                                                                                                        display: grid;
+                                                                                                                                                                                                          gap: 14px;
+                                                                                                                                                                                                            max-width: 720px;
+                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                            .input,
+                                                                                                                                                                                                            .textarea,
+                                                                                                                                                                                                            .select {
+                                                                                                                                                                                                              width: 100%;
+                                                                                                                                                                                                                background: #0b0f16;
+                                                                                                                                                                                                                  border: 1px solid var(--border);
+                                                                                                                                                                                                                    color: var(--text);
+                                                                                                                                                                                                                      padding: 12px;
+                                                                                                                                                                                                                        border-radius: 10px;
+                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                        .textarea {
+                                                                                                                                                                                                                          min-height: 110px;
+                                                                                                                                                                                                                          }
+
+                                                                                                                                                                                                                          .button {
+                                                                                                                                                                                                                            background: linear-gradient(135deg, #c8a45d, #8d6a2f);
+                                                                                                                                                                                                                              border: none;
+                                                                                                                                                                                                                                color: #090909;
+                                                                                                                                                                                                                                  padding: 12px 18px;
+                                                                                                                                                                                                                                    border-radius: 10px;
+                                                                                                                                                                                                                                      font-weight: 700;
+                                                                                                                                                                                                                                      }
+
+                                                                                                                                                                                                                                      @media (max-width: 900px) {
+                                                                                                                                                                                                                                        .page {
+                                                                                                                                                                                                                                            display: block;
+                                                                                                                                                                                                                                              }
+
+                                                                                                                                                                                                                                                .sidebar {
+                                                                                                                                                                                                                                                    width: 100%;
+                                                                                                                                                                                                                                                        border-right: none;
+                                                                                                                                                                                                                                                            border-bottom: 1px solid var(--border);
+                                                                                                                                                                                                                                                              }
+
+                                                                                                                                                                                                                                                                .grid {
+                                                                                                                                                                                                                                                                    grid-template-columns: 1fr;
+                                                                                                                                                                                                                                                                      }
+
+                                                                                                                                                                                                                                                                        .main {
+                                                                                                                                                                                                                                                                            padding: 16px;
+                                                                                                                                                                                                                                                                              }
+
+                                                                                                                                                                                                                                                                                .hero h1 {
+                                                                                                                                                                                                                                                                                    font-size: 32px;
+                                                                                                                                                                                                                                                                                      }
+                                                                                                                                                                                                                                                                                      
+}
