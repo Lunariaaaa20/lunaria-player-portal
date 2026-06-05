@@ -52,6 +52,40 @@ export default function AdminEconomyPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [availabilityFilter, setAvailabilityFilter] = useState("All");
+  const [currencyFilter, setCurrencyFilter] = useState("All");
+
+  const filteredItems = items.filter((item) => {
+    const keyword = searchQuery.toLowerCase().trim();
+
+    const matchesSearch =
+      !keyword ||
+      item.item_name?.toLowerCase().includes(keyword) ||
+      item.category?.toLowerCase().includes(keyword) ||
+      item.location?.toLowerCase().includes(keyword) ||
+      item.availability?.toLowerCase().includes(keyword);
+
+    const matchesCategory =
+      categoryFilter === "All" || item.category === categoryFilter;
+
+    const matchesAvailability =
+      availabilityFilter === "All" || item.availability === availabilityFilter;
+
+    const matchesCurrency =
+      currencyFilter === "All" || item.currency_type === currencyFilter;
+
+    return matchesSearch && matchesCategory && matchesAvailability && matchesCurrency;
+  });
+
+  function clearFilters() {
+    setSearchQuery("");
+    setCategoryFilter("All");
+    setAvailabilityFilter("All");
+    setCurrencyFilter("All");
+  }
+
   async function loadItems(currentPassword = password) {
     setLoading(true);
     setMessage("");
@@ -338,11 +372,57 @@ export default function AdminEconomyPage() {
                 </button>
               </div>
 
+              <div className="admin-filter-panel">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search item, category, location, or availability..."
+                />
+
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {categories.map((category) => (
+                    <option key={category}>{category}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={availabilityFilter}
+                  onChange={(e) => setAvailabilityFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {availabilityOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+
+                <select
+                  value={currencyFilter}
+                  onChange={(e) => setCurrencyFilter(e.target.value)}
+                >
+                  <option>All</option>
+                  {currencies.map((currency) => (
+                    <option key={currency}>{currency}</option>
+                  ))}
+                </select>
+
+                <button className="admin-secondary" type="button" onClick={clearFilters}>
+                  Clear Filter
+                </button>
+              </div>
+
+              <p className="muted">
+                Showing {filteredItems.length} of {items.length} items.
+              </p>
+
               <div className="admin-list">
-                {items.length === 0 ? (
-                  <p className="muted">Belum ada item yang dimuat.</p>
+                {filteredItems.length === 0 ? (
+                  <p className="muted">Tidak ada economy item yang cocok dengan filter.</p>
                 ) : (
-                  items.map((item) => (
+                  filteredItems.map((item) => (
                     <div className="admin-list-item" key={item.id}>
                       <div>
                         <strong>{item.item_name}</strong>
