@@ -21,9 +21,9 @@ const adminModules = [
   {
     title: "Rules Management",
     href: "/admin/rules",
-    status: "Coming Soon",
+    status: "Active",
     description:
-      "Kelola aturan rank, pathway, quest, reward, inventory, combat, dan sistem komunitas.",
+      "Tambah, edit, hapus, dan kelola aturan rank, pathway, quest, reward, inventory, combat, dan sistem komunitas.",
   },
 ];
 
