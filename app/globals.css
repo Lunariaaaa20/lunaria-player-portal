@@ -880,3 +880,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+.admin-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.admin-top-actions a {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 560px) {
+  .admin-top-actions {
+    flex-direction: column;
+  }
+
+  .admin-top-actions a,
+  .admin-top-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

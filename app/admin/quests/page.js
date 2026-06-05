@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 const ADMIN_PASSWORD = "lunaria-admin";
@@ -86,10 +86,27 @@ export default function AdminPage() {
     setManageLoading(false);
   }
 
+  useEffect(() => {
+    const savedPassword = window.localStorage.getItem("lunaria_admin_password");
+
+    if (savedPassword === ADMIN_PASSWORD) {
+      setPassword(savedPassword);
+      setUnlocked(true);
+      loadQuests(savedPassword);
+    }
+  }, []);
+
+  function logoutAdmin() {
+    window.localStorage.removeItem("lunaria_admin_password");
+    setUnlocked(false);
+    setPassword("");
+  }
+
   async function handleLogin(event) {
     event.preventDefault();
 
     if (password === ADMIN_PASSWORD) {
+      window.localStorage.setItem("lunaria_admin_password", password);
       setUnlocked(true);
       setLoginMessage("");
       await loadQuests(password);
@@ -265,6 +282,16 @@ export default function AdminPage() {
           </section>
         ) : (
           <>
+            <div className="admin-top-actions">
+              <Link className="admin-secondary" href="/admin">
+                Back to Admin Dashboard
+              </Link>
+
+              <button className="admin-danger" type="button" onClick={logoutAdmin}>
+                Logout Admin
+              </button>
+            </div>
+
             <section className="section">
               <div className="admin-section-header">
                 <h2>{editingId ? "Edit Quest" : "Create New Quest"}</h2>

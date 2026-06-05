@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ADMIN_PASSWORD = "lunaria-admin";
 
@@ -100,10 +100,27 @@ export default function AdminRulesPage() {
     setLoading(false);
   }
 
+  useEffect(() => {
+    const savedPassword = window.localStorage.getItem("lunaria_admin_password");
+
+    if (savedPassword === ADMIN_PASSWORD) {
+      setPassword(savedPassword);
+      setUnlocked(true);
+      loadRules(savedPassword);
+    }
+  }, []);
+
+  function logoutAdmin() {
+    window.localStorage.removeItem("lunaria_admin_password");
+    setUnlocked(false);
+    setPassword("");
+  }
+
   async function handleLogin(event) {
     event.preventDefault();
 
     if (password === ADMIN_PASSWORD) {
+      window.localStorage.setItem("lunaria_admin_password", password);
       setUnlocked(true);
       setLoginMessage("");
       await loadRules(password);
@@ -254,6 +271,16 @@ export default function AdminRulesPage() {
           </section>
         ) : (
           <>
+            <div className="admin-top-actions">
+              <Link className="admin-secondary" href="/admin">
+                Back to Admin Dashboard
+              </Link>
+
+              <button className="admin-danger" type="button" onClick={logoutAdmin}>
+                Logout Admin
+              </button>
+            </div>
+
             <section className="section">
               <div className="admin-section-header">
                 <h2>{editingId ? "Edit Rule" : "Create Rule"}</h2>
