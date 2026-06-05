@@ -37,7 +37,7 @@ export default async function EconomyPage() {
         <section className="section">
           <h2>Economy Records</h2>
           <p>Rows loaded: {data?.length ?? 0}</p>
-
+<p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL}</p>
           {error && <p>Gagal mengambil data economy: {error.message}</p>}
 
           <table className="table">
