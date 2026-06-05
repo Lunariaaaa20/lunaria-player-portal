@@ -413,3 +413,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+.rule-group {
+  scroll-margin-top: 90px;
+}
+
+.economy-group {
+  scroll-margin-top: 90px;
+}
