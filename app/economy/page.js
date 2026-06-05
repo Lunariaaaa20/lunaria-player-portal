@@ -5,70 +5,68 @@ export const dynamic = "force-dynamic";
 
 export default async function EconomyPage() {
   const { data, error } = await supabase
-      .from("economy_items")
-          .select("item_name, category, price_value, currency_type, availability, location, description")
-              .order("item_name", { ascending: true });
+    .from("economy_items")
+    .select("item_name, category, price_value, currency_type, availability, location, description")
+    .order("item_name", { ascending: true });
+
+  return (
+    <div className="page">
+      <aside className="sidebar">
+        <div className="logo">LUNARIA</div>
+        <div className="subtitle">Economy System</div>
+
+        <nav className="nav">
+          <Link href="/">Home</Link>
+          <Link href="/registry">Adventurer Registry</Link>
+          <Link href="/quests">Quest Board</Link>
+          <Link href="/character-registration">Character Registration</Link>
+          <Link href="/quest-report">Quest Report</Link>
+          <Link href="/reward-claim">Reward Claim</Link>
+          <Link href="/economy">Economy System</Link>
+          <Link href="/rules">Rules & Guide</Link>
+          <Link href="/admin">Admin Panel</Link>
+        </nav>
+      </aside>
+
+      <main className="content">
+        <section className="hero">
+          <h1>ECONOMY SYSTEM</h1>
+          <p>Daftar harga, currency rule, makanan, blacksmith, material, layanan, dan data ekonomi resmi Lunaria.</p>
+        </section>
+
+        <section className="section">
+          <h2>Economy Records</h2>
+          <p>Rows loaded: {data?.length ?? 0}</p>
+
+          {error && <p>Gagal mengambil data economy: {error.message}</p>}
+
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Price / Value</th>
+                <th>Currency</th>
+                <th>Availability</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {(data || []).map((item) => (
+                <tr key={item.item_name}>
+                  <td>{item.item_name}</td>
+                  <td>{item.category}</td>
+                  <td>{item.price_value}</td>
+                  <td>{item.currency_type}</td>
+                  <td>{item.availability}</td>
+                  <td>{item.location}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+  );
 }
-                return (
-                    <div className="page">
-                          <aside className="sidebar">
-                                  <div className="logo">LUNARIA</div>
-                                          <div className="subtitle">Economy System</div>
-
-                                                  <nav className="nav">
-                                                            <Link href="/">Home</Link>
-                                                                      <Link href="/adventurers">Adventurer Registry</Link>
-                                                                                <Link href="/quests">Quest Board</Link>
-                                                                                          <Link href="/register">Character Registration</Link>
-                                                                                                    <Link href="/quest-report">Quest Report</Link>
-                                                                                                              <Link href="/reward-claim">Reward Claim</Link>
-                                                                                                                        <Link href="/economy">Economy System</Link>
-                                                                                                                                  <Link href="/rules">Rules & Guide</Link>
-                                                                                                                                            <Link href="/admin">Admin Panel</Link>
-                                                                                                                                                    </nav>
-                                                                                                                                                          </aside>
-
-                                                                                                                                                                <main className="main">
-                                                                                                                                                                        <section className="hero">
-                                                                                                                                                                                  <h1>ECONOMY SYSTEM</h1>
-                                                                                                                                                                                            <p>
-                                                                                                                                                                                                        Daftar harga, currency rule, makanan, blacksmith, material, layanan,
-                                                                                                                                                                                                                    dan data ekonomi resmi Lunaria.
-                                                                                                                                                                                                                              </p>
-                                                                                                                                                                                                                                      </section>
-
-                                                                                                                                                                                                                                              <section className="section">
-                                                                                                                                                                                                                                                        <h2>Economy Records</h2>
-<p>Rows loaded: {data?.length ?? 0}</p>
-
-                                                                                                                                                                                                                                                                  {error && <p>Gagal mengambil data economy.</p>}
-
-                                                                                                                                                                                                                                                                            <table className="table">
-                                                                                                                                                                                                                                                                                        <thead>
-                                                                                                                                                                                                                                                                                                      <tr>
-                                                                                                                                                                                                                                                                                                                      <th>Item</th>
-                                                                                                                                                                                                                                                                                                                                      <th>Category</th>
-                                                                                                                                                                                                                                                                                                                                                      <th>Price / Value</th>
-                                                                                                                                                                                                                                                                                                                                                                      <th>Currency</th>
-                                                                                                                                                                                                                                                                                                                                                                                      <th>Availability</th>
-                                                                                                                                                                                                                                                                                                                                                                                                      <th>Location</th>
-                                                                                                                                                                                                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                </thead>
-                                                                                                                                                                                                                                                                                                                                                                                                                                            <tbody>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          {(data || []).map((item) => (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <tr key={item.item_name}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <td>{item.item_name}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <td><span className="badge">{item.category}</span></td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <td>{item.price_value}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <td>{item.currency_type}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <td>{item.availability}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <td>{item.location || "-"}</td>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </tr>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ))}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </tbody>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </table>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </section>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </main>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rref
