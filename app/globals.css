@@ -338,3 +338,7 @@
     flex-direction: column;
   }
 }
+
+.content {
+  padding-bottom: 90px;
+}
