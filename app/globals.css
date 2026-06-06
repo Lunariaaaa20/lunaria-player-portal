@@ -1472,3 +1472,112 @@
   font-size: 12px;
   font-weight: 700;
 }
+
+.quest-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.025), transparent 38%);
+}
+
+.quest-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.report-block {
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  padding-top: 12px;
+}
+
+.report-block strong {
+  display: block;
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.report-block p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.take-quest-panel {
+  margin-top: 4px;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background: rgba(190, 160, 95, 0.055);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.take-quest-panel > strong {
+  display: block;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  letter-spacing: 0.03em;
+}
+
+.take-quest-label {
+  background: rgba(9, 13, 19, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.take-quest-panel input,
+.take-quest-panel select,
+.take-quest-panel textarea {
+  min-height: 44px;
+}
+
+.take-quest-panel textarea {
+  resize: vertical;
+}
+
+.take-quest-panel .admin-submit {
+  margin-top: 4px;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.quest-card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  padding-bottom: 12px;
+}
+
+.quest-card-header h3 {
+  letter-spacing: 0.02em;
+}
+
+.quest-card-header span {
+  box-shadow: inset 0 0 16px rgba(190, 160, 95, 0.06);
+}
+
+@media (max-width: 720px) {
+  .quest-card {
+    padding: 15px;
+  }
+
+  .take-quest-panel {
+    padding: 13px;
+  }
+
+  .quest-card-header h3 {
+    font-size: 21px;
+  }
+}
