@@ -55,7 +55,7 @@ export default async function EconomyPage() {
           <Link href="/">Home</Link>
           <Link href="/registry">Adventurer Registry</Link>
           <Link href="/quests">Quest Board</Link>
-          <Link href="/character-registration">Character Registration</Link>
+          <Link href="/registration">Character Registration</Link>
           <Link href="/quest-report">Quest Report</Link>
           <Link href="/reward-claim">Reward Claim</Link>
           <Link href="/economy">Economy System</Link>
