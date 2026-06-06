@@ -38,6 +38,14 @@ function uniqueList(list) {
   return [...new Set((list || []).filter(Boolean))];
 }
 
+function normalizeCode(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function validateClaimCode(character, inputCode) {
+  return normalizeCode(character.claim_code) === normalizeCode(inputCode);
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -45,7 +53,9 @@ export async function POST(request) {
     const {
       character_id,
       quest_id,
+      main_claim_code = "",
       party_member_ids = [],
+      party_claim_codes = {},
       application_note = "",
     } = body;
 
@@ -57,11 +67,15 @@ export async function POST(request) {
       return NextResponse.json({ error: "Quest wajib dipilih." }, { status: 400 });
     }
 
+    if (!main_claim_code.trim()) {
+      return NextResponse.json({ error: "Claim Code Main Character wajib diisi." }, { status: 400 });
+    }
+
     const supabase = getServerClient();
 
     const { data: character, error: characterError } = await supabase
       .from("characters")
-      .select("id,player_name,character_name,guild_rank,status")
+      .select("id,player_name,character_name,guild_rank,status,claim_code")
       .eq("id", character_id)
       .single();
 
@@ -72,6 +86,13 @@ export async function POST(request) {
     if (!character || character.status !== "Active") {
       return NextResponse.json(
         { error: "Main Character belum Active atau tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    if (!validateClaimCode(character, main_claim_code)) {
+      return NextResponse.json(
+        { error: `Claim Code untuk ${character.character_name} salah.` },
         { status: 400 }
       );
     }
@@ -128,7 +149,7 @@ export async function POST(request) {
     if (cleanPartyIds.length > 0) {
       const { data: partyData, error: partyError } = await supabase
         .from("characters")
-        .select("id,player_name,character_name,guild_rank,status")
+        .select("id,player_name,character_name,guild_rank,status,claim_code")
         .in("id", cleanPartyIds);
 
       if (partyError) {
@@ -144,13 +165,29 @@ export async function POST(request) {
         );
       }
 
-      const inactiveMember = partyCharacters.find((member) => member.status !== "Active");
+      for (const member of partyCharacters) {
+        if (member.status !== "Active") {
+          return NextResponse.json(
+            { error: `Party member ${member.character_name} belum Active.` },
+            { status: 400 }
+          );
+        }
 
-      if (inactiveMember) {
-        return NextResponse.json(
-          { error: `Party member ${inactiveMember.character_name} belum Active.` },
-          { status: 400 }
-        );
+        const memberCode = party_claim_codes?.[member.id] || "";
+
+        if (!memberCode.trim()) {
+          return NextResponse.json(
+            { error: `Claim Code untuk ${member.character_name} wajib diisi.` },
+            { status: 400 }
+          );
+        }
+
+        if (!validateClaimCode(member, memberCode)) {
+          return NextResponse.json(
+            { error: `Claim Code untuk ${member.character_name} salah.` },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -247,7 +284,7 @@ export async function POST(request) {
 
     return NextResponse.json({
       ok: true,
-      message: "Quest application submitted. Quest dikunci sementara sampai admin review.",
+      message: "Quest application submitted. Claim Code valid. Quest dikunci sementara sampai admin review.",
     });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

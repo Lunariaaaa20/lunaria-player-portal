@@ -1358,3 +1358,18 @@
     grid-column: auto;
   }
 }
+
+.take-quest-panel input {
+  width: 100%;
+  background: rgba(9, 13, 19, 0.72);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+
+.take-quest-panel input:focus {
+  border-color: rgba(190, 160, 95, 0.55);
+}

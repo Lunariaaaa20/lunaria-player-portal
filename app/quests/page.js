@@ -12,6 +12,8 @@ export default function QuestsPage() {
 
   const [selectedCharacterByQuest, setSelectedCharacterByQuest] = useState({});
   const [partyByQuest, setPartyByQuest] = useState({});
+  const [claimCodeByQuest, setClaimCodeByQuest] = useState({});
+  const [partyClaimCodeByQuest, setPartyClaimCodeByQuest] = useState({});
   const [noteByQuest, setNoteByQuest] = useState({});
 
   const [rankFilter, setRankFilter] = useState("All");
@@ -90,6 +92,23 @@ export default function QuestsPage() {
     });
   }
 
+  function updateMainClaimCode(questId, value) {
+    setClaimCodeByQuest((current) => ({
+      ...current,
+      [questId]: value,
+    }));
+  }
+
+  function updatePartyClaimCode(questId, characterId, value) {
+    setPartyClaimCodeByQuest((current) => ({
+      ...current,
+      [questId]: {
+        ...(current[questId] || {}),
+        [characterId]: value,
+      },
+    }));
+  }
+
   function updateNote(questId, value) {
     setNoteByQuest((current) => ({
       ...current,
@@ -109,10 +128,17 @@ export default function QuestsPage() {
   async function takeQuest(quest) {
     const characterId = selectedCharacterByQuest[quest.id] || "";
     const partyIds = getPartyIds(quest.id);
+    const mainClaimCode = claimCodeByQuest[quest.id] || "";
+    const partyClaimCodes = partyClaimCodeByQuest[quest.id] || {};
     const applicationNote = noteByQuest[quest.id] || "";
 
     if (!characterId) {
       window.alert("Pilih Main Character dulu sebelum Take Quest.");
+      return;
+    }
+
+    if (!mainClaimCode.trim()) {
+      window.alert("Isi Claim Code Main Character dulu.");
       return;
     }
 
@@ -131,6 +157,14 @@ export default function QuestsPage() {
       return;
     }
 
+    for (const partyId of partyIds) {
+      if (!partyClaimCodes[partyId] || !partyClaimCodes[partyId].trim()) {
+        const partyCharacter = characters.find((character) => character.id === partyId);
+        window.alert(`Isi Claim Code untuk ${partyCharacter?.character_name || "party member"} dulu.`);
+        return;
+      }
+    }
+
     const confirmed = window.confirm(`Ajukan Take Quest "${quest.title}"?`);
     if (!confirmed) return;
 
@@ -144,7 +178,9 @@ export default function QuestsPage() {
       body: JSON.stringify({
         character_id: characterId,
         quest_id: quest.id,
+        main_claim_code: mainClaimCode,
         party_member_ids: partyIds,
+        party_claim_codes: partyClaimCodes,
         application_note: applicationNote,
       }),
     });
@@ -164,6 +200,8 @@ export default function QuestsPage() {
 
     setSelectedCharacterByQuest((current) => ({ ...current, [quest.id]: "" }));
     setPartyByQuest((current) => ({ ...current, [quest.id]: ["", "", ""] }));
+    setClaimCodeByQuest((current) => ({ ...current, [quest.id]: "" }));
+    setPartyClaimCodeByQuest((current) => ({ ...current, [quest.id]: {} }));
     setNoteByQuest((current) => ({ ...current, [quest.id]: "" }));
 
     await loadData();
@@ -312,6 +350,16 @@ export default function QuestsPage() {
                               </select>
                             </label>
 
+                            <label className="take-quest-label">
+                              Main Character Claim Code
+                              <input
+                                type="text"
+                                value={claimCodeByQuest[quest.id] || ""}
+                                onChange={(e) => updateMainClaimCode(quest.id, e.target.value)}
+                                placeholder="Contoh: VES-4829"
+                              />
+                            </label>
+
                             {partySlots.map((slotIndex) => (
                               <label className="take-quest-label" key={slotIndex}>
                                 {quest.mode === "Duo"
@@ -328,6 +376,25 @@ export default function QuestsPage() {
                                     </option>
                                   ))}
                                 </select>
+
+                                {(partyByQuest[quest.id] || [])[slotIndex] && (
+                                  <input
+                                    type="text"
+                                    value={
+                                      (partyClaimCodeByQuest[quest.id] || {})[
+                                        (partyByQuest[quest.id] || [])[slotIndex]
+                                      ] || ""
+                                    }
+                                    onChange={(e) =>
+                                      updatePartyClaimCode(
+                                        quest.id,
+                                        (partyByQuest[quest.id] || [])[slotIndex],
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="Claim Code party member"
+                                  />
+                                )}
                               </label>
                             ))}
 
