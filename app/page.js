@@ -20,6 +20,8 @@ const defaultStats = [
     economyRecords: 3,
   });
 
+  const [topAdventurers, setTopAdventurers] = useState([]);
+
   useEffect(() => {
     async function loadHomeStats() {
       const [
@@ -27,6 +29,7 @@ const defaultStats = [
         questsResult,
         applicationsResult,
         reportsResult,
+        topAdventurersResult,
       ] = await Promise.all([
         supabase
           .from("characters")
@@ -47,6 +50,13 @@ const defaultStats = [
           .from("quest_reports")
           .select("id", { count: "exact", head: true })
           .in("status", ["Pending", "Needs Revision"]),
+
+        supabase
+          .from("characters")
+          .select("id, player_name, guild_rank, completed_quests")
+          .eq("status", "Active")
+          .order("completed_quests", { ascending: false })
+          .limit(3),
       ]);
 
       setLiveCounts({
@@ -55,6 +65,8 @@ const defaultStats = [
         pendingReviews: (applicationsResult.count || 0) + (reportsResult.count || 0),
         economyRecords: 3,
       });
+
+      setTopAdventurers(topAdventurersResult.data || []);
     }
 
     loadHomeStats();
@@ -143,35 +155,32 @@ return (
             <div className="lunaria-notice">
               <h3>Top Adventurers</h3>
               <div className="lunaria-leaderboard">
-                <div className="lunaria-rank-card">
-                  <div className="lunaria-rank-medal">I</div>
-                  <div>
-                    <strong>Shiroka</strong>
-                    <p>Seeker • Completed Missions</p>
+              {topAdventurers.length > 0 ? (
+                topAdventurers.map((adventurer, index) => (
+                  <div className="lunaria-rank-card" key={adventurer.id || index}>
+                    <div className="lunaria-rank-medal">{["I", "II", "III"][index]}</div>
+                    <div>
+                      <strong>{adventurer.player_name || "Unknown Adventurer"}</strong>
+                      <p>
+                        {adventurer.guild_rank || "Unranked"} • {Number(adventurer.completed_quests || 0)} Completed Missions
+                      </p>
+                    </div>
+                    <span>Top {index + 1}</span>
                   </div>
-                  <span>Top 1</span>
-                </div>
-
+                ))
+              ) : (
                 <div className="lunaria-rank-card">
-                  <div className="lunaria-rank-medal">II</div>
+                  <div className="lunaria-rank-medal">—</div>
                   <div>
-                    <strong>Vesper</strong>
-                    <p>Initiate • Active Adventurer</p>
+                    <strong>No ranked adventurer yet</strong>
+                    <p>Complete quests to enter the weekly board.</p>
                   </div>
-                  <span>Top 2</span>
+                  <span>Pending</span>
                 </div>
-
-                <div className="lunaria-rank-card">
-                  <div className="lunaria-rank-medal">III</div>
-                  <div>
-                    <strong>Anila Van Haldegard</strong>
-                    <p>Initiate • Guild Registered</p>
-                  </div>
-                  <span>Top 3</span>
-                </div>
-              </div>
+              )}
             </div>
-          </section>
+          </div>
+        </section>
 
 <section className="section">
                                                                                                                                                                                                                                                                                                                                                         <h2>Quick Access</h2>
