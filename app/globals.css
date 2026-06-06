@@ -1717,3 +1717,158 @@
     padding: 14px;
   }
 }
+
+.registry-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.11), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(90, 105, 130, 0.09), transparent 32%),
+    rgba(17, 23, 31, 0.86);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 18px 42px rgba(0, 0, 0, 0.18);
+}
+
+.registry-card::before {
+  content: "LUNARIA";
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  color: rgba(190, 160, 95, 0.06);
+  font-family: var(--font-serif);
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+.registry-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.registry-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  padding-bottom: 14px;
+}
+
+.registry-card-header h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 28px;
+  letter-spacing: 0.03em;
+}
+
+.registry-card-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.rank-seal {
+  border: 1px solid rgba(190, 160, 95, 0.25);
+  background: rgba(190, 160, 95, 0.11);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.registry-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.registry-info-box {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.48);
+  border-radius: 14px;
+  padding: 13px;
+  display: grid;
+  gap: 6px;
+}
+
+.registry-info-box span {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registry-info-box strong {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.registry-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.065);
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+.registry-section-title {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.registry-section-content {
+  color: var(--muted);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.currency-badge {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.registry-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.registry-actions button {
+  flex: 1;
+  min-width: 140px;
+}
+
+@media (max-width: 760px) {
+  .registry-card-header {
+    flex-direction: column;
+  }
+
+  .registry-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registry-card::before {
+    font-size: 34px;
+  }
+}
+
+.registry-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}

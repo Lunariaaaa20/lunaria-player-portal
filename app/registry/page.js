@@ -1,110 +1,136 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { useEffect, useMemo, useState } from "react";
+
+function formatTextBlock(value) {
+  if (!value || String(value).trim() === "") return "-";
+  return String(value).trim();
+}
+
+function formatCurrency(character) {
+  return `${Number(character.gold || 0)}G / ${Number(character.silver || 0)}S / ${Number(character.bronze || 0)}B`;
+}
 
 function buildIdCard(character) {
-  return `╔════════════════════════════╗
-        𓆩 LUNARIA ID CARD 𓆪
-╚════════════════════════════╝
+  return `╔══════════════════════╗
+𓂃 𝐋𝐔𝐍𝐀𝐑𝐈𝐀 𝐈𝐃 𝐂𝐀𝐑𝐃 𓂃
+╚══════════════════════╝
 
-✦ PLAYER DATA
-Player Name      : ${character.player_name}
-Character Name   : ${character.character_name}
-Race             : ${character.race}
-Status           : ${character.status}
+Name : ${character.character_name || "-"}
+Player : ${character.player_name || "-"}
+Race : ${character.race || "-"}
+Guild Rank : ${character.guild_rank || "-"}
+Pathway : ${character.pathway || "-"}
+Status : ${character.status || "-"}
 
-✦ GUILD PROFILE
-Guild Rank       : ${character.guild_rank}
-Pathway          : ${character.pathway}
-Registered Guild : ${character.registered_guild}
+━━━━━━━━━━━━━━━━━━
+Currency :
+${formatCurrency(character)}
 
-✦ PRIMARY SKILLS
-1. ${character.skill_1_name}
-   ${character.skill_1_description}
+━━━━━━━━━━━━━━━━━━
+Primary Skills :
+1. ${character.skill_1_name || "-"}
+${character.skill_1_description ? `   ${character.skill_1_description}` : ""}
 
-2. ${character.skill_2_name}
-   ${character.skill_2_description}
+2. ${character.skill_2_name || "-"}
+${character.skill_2_description ? `   ${character.skill_2_description}` : ""}
 
-✦ INVENTORY
-${character.inventory || "-"}
+━━━━━━━━━━━━━━━━━━
+Inventory :
+${formatTextBlock(character.inventory)}
 
-✦ CURRENCY
-Gold   : ${character.gold || 0}G
-Silver : ${character.silver || 0}S
-Bronze : ${character.bronze || 0}B
+━━━━━━━━━━━━━━━━━━
+Completed Missions :
+${formatTextBlock(character.completed_quests)}
 
-✦ COMPLETED MISSIONS
-${character.completed_quests || "-"}
-
-━━━━━━━━━━━━━━━━━━━━
-Last Updated:
-Adventurer’s Guild of Valenford`;
+Registered Guild :
+Adventurer's Guild of Valenford`;
 }
+
 export default function RegistryPage() {
   const [characters, setCharacters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCharacters, setFilteredCharacters] = useState([]);
+  const [search, setSearch] = useState("");
   const [rankFilter, setRankFilter] = useState("All");
   const [pathwayFilter, setPathwayFilter] = useState("All");
-
-  const rankOptions = ["All", "Initiate", "Seeker", "Warden", "Arbiter", "High Council"];
-  const pathwayOptions = ["All", "Warrior", "Mystic", "Shadow", "Nature"];
-
-  const filteredCharacters = characters.filter((character) => {
-    const keyword = searchQuery.toLowerCase().trim();
-
-    const matchesSearch =
-      !keyword ||
-      character.player_name?.toLowerCase().includes(keyword) ||
-      character.character_name?.toLowerCase().includes(keyword) ||
-      character.race?.toLowerCase().includes(keyword) ||
-      character.guild_rank?.toLowerCase().includes(keyword) ||
-      character.pathway?.toLowerCase().includes(keyword);
-
-    const matchesRank = rankFilter === "All" || character.guild_rank === rankFilter;
-    const matchesPathway = pathwayFilter === "All" || character.pathway === pathwayFilter;
-
-    return matchesSearch && matchesRank && matchesPathway;
-  });
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
   async function loadCharacters() {
     setLoading(true);
     setMessage("");
 
-    const { data, error } = await supabase
-      .from("characters")
-      .select("*")
-      .eq("status", "Active")
-      .order("character_name", { ascending: true });
+    try {
+      const response = await fetch("/api/characters", {
+        cache: "no-store",
+      });
 
-    if (error) {
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal memuat Adventurer Registry.");
+      }
+
+      const activeCharacters = (result.characters || []).filter(
+        (character) => character.status === "Active"
+      );
+
+      setCharacters(activeCharacters);
+      setFilteredCharacters(activeCharacters);
+    } catch (error) {
       setMessage(error.message || "Gagal memuat Adventurer Registry.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setCharacters(data || []);
-    setLoading(false);
   }
 
   useEffect(() => {
     loadCharacters();
   }, []);
 
-  async function copyIdCard(character) {
-    const text = buildIdCard(character);
-    await navigator.clipboard.writeText(text);
-    setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
-  }
+  useEffect(() => {
+    let next = [...characters];
 
-  function clearFilters() {
-    setSearchQuery("");
-    setRankFilter("All");
-    setPathwayFilter("All");
+    if (search.trim()) {
+      const keyword = search.trim().toLowerCase();
+
+      next = next.filter((character) => {
+        return [
+          character.character_name,
+          character.player_name,
+          character.race,
+          character.guild_rank,
+          character.pathway,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(keyword));
+      });
+    }
+
+    if (rankFilter !== "All") {
+      next = next.filter((character) => character.guild_rank === rankFilter);
+    }
+
+    if (pathwayFilter !== "All") {
+      next = next.filter((character) => character.pathway === pathwayFilter);
+    }
+
+    setFilteredCharacters(next);
+  }, [search, rankFilter, pathwayFilter, characters]);
+
+  const ranks = useMemo(() => {
+    return ["All", ...Array.from(new Set(characters.map((item) => item.guild_rank).filter(Boolean)))];
+  }, [characters]);
+
+  const pathways = useMemo(() => {
+    return ["All", ...Array.from(new Set(characters.map((item) => item.pathway).filter(Boolean)))];
+  }, [characters]);
+
+  async function copyIdCard(character) {
+    const card = buildIdCard(character);
+    await navigator.clipboard.writeText(card);
+    window.alert(`ID Card ${character.character_name} berhasil disalin.`);
   }
 
   return (
@@ -114,11 +140,18 @@ export default function RegistryPage() {
         <div className="subtitle">Adventurer Registry</div>
 
         <nav className="nav">
+          <div className="nav-section-title">PUBLIC</div>
           <Link href="/">Home</Link>
           <Link href="/registry">Adventurer Registry</Link>
           <Link href="/quests">Quest Board</Link>
+          <Link href="/quest-report">Quest Report</Link>
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
+
+          <div className="nav-section-title">PLAYER</div>
+          <Link href="/registration">Character Registration</Link>
+
+          <div className="nav-section-title">ADMIN</div>
           <Link href="/admin">Admin Panel</Link>
         </nav>
       </aside>
@@ -127,103 +160,124 @@ export default function RegistryPage() {
         <section className="hero">
           <h1>ADVENTURER REGISTRY</h1>
           <p>
-            Daftar karakter aktif Lunaria yang sudah tercatat resmi di Adventurer’s Guild of Valenford.
+            Daftar resmi karakter aktif Lunaria yang sudah tercatat di Adventurer&apos;s Guild of Valenford.
           </p>
         </section>
 
         <section className="section">
-          <div className="admin-section-header">
-            <h2>Registered Adventurers</h2>
+          <div className="section-header">
+            <div>
+              <h2>Registered Adventurers</h2>
+              <p>
+                Showing {filteredCharacters.length} of {characters.length} active characters.
+              </p>
+            </div>
 
-            <button className="admin-secondary" type="button" onClick={loadCharacters} disabled={loading}>
-              {loading ? "Loading..." : "Refresh Registry"}
+            <button className="admin-secondary" type="button" onClick={loadCharacters}>
+              Refresh Registry
             </button>
           </div>
 
-          <div className="admin-filter-panel">
+          <div className="filter-row">
             <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search character, player, race, rank, or pathway..."
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search character, player, race, rank, pathway..."
             />
 
-            <select value={rankFilter} onChange={(e) => setRankFilter(e.target.value)}>
-              {rankOptions.map((rank) => (
+            <select value={rankFilter} onChange={(event) => setRankFilter(event.target.value)}>
+              {ranks.map((rank) => (
                 <option key={rank}>{rank}</option>
               ))}
             </select>
 
-            <select value={pathwayFilter} onChange={(e) => setPathwayFilter(e.target.value)}>
-              {pathwayOptions.map((pathway) => (
+            <select value={pathwayFilter} onChange={(event) => setPathwayFilter(event.target.value)}>
+              {pathways.map((pathway) => (
                 <option key={pathway}>{pathway}</option>
               ))}
             </select>
 
-            <button className="admin-secondary" type="button" onClick={clearFilters}>
+            <button
+              className="admin-secondary"
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setRankFilter("All");
+                setPathwayFilter("All");
+              }}
+            >
               Clear Filter
             </button>
           </div>
 
           {message && <p className="admin-message">{message}</p>}
 
-          <p className="muted">
-            Showing {filteredCharacters.length} of {characters.length} active characters.
-          </p>
-
           {loading ? (
-            <p className="muted">Memuat registry...</p>
+            <p className="muted">Loading Adventurer Registry...</p>
           ) : filteredCharacters.length === 0 ? (
-            <p className="muted">Belum ada karakter aktif yang terdaftar.</p>
+            <p className="muted">Belum ada karakter aktif yang cocok dengan filter.</p>
           ) : (
-            <div className="registry-grid">
+            <div className="registry-card-grid">
               {filteredCharacters.map((character) => (
                 <article className="registry-card" key={character.id}>
                   <div className="registry-card-header">
                     <div>
-                      <h3>{character.character_name}</h3>
-                      <p>{character.player_name}</p>
+                      <h3>{character.character_name || "-"}</h3>
+                      <p>{character.player_name || "-"}</p>
                     </div>
 
-                    <span>{character.guild_rank}</span>
+                    <span className="rank-seal">{character.guild_rank || "Unranked"}</span>
                   </div>
 
-                  <div className="registry-meta">
-                    <div>
-                      <strong>Race</strong>
-                      <span>{character.race}</span>
+                  <div className="registry-info-grid">
+                    <div className="registry-info-box">
+                      <span>Race</span>
+                      <strong>{character.race || "-"}</strong>
                     </div>
-                    <div>
-                      <strong>Pathway</strong>
-                      <span>{character.pathway}</span>
+
+                    <div className="registry-info-box">
+                      <span>Pathway</span>
+                      <strong>{character.pathway || "-"}</strong>
                     </div>
-                    <div>
-                      <strong>Currency</strong>
-                      <span>
-                        {character.gold || 0}G / {character.silver || 0}S / {character.bronze || 0}B
-                      </span>
+
+                    <div className="registry-info-box">
+                      <span>Currency</span>
+                      <strong className="currency-badge">{formatCurrency(character)}</strong>
                     </div>
-                    <div>
-                      <strong>Status</strong>
-                      <span>{character.status}</span>
+
+                    <div className="registry-info-box">
+                      <span>Status</span>
+                      <strong>{character.status || "-"}</strong>
                     </div>
                   </div>
 
-                  <div className="registry-skills">
-                    <strong>Primary Skills</strong>
-                    <p>
-                      1. {character.skill_1_name}<br />
-                      2. {character.skill_2_name}
-                    </p>
+                  <div className="registry-section">
+                    <div className="registry-section-title">Primary Skills</div>
+                    <div className="registry-section-content">
+                      {`1. ${character.skill_1_name || "-"}${
+                        character.skill_1_description ? `\n   ${character.skill_1_description}` : ""
+                      }\n\n2. ${character.skill_2_name || "-"}${
+                        character.skill_2_description ? `\n   ${character.skill_2_description}` : ""
+                      }`}
+                    </div>
                   </div>
 
-                  <div className="registry-skills">
-                    <strong>Completed Missions</strong>
-                    <p>{character.completed_quests || "-"}</p>
+                  <div className="registry-section">
+                    <div className="registry-section-title">Inventory</div>
+                    <div className="registry-section-content">{formatTextBlock(character.inventory)}</div>
                   </div>
 
-                  <button className="admin-secondary" type="button" onClick={() => copyIdCard(character)}>
-                    Copy ID Card
-                  </button>
+                  <div className="registry-section">
+                    <div className="registry-section-title">Completed Missions</div>
+                    <div className="registry-section-content">{formatTextBlock(character.completed_quests)}</div>
+                  </div>
+
+                  <div className="registry-actions">
+                    <button className="admin-secondary" type="button" onClick={() => copyIdCard(character)}>
+                      Copy ID Card
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
