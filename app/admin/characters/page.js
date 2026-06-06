@@ -620,6 +620,30 @@ export default function AdminCharactersPage() {
                         <p>
                           {character.player_name} • {character.race} • {character.guild_rank} • {character.pathway} • {character.status}
                         </p>
+
+                          <div className="claim-code-panel">
+                            <span>Claim Code</span>
+                            <strong>{character.claim_code || "-"}</strong>
+
+                            <div>
+                              <button
+                                className="admin-secondary"
+                                type="button"
+                                onClick={() => copyClaimCode(character.claim_code)}
+                              >
+                                Copy Code
+                              </button>
+
+                              <button
+                                className="admin-danger"
+                                type="button"
+                                onClick={() => regenerateClaimCode(character)}
+                                disabled={loading}
+                              >
+                                Regenerate
+                              </button>
+                            </div>
+                          </div>
                       </div>
 
                       <div className="admin-actions">
