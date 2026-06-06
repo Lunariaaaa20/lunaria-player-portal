@@ -19,41 +19,59 @@ export async function GET() {
   try {
     const supabase = getServerClient();
 
-    const { data, error } = await supabase
+    const { data: applications, error: applicationsError } = await supabase
       .from("quest_applications")
       .select("*")
       .in("status", ["Approved", "Ongoing"])
       .order("created_at", { ascending: false });
 
-    if (error) {
+    if (applicationsError) {
       return NextResponse.json(
-        { error: error.message },
-        {
-          status: 500,
-          headers: {
-            "Cache-Control": "no-store",
-          },
-        }
+        { error: applicationsError.message },
+        { status: 500, headers: { "Cache-Control": "no-store" } }
       );
     }
 
+    const applicationIds = (applications || []).map((item) => item.id);
+
+    if (applicationIds.length === 0) {
+      return NextResponse.json(
+        { applications: [] },
+        { headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    const { data: reports, error: reportsError } = await supabase
+      .from("quest_reports")
+      .select("quest_application_id,status")
+      .in("quest_application_id", applicationIds)
+      .in("status", ["Pending Review", "Approved", "Needs Revision"]);
+
+    if (reportsError) {
+      return NextResponse.json(
+        { error: reportsError.message },
+        { status: 500, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    const reportedApplicationIds = new Set(
+      (reports || [])
+        .map((report) => report.quest_application_id)
+        .filter(Boolean)
+    );
+
+    const availableApplications = (applications || []).filter(
+      (application) => !reportedApplicationIds.has(application.id)
+    );
+
     return NextResponse.json(
-      { applications: data ?? [] },
-      {
-        headers: {
-          "Cache-Control": "no-store",
-        },
-      }
+      { applications: availableApplications },
+      { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {
     return NextResponse.json(
       { error: error.message },
-      {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-store",
-        },
-      }
+      { status: 500, headers: { "Cache-Control": "no-store" } }
     );
   }
 }
