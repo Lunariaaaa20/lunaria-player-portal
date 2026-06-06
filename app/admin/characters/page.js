@@ -273,10 +273,10 @@ export default function AdminCharactersPage() {
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
           <Link href="/admin">Admin Dashboard</Link>
+          <Link href="/admin/characters">Character Admin</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
           <Link href="/admin/rules">Rules Admin</Link>
-          <Link href="/admin/characters">Character Admin</Link>
         </nav>
       </aside>
 

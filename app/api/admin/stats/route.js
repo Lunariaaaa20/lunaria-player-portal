@@ -33,10 +33,11 @@ export async function GET(request) {
 
     const supabase = getAdminClient();
 
-    const [questsResult, economyResult, rulesResult] = await Promise.all([
+    const [questsResult, economyResult, rulesResult, charactersResult] = await Promise.all([
       supabase.from("quests").select("id,status,rank,mode"),
       supabase.from("economy_items").select("id,category,availability,currency_type"),
       supabase.from("rules").select("id,category,status,priority"),
+      supabase.from("characters").select("id,status,guild_rank,pathway"),
     ]);
 
     if (questsResult.error) {
@@ -51,9 +52,14 @@ export async function GET(request) {
       return NextResponse.json({ error: rulesResult.error.message }, { status: 500 });
     }
 
+    if (charactersResult.error) {
+      return NextResponse.json({ error: charactersResult.error.message }, { status: 500 });
+    }
+
     const quests = questsResult.data || [];
     const economyItems = economyResult.data || [];
     const rules = rulesResult.data || [];
+    const characters = charactersResult.data || [];
 
     return NextResponse.json({
       quests: {
@@ -73,6 +79,12 @@ export async function GET(request) {
         byStatus: countBy(rules, "status"),
         byCategory: countBy(rules, "category"),
         byPriority: countBy(rules, "priority"),
+      },
+      characters: {
+        total: characters.length,
+        byStatus: countBy(characters, "status"),
+        byRank: countBy(characters, "guild_rank"),
+        byPathway: countBy(characters, "pathway"),
       },
     });
   } catch (error) {

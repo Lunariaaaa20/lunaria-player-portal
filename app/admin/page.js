@@ -30,6 +30,14 @@ const adminModules = [
     description:
       "Tambah, edit, hapus, dan kelola aturan rank, pathway, quest, reward, inventory, combat, dan sistem komunitas.",
   },
+  {
+    key: "characters",
+    title: "Character Management",
+    href: "/admin/characters",
+    status: "Active",
+    description:
+      "Tambah, edit, approve, suspend, dan kelola ID Card karakter Lunaria.",
+  },
 ];
 
 function getStatValue(stats, moduleKey, groupKey, valueKey) {
@@ -105,10 +113,12 @@ export default function AdminDashboardPage() {
 
         <nav className="nav">
           <Link href="/">Home</Link>
+          <Link href="/registry">Adventurer Registry</Link>
           <Link href="/quests">Quest Board</Link>
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
           <Link href="/admin">Admin Dashboard</Link>
+          <Link href="/admin/characters">Character Admin</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
           <Link href="/admin/rules">Rules Admin</Link>
@@ -238,6 +248,27 @@ export default function AdminDashboardPage() {
                         <div>
                           <strong>{getStatValue(stats, "rules", "byStatus", "Archived")}</strong>
                           <span>Archived</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {module.key === "characters" && (
+                      <div className="admin-stat-grid">
+                        <div>
+                          <strong>{stats?.characters?.total || 0}</strong>
+                          <span>Total Characters</span>
+                        </div>
+                        <div>
+                          <strong>{getStatValue(stats, "characters", "byStatus", "Active")}</strong>
+                          <span>Active</span>
+                        </div>
+                        <div>
+                          <strong>{getStatValue(stats, "characters", "byStatus", "Pending")}</strong>
+                          <span>Pending</span>
+                        </div>
+                        <div>
+                          <strong>{getStatValue(stats, "characters", "byStatus", "Suspended")}</strong>
+                          <span>Suspended</span>
                         </div>
                       </div>
                     )}

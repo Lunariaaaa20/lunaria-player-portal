@@ -238,10 +238,12 @@ export default function AdminEconomyPage() {
 
         <nav className="nav">
           <Link href="/">Home</Link>
+          <Link href="/registry">Adventurer Registry</Link>
           <Link href="/quests">Quest Board</Link>
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
           <Link href="/admin">Admin Dashboard</Link>
+          <Link href="/admin/characters">Character Admin</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
           <Link href="/admin/rules">Rules Admin</Link>
