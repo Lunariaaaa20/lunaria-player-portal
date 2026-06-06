@@ -98,7 +98,7 @@ export default async function RulesPage() {
 
                 <div className="rule-card-grid">
                   {group.rules.map((rule) => (
-                    <article className="rule-card" key={rule.rule_title}>
+                    <article className="rules-card" key={rule.rule_title}>
                       <div className="rule-card-top">
                         <h4>{rule.rule_title}</h4>
                         <span className="badge">{rule.status}</span>

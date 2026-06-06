@@ -2345,3 +2345,143 @@
     font-size: 32px;
   }
 }
+
+/* Rules & Guide Premium Handbook */
+.rules-handbook {
+  display: grid;
+  gap: 18px;
+}
+
+.rules-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.1), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(70, 85, 110, 0.08), transparent 34%),
+    rgba(17, 23, 31, 0.88);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 18px 42px rgba(0, 0, 0, 0.16);
+}
+
+.rules-card::before {
+  content: "HANDBOOK";
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  color: rgba(190, 160, 95, 0.045);
+  font-family: var(--font-serif);
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  pointer-events: none;
+}
+
+.rules-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.rules-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  margin-bottom: 14px;
+}
+
+.rules-card-header h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 28px;
+  letter-spacing: 0.03em;
+}
+
+.rules-card-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.rules-tag {
+  border: 1px solid rgba(190, 160, 95, 0.25);
+  background: rgba(190, 160, 95, 0.11);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.rules-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rules-list li {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.5);
+  border-radius: 14px;
+  padding: 13px 14px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.rules-list strong {
+  color: var(--gold);
+}
+
+.rules-note {
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background: rgba(190, 160, 95, 0.07);
+  border-radius: 16px;
+  padding: 14px 16px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.rules-note strong {
+  color: var(--gold);
+}
+
+.rules-index {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.rules-index a,
+.rules-index span {
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  background: rgba(8, 12, 18, 0.55);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .rules-card {
+    padding: 16px;
+  }
+
+  .rules-card-header {
+    flex-direction: column;
+  }
+
+  .rules-card::before {
+    font-size: 30px;
+  }
+}
