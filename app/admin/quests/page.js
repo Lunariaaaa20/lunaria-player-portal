@@ -376,9 +376,10 @@ export default function AdminPage() {
                       <option>Available</option>
                       <option>Ongoing</option>
                       <option>Completed</option>
-                      <option>Closed</option>
+                      
                       <option>Unavailable</option>
-                      <option>Draft</option>
+                      <option>Archived</option>
+                      
                     </select>
                   </label>
                 </div>
@@ -493,9 +494,10 @@ export default function AdminPage() {
                   <option>Available</option>
                   <option>Ongoing</option>
                   <option>Completed</option>
-                  <option>Closed</option>
+                  
                   <option>Unavailable</option>
-                  <option>Draft</option>
+                  <option>Archived</option>
+                  
                 </select>
 
                 <select value={modeFilter} onChange={(e) => setModeFilter(e.target.value)}>
