@@ -97,7 +97,7 @@ export default async function EconomyPage() {
 
                 <div className="economy-card-grid">
                   {group.items.map((item) => (
-                    <article className="economy-card" key={item.item_name}>
+                    <article className="economy-category-card" key={item.item_name}>
                       <div className="economy-card-top">
                         <h4>{item.item_name}</h4>
                         <span className="badge">{item.availability}</span>
