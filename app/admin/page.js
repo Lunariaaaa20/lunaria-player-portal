@@ -173,7 +173,42 @@ export default function AdminPage() {
               </button>
             </div>
 
-            <section className="section">
+                    <section className="admin-notice-panel">
+          <div className="admin-module-header">
+            <div>
+              <h2>Developer Notice</h2>
+              <p>Update ticker announcement shown on the Lunaria homepage.</p>
+            </div>
+            <span>Database Linked</span>
+          </div>
+
+          <form className="admin-notice-form" onSubmit={handleSaveNotice}>
+            <label>
+              Title
+              <input
+                value={noticeTitle}
+                onChange={(event) => setNoticeTitle(event.target.value)}
+                placeholder="Developer Notice"
+              />
+            </label>
+
+            <label>
+              Message
+              <textarea
+                value={noticeMessage}
+                onChange={(event) => setNoticeMessage(event.target.value)}
+                placeholder="Write the latest portal announcement..."
+                rows={4}
+              />
+            </label>
+
+            <button type="submit" disabled={noticeSaving}>
+              {noticeSaving ? "Saving Notice..." : "Save Notice"}
+            </button>
+          </form>
+        </section>
+
+<section className="section">
               <h2>Management Modules</h2>
 
               <div className="admin-module-grid">
