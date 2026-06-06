@@ -3532,3 +3532,174 @@
     font-size: 26px;
   }
 }
+
+/* Rules Admin Premium UI */
+.rules-admin-grid,
+.admin-rules-list,
+.rules-management-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.rules-admin-card,
+.admin-rules-card,
+.rules-management-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.09), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(70, 85, 110, 0.08), transparent 34%),
+    rgba(17, 23, 31, 0.86);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 14px 34px rgba(0, 0, 0, 0.13);
+}
+
+.rules-admin-card::before,
+.admin-rules-card::before,
+.rules-management-card::before {
+  content: "RULES";
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  color: rgba(190, 160, 95, 0.045);
+  font-family: var(--font-serif);
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+.rules-admin-card > *,
+.admin-rules-card > *,
+.rules-management-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.rules-admin-card h3,
+.admin-rules-card h3,
+.rules-management-card h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 25px;
+  letter-spacing: 0.03em;
+}
+
+.rules-admin-card p,
+.admin-rules-card p,
+.rules-management-card p {
+  color: var(--muted);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.rules-admin-meta,
+.rules-management-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.rules-admin-meta span,
+.rules-management-meta span {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.48);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rules-admin-status {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(190, 160, 95, 0.22);
+  background: rgba(190, 160, 95, 0.1);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rules-admin-form,
+.rules-form-panel,
+.admin-rules-form {
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.07), transparent 34%),
+    rgba(17, 23, 31, 0.82);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.rules-admin-form-grid,
+.rules-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rules-admin-form label,
+.rules-form-panel label,
+.admin-rules-form label {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.rules-admin-form input,
+.rules-admin-form select,
+.rules-admin-form textarea,
+.rules-form-panel input,
+.rules-form-panel select,
+.rules-form-panel textarea,
+.admin-rules-form input,
+.admin-rules-form select,
+.admin-rules-form textarea {
+  margin-top: 7px;
+  margin-bottom: 12px;
+}
+
+.rules-admin-actions,
+.rules-management-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.rules-admin-actions button,
+.rules-management-actions button {
+  min-width: 110px;
+  min-height: 40px;
+}
+
+@media (max-width: 760px) {
+  .rules-admin-form-grid,
+  .rules-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rules-admin-card,
+  .admin-rules-card,
+  .rules-management-card {
+    padding: 15px;
+  }
+
+  .rules-admin-card::before,
+  .admin-rules-card::before,
+  .rules-management-card::before {
+    font-size: 28px;
+  }
+}
