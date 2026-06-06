@@ -15,6 +15,7 @@ const statusOptions = [
 
 const rankOptions = ["Common", "Uncommon", "Dangerous", "Special"];
 const modeOptions = ["Solo", "Duo", "Party"];
+const characterRankOptions = ["", "Initiate", "Seeker", "Warden", "Arbiter", "High Council"];
 
 export default function AdminReportsPage() {
   const [unlocked, setUnlocked] = useState(false);
@@ -22,6 +23,7 @@ export default function AdminReportsPage() {
   const [loginMessage, setLoginMessage] = useState("");
 
   const [reports, setReports] = useState([]);
+  const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -31,6 +33,7 @@ export default function AdminReportsPage() {
   const [modeFilter, setModeFilter] = useState("All");
 
   const [notesById, setNotesById] = useState({});
+  const [approvalById, setApprovalById] = useState({});
 
   const filteredReports = reports.filter((report) => {
     const keyword = searchQuery.toLowerCase().trim();
@@ -71,12 +74,37 @@ export default function AdminReportsPage() {
     setReports(result.reports || []);
 
     const nextNotes = {};
+    const nextApproval = {};
+
     for (const report of result.reports || []) {
       nextNotes[report.id] = report.admin_notes || "";
+      nextApproval[report.id] = {
+        character_id: report.character_id || "",
+        approved_gold: report.approved_gold || 0,
+        approved_silver: report.approved_silver || 0,
+        approved_bronze: report.approved_bronze || 0,
+        approved_inventory: report.approved_inventory || "",
+        approved_rank: report.approved_rank || "",
+      };
     }
-    setNotesById(nextNotes);
 
+    setNotesById(nextNotes);
+    setApprovalById(nextApproval);
     setLoading(false);
+  }
+
+  async function loadCharacters(currentPassword = password) {
+    const response = await fetch("/api/admin/characters", {
+      headers: {
+        "x-admin-password": currentPassword,
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      setCharacters(result.characters || []);
+    }
   }
 
   useEffect(() => {
@@ -86,6 +114,7 @@ export default function AdminReportsPage() {
       setPassword(savedPassword);
       setUnlocked(true);
       loadReports(savedPassword);
+      loadCharacters(savedPassword);
     }
   }, []);
 
@@ -97,6 +126,7 @@ export default function AdminReportsPage() {
       setUnlocked(true);
       setLoginMessage("");
       await loadReports(password);
+      await loadCharacters(password);
       return;
     }
 
@@ -123,7 +153,30 @@ export default function AdminReportsPage() {
     }));
   }
 
+  function updateApproval(reportId, field, value) {
+    setApprovalById((current) => ({
+      ...current,
+      [reportId]: {
+        ...(current[reportId] || {}),
+        [field]: value,
+      },
+    }));
+  }
+
   async function updateReportStatus(report, nextStatus) {
+    const approval = approvalById[report.id] || {};
+
+    if (nextStatus === "Approved" && !approval.character_id) {
+      window.alert("Pilih Character Target dulu sebelum Approve agar reward masuk ke ID Card.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Ubah status report "${report.quest_title}" menjadi ${nextStatus}?`
+    );
+
+    if (!confirmed) return;
+
     setLoading(true);
     setMessage("");
 
@@ -137,19 +190,35 @@ export default function AdminReportsPage() {
         id: report.id,
         status: nextStatus,
         admin_notes: notesById[report.id] || "",
+        character_id: approval.character_id || "",
+        approved_gold: approval.approved_gold || 0,
+        approved_silver: approval.approved_silver || 0,
+        approved_bronze: approval.approved_bronze || 0,
+        approved_inventory: approval.approved_inventory || "",
+        approved_rank: approval.approved_rank || "",
       }),
     });
 
     const result = await response.json();
 
     if (!response.ok) {
-      setMessage(result.error || "Gagal update report.");
+      const errorMessage = result.error || "Gagal update report.";
+      setMessage(errorMessage);
+      window.alert(errorMessage);
       setLoading(false);
       return;
     }
 
-    setMessage(`Report "${report.quest_title}" diupdate menjadi ${nextStatus}.`);
+    const successMessage =
+      nextStatus === "Approved"
+        ? `Report "${report.quest_title}" approved. Reward sudah masuk ke ID Card.`
+        : `Report "${report.quest_title}" diupdate menjadi ${nextStatus}.`;
+
+    setMessage(successMessage);
+    window.alert(successMessage);
+
     await loadReports();
+    await loadCharacters();
   }
 
   return (
@@ -179,7 +248,7 @@ export default function AdminReportsPage() {
         <section className="hero">
           <h1>QUEST REPORT ADMIN</h1>
           <p>
-            Review laporan quest player, validasi hasil RP, dan tentukan status laporan.
+            Review laporan quest, validasi hasil RP, dan approve reward langsung ke ID Card karakter.
           </p>
         </section>
 
@@ -225,7 +294,10 @@ export default function AdminReportsPage() {
                 <button
                   className="admin-secondary"
                   type="button"
-                  onClick={() => loadReports()}
+                  onClick={() => {
+                    loadReports();
+                    loadCharacters();
+                  }}
                   disabled={loading}
                 >
                   {loading ? "Loading..." : "Refresh List"}
@@ -275,106 +347,180 @@ export default function AdminReportsPage() {
                 {filteredReports.length === 0 ? (
                   <p className="muted">Belum ada report yang cocok dengan filter.</p>
                 ) : (
-                  filteredReports.map((report) => (
-                    <article className="report-card" key={report.id}>
-                      <div className="report-card-header">
-                        <div>
-                          <h3>{report.quest_title}</h3>
-                          <p>
-                            {report.character_name} • {report.player_name}
-                          </p>
+                  filteredReports.map((report) => {
+                    const approval = approvalById[report.id] || {};
+
+                    return (
+                      <article className="report-card" key={report.id}>
+                        <div className="report-card-header">
+                          <div>
+                            <h3>{report.quest_title}</h3>
+                            <p>
+                              {report.character_name} • {report.player_name}
+                            </p>
+                          </div>
+
+                          <span>{report.status}</span>
                         </div>
 
-                        <span>{report.status}</span>
-                      </div>
-
-                      <div className="registry-meta">
-                        <div>
-                          <strong>Rank</strong>
-                          <span>{report.quest_rank}</span>
+                        <div className="registry-meta">
+                          <div>
+                            <strong>Rank</strong>
+                            <span>{report.quest_rank}</span>
+                          </div>
+                          <div>
+                            <strong>Mode</strong>
+                            <span>{report.quest_mode}</span>
+                          </div>
+                          <div>
+                            <strong>Location</strong>
+                            <span>{report.quest_location || "-"}</span>
+                          </div>
+                          <div>
+                            <strong>Submitted</strong>
+                            <span>
+                              {report.submitted_at
+                                ? new Date(report.submitted_at).toLocaleString()
+                                : "-"}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <strong>Mode</strong>
-                          <span>{report.quest_mode}</span>
+
+                        <div className="report-block">
+                          <strong>Result Summary</strong>
+                          <p>{report.result_summary}</p>
                         </div>
-                        <div>
-                          <strong>Location</strong>
-                          <span>{report.quest_location || "-"}</span>
+
+                        <div className="report-block">
+                          <strong>Proof Link / Evidence</strong>
+                          <p>{report.proof_link || "-"}</p>
                         </div>
-                        <div>
-                          <strong>Submitted</strong>
-                          <span>
-                            {report.submitted_at
-                              ? new Date(report.submitted_at).toLocaleString()
-                              : "-"}
-                          </span>
+
+                        <div className="report-block">
+                          <strong>Reward Request</strong>
+                          <p>{report.reward_request || "-"}</p>
                         </div>
-                      </div>
 
-                      <div className="report-block">
-                        <strong>Result Summary</strong>
-                        <p>{report.result_summary}</p>
-                      </div>
+                        <div className="report-approval-grid">
+                          <label>
+                            Character Target
+                            <select
+                              value={approval.character_id || ""}
+                              onChange={(e) => updateApproval(report.id, "character_id", e.target.value)}
+                            >
+                              <option value="">Select Character</option>
+                              {characters.map((character) => (
+                                <option key={character.id} value={character.id}>
+                                  {character.character_name} — {character.player_name} — {character.guild_rank}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
 
-                      <div className="report-block">
-                        <strong>Proof Link / Evidence</strong>
-                        <p>{report.proof_link || "-"}</p>
-                      </div>
+                          <label>
+                            Approved Gold
+                            <input
+                              type="number"
+                              min="0"
+                              value={approval.approved_gold || 0}
+                              onChange={(e) => updateApproval(report.id, "approved_gold", e.target.value)}
+                            />
+                          </label>
 
-                      <div className="report-block">
-                        <strong>Reward Request</strong>
-                        <p>{report.reward_request || "-"}</p>
-                      </div>
+                          <label>
+                            Approved Silver
+                            <input
+                              type="number"
+                              min="0"
+                              value={approval.approved_silver || 0}
+                              onChange={(e) => updateApproval(report.id, "approved_silver", e.target.value)}
+                            />
+                          </label>
 
-                      <label className="report-note-field">
-                        Admin Notes
-                        <textarea
-                          value={notesById[report.id] || ""}
-                          onChange={(e) => updateNote(report.id, e.target.value)}
-                          rows="3"
-                          placeholder="Catatan review admin..."
-                        />
-                      </label>
+                          <label>
+                            Approved Bronze
+                            <input
+                              type="number"
+                              min="0"
+                              value={approval.approved_bronze || 0}
+                              onChange={(e) => updateApproval(report.id, "approved_bronze", e.target.value)}
+                            />
+                          </label>
 
-                      <div className="admin-actions report-actions">
-                        <button
-                          className="admin-secondary"
-                          type="button"
-                          onClick={() => updateReportStatus(report, "Approved")}
-                          disabled={loading}
-                        >
-                          Approve
-                        </button>
+                          <label>
+                            Approved Rank
+                            <select
+                              value={approval.approved_rank || ""}
+                              onChange={(e) => updateApproval(report.id, "approved_rank", e.target.value)}
+                            >
+                              <option value="">No Rank Change</option>
+                              {characterRankOptions.filter(Boolean).map((rank) => (
+                                <option key={rank}>{rank}</option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
 
-                        <button
-                          className="admin-secondary"
-                          type="button"
-                          onClick={() => updateReportStatus(report, "Needs Revision")}
-                          disabled={loading}
-                        >
-                          Needs Revision
-                        </button>
+                        <label className="report-note-field">
+                          Approved Inventory / Loot
+                          <textarea
+                            value={approval.approved_inventory || ""}
+                            onChange={(e) => updateApproval(report.id, "approved_inventory", e.target.value)}
+                            rows="3"
+                            placeholder="Contoh: • Thornback Spine x1&#10;• Whisper Sap x2"
+                          />
+                        </label>
 
-                        <button
-                          className="admin-danger"
-                          type="button"
-                          onClick={() => updateReportStatus(report, "Rejected")}
-                          disabled={loading}
-                        >
-                          Reject
-                        </button>
+                        <label className="report-note-field">
+                          Admin Notes
+                          <textarea
+                            value={notesById[report.id] || ""}
+                            onChange={(e) => updateNote(report.id, e.target.value)}
+                            rows="3"
+                            placeholder="Catatan review admin..."
+                          />
+                        </label>
 
-                        <button
-                          className="admin-danger"
-                          type="button"
-                          onClick={() => updateReportStatus(report, "Archived")}
-                          disabled={loading}
-                        >
-                          Archive
-                        </button>
-                      </div>
-                    </article>
-                  ))
+                        <div className="admin-actions report-actions">
+                          <button
+                            className="admin-secondary"
+                            type="button"
+                            onClick={() => updateReportStatus(report, "Approved")}
+                            disabled={loading}
+                          >
+                            Approve + Apply Reward
+                          </button>
+
+                          <button
+                            className="admin-secondary"
+                            type="button"
+                            onClick={() => updateReportStatus(report, "Needs Revision")}
+                            disabled={loading}
+                          >
+                            Needs Revision
+                          </button>
+
+                          <button
+                            className="admin-danger"
+                            type="button"
+                            onClick={() => updateReportStatus(report, "Rejected")}
+                            disabled={loading}
+                          >
+                            Reject
+                          </button>
+
+                          <button
+                            className="admin-danger"
+                            type="button"
+                            onClick={() => updateReportStatus(report, "Archived")}
+                            disabled={loading}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })
                 )}
               </div>
             </section>

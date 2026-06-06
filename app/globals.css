@@ -1155,3 +1155,36 @@
   border-color: rgba(190, 160, 95, 0.55);
   box-shadow: 0 0 0 3px rgba(190, 160, 95, 0.1);
 }
+
+.report-approval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.report-approval-grid label {
+  display: grid;
+  gap: 8px;
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.report-approval-grid input,
+.report-approval-grid select {
+  width: 100%;
+  background: rgba(9, 13, 19, 0.72);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+
+.report-approval-grid input:focus,
+.report-approval-grid select:focus {
+  border-color: rgba(190, 160, 95, 0.55);
+}
