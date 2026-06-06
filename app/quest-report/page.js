@@ -25,7 +25,9 @@ export default function QuestReportPage() {
     setLoadingApplications(true);
     setMessage("");
 
-    const response = await fetch("/api/quest-applications/approved");
+    const response = await fetch("/api/quest-applications/approved", {
+      cache: "no-store",
+    });
     const result = await response.json();
 
     if (!response.ok) {
