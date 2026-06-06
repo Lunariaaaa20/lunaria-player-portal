@@ -15,7 +15,9 @@ function getAdminClient() {
 function isAuthorized(request) {
   const password = request.headers.get("x-admin-password");
   return password && password === process.env.ADMIN_PASSWORD;
-}\n\nfunction generateClaimCode(characterName) {
+}
+
+function generateClaimCode(characterName) {
   const cleaned = String(characterName || "LUN")
     .replace(/[^a-zA-Z0-9]/g, "")
     .toUpperCase();
@@ -59,11 +61,23 @@ export async function POST(request) {
     const supabase = getAdminClient();
 
     const payload = {
-      ...body,
+      player_name: body.player_name || "",
+      character_name: body.character_name || "",
+      race: body.race || "",
+      guild_rank: body.guild_rank || "Initiate",
+      pathway: body.pathway || "",
+      skill_1_name: body.skill_1_name || "",
+      skill_1_description: body.skill_1_description || "",
+      skill_2_name: body.skill_2_name || "",
+      skill_2_description: body.skill_2_description || "",
       gold: Number(body.gold || 0),
       silver: Number(body.silver || 0),
       bronze: Number(body.bronze || 0),
-      updated_at: new Date().toISOString(),
+      inventory: body.inventory || "",
+      completed_quests: body.completed_quests || "",
+      status: body.status || "Pending",
+      admin_notes: body.admin_notes || "",
+      claim_code: body.claim_code || generateClaimCode(body.character_name),
     };
 
     const { error } = await supabase.from("characters").insert([payload]);
@@ -85,11 +99,13 @@ export async function PATCH(request) {
     }
 
     const body = await request.json();
-    const { id, ...updates } = body;
+    const { id, action } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Missing character id." }, { status: 400 });
     }
+
+    const supabase = getAdminClient();
 
     if (action === "regenerate_claim_code") {
       const { data: character, error: characterError } = await supabase
@@ -104,7 +120,7 @@ export async function PATCH(request) {
 
       const nextCode = generateClaimCode(character.character_name);
 
-      const { error: updateCodeError } = await supabase
+      const { error: updateError } = await supabase
         .from("characters")
         .update({
           claim_code: nextCode,
@@ -112,26 +128,65 @@ export async function PATCH(request) {
         })
         .eq("id", id);
 
-      if (updateCodeError) {
-        return NextResponse.json({ error: updateCodeError.message }, { status: 500 });
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
       }
 
       return NextResponse.json({ ok: true, claim_code: nextCode });
     }
 
-    const supabase = getAdminClient();
-
-    const payload = {
-      ...updates,
-      gold: Number(updates.gold || 0),
-      silver: Number(updates.silver || 0),
-      bronze: Number(updates.bronze || 0),
+    const updatePayload = {
       updated_at: new Date().toISOString(),
     };
 
+    const editableFields = [
+      "player_name",
+      "character_name",
+      "race",
+      "guild_rank",
+      "pathway",
+      "skill_1_name",
+      "skill_1_description",
+      "skill_2_name",
+      "skill_2_description",
+      "gold",
+      "silver",
+      "bronze",
+      "inventory",
+      "completed_quests",
+      "status",
+      "admin_notes",
+    ];
+
+    for (const field of editableFields) {
+      if (body[field] !== undefined) {
+        if (["gold", "silver", "bronze"].includes(field)) {
+          updatePayload[field] = Number(body[field] || 0);
+        } else {
+          updatePayload[field] = body[field];
+        }
+      }
+    }
+
+    if (body.status === "Active") {
+      const { data: currentCharacter, error: currentError } = await supabase
+        .from("characters")
+        .select("id,character_name,claim_code")
+        .eq("id", id)
+        .single();
+
+      if (currentError) {
+        return NextResponse.json({ error: currentError.message }, { status: 500 });
+      }
+
+      if (!currentCharacter.claim_code || String(currentCharacter.claim_code).trim() === "") {
+        updatePayload.claim_code = generateClaimCode(currentCharacter.character_name);
+      }
+    }
+
     const { error } = await supabase
       .from("characters")
-      .update(payload)
+      .update(updatePayload)
       .eq("id", id);
 
     if (error) {
@@ -150,39 +205,11 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const id = body?.id;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
     if (!id) {
       return NextResponse.json({ error: "Missing character id." }, { status: 400 });
-    }
-
-    if (action === "regenerate_claim_code") {
-      const { data: character, error: characterError } = await supabase
-        .from("characters")
-        .select("id,character_name")
-        .eq("id", id)
-        .single();
-
-      if (characterError) {
-        return NextResponse.json({ error: characterError.message }, { status: 500 });
-      }
-
-      const nextCode = generateClaimCode(character.character_name);
-
-      const { error: updateCodeError } = await supabase
-        .from("characters")
-        .update({
-          claim_code: nextCode,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id);
-
-      if (updateCodeError) {
-        return NextResponse.json({ error: updateCodeError.message }, { status: 500 });
-      }
-
-      return NextResponse.json({ ok: true, claim_code: nextCode });
     }
 
     const supabase = getAdminClient();
