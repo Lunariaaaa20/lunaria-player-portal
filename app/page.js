@@ -43,6 +43,13 @@ const defaultStats = [
 
   const [topAdventurers, setTopAdventurers] = useState([]);
 
+  const [tickerNotices, setTickerNotices] = useState([
+    "✦ Weekly Aid will be distributed every Solarys.",
+    "📜 New quests are available at the Guild Board.",
+    "🏆 Top adventurers will be featured every week.",
+    "⚙ Developer Notice: Lunaria Portal is entering premium launch phase.",
+  ]);
+
   useEffect(() => {
     async function loadHomeStats() {
       const [
@@ -51,6 +58,7 @@ const defaultStats = [
         applicationsResult,
         reportsResult,
         topAdventurersResult,
+        reportsLatestResult,
       ] = await Promise.all([
         supabase
           .from("characters")
@@ -78,6 +86,13 @@ const defaultStats = [
           .eq("status", "Active")
           .order("completed_quests", { ascending: false, nullsFirst: false })
           .limit(3),
+
+        supabase
+          .from("quest_reports")
+          .select("id, quest_title, character_name, player_name, status, submitted_at")
+          .eq("status", "Completed")
+          .order("submitted_at", { ascending: false })
+          .limit(3),
       ]);
 
       setLiveCounts({
@@ -88,6 +103,20 @@ const defaultStats = [
       });
 
       setTopAdventurers(topAdventurersResult.data || []);
+
+      const latestReports = reportsLatestResult.data || [];
+      if (latestReports.length > 0) {
+        setTickerNotices([
+          ...latestReports.map((report) => {
+            const actor = report.character_name || report.player_name || "An adventurer";
+            const quest = report.quest_title || "an official quest";
+            return `✦ ${actor} has completed ${quest}.`;
+          }),
+          "📜 New quests are available at the Guild Board.",
+          "🏆 Top adventurers will be featured every week.",
+          "⚙ Developer Notice: Lunaria Portal is entering premium launch phase.",
+        ]);
+      }
     }
 
     loadHomeStats();
@@ -138,10 +167,9 @@ return (
                                                                                                                                                           <main className="main">
           <div className="lunaria-ticker">
             <div className="lunaria-ticker-track">
-              <span>✦ Weekly Aid will be distributed every Solarys.</span>
-              <span>📜 New quests are available at the Guild Board.</span>
-              <span>🏆 Top adventurers will be featured every week.</span>
-              <span>⚙ Developer Notice: Lunaria Portal is entering premium launch phase.</span>
+              {tickerNotices.map((notice, index) => (
+                <span key={index}>{notice}</span>
+              ))}
             </div>
           </div>
 
