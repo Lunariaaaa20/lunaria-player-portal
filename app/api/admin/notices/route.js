@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { supabase } from "../../../../lib/supabase";
+import { supabaseAdmin } from "../../../../lib/supabaseAdmin";
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("portal_notices")
       .select("id, title, message, is_active, created_at")
       .eq("is_active", true)
@@ -34,7 +34,7 @@ export async function POST(request) {
       );
     }
 
-    const { error: deactivateError } = await supabase
+    const { error: deactivateError } = await supabaseAdmin
       .from("portal_notices")
       .update({ is_active: false })
       .eq("is_active", true);
@@ -43,7 +43,7 @@ export async function POST(request) {
       return NextResponse.json({ error: deactivateError.message }, { status: 500 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("portal_notices")
       .insert({
         title,
