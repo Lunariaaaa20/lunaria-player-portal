@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 const defaultStats = [
   { label: "Active Adventurers", value: "0", desc: "Data dari Adventurer Registry" },
