@@ -3348,3 +3348,187 @@
     font-size: 28px;
   }
 }
+
+/* Economy Admin Premium UI */
+.economy-admin-grid,
+.admin-economy-list,
+.economy-management-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.economy-admin-card,
+.admin-economy-card,
+.economy-management-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.09), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(70, 85, 110, 0.08), transparent 34%),
+    rgba(17, 23, 31, 0.86);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 14px 34px rgba(0, 0, 0, 0.13);
+}
+
+.economy-admin-card::before,
+.admin-economy-card::before,
+.economy-management-card::before {
+  content: "ECONOMY";
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  color: rgba(190, 160, 95, 0.045);
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+.economy-admin-card > *,
+.admin-economy-card > *,
+.economy-management-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.economy-admin-card h3,
+.admin-economy-card h3,
+.economy-management-card h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 25px;
+  letter-spacing: 0.03em;
+}
+
+.economy-admin-card p,
+.admin-economy-card p,
+.economy-management-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.economy-admin-meta,
+.economy-management-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.economy-admin-meta span,
+.economy-management-meta span {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.48);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.economy-admin-price {
+  color: var(--gold);
+  font-size: 22px;
+  font-weight: 900;
+  margin-top: 10px;
+}
+
+.economy-admin-status {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(190, 160, 95, 0.22);
+  background: rgba(190, 160, 95, 0.1);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.economy-admin-form,
+.economy-form-panel,
+.admin-economy-form {
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.07), transparent 34%),
+    rgba(17, 23, 31, 0.82);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.economy-admin-form-grid,
+.economy-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.economy-admin-form label,
+.economy-form-panel label,
+.admin-economy-form label {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.economy-admin-form input,
+.economy-admin-form select,
+.economy-admin-form textarea,
+.economy-form-panel input,
+.economy-form-panel select,
+.economy-form-panel textarea,
+.admin-economy-form input,
+.admin-economy-form select,
+.admin-economy-form textarea {
+  margin-top: 7px;
+  margin-bottom: 12px;
+}
+
+.economy-admin-actions,
+.economy-management-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.economy-admin-actions button,
+.economy-management-actions button {
+  min-width: 110px;
+  min-height: 40px;
+}
+
+@media (max-width: 900px) {
+  .economy-admin-form-grid,
+  .economy-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .economy-admin-form-grid,
+  .economy-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .economy-admin-card,
+  .admin-economy-card,
+  .economy-management-card {
+    padding: 15px;
+  }
+
+  .economy-admin-card::before,
+  .admin-economy-card::before,
+  .economy-management-card::before {
+    font-size: 26px;
+  }
+}
