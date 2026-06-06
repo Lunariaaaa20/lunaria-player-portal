@@ -5,74 +5,73 @@ import { useEffect, useState } from "react";
 
 const ADMIN_PASSWORD = "lunaria-admin";
 
-const adminModules = [
+const modules = [
   {
-    key: "quests",
-    title: "Quest Management",
-    href: "/admin/quests",
-    status: "Active",
-    description:
-      "Tambah, edit, hapus, dan kelola status quest Lunaria. Quest Draft tidak tampil di Quest Board public.",
-  },
-  {
-    key: "economy",
-    title: "Economy Management",
-    href: "/admin/economy",
-    status: "Active",
-    description:
-      "Tambah, edit, hapus, dan kelola harga item, makanan, blacksmith, layanan, material, dan loot exchange.",
-  },
-  {
-    key: "rules",
-    title: "Rules Management",
-    href: "/admin/rules",
-    status: "Active",
-    description:
-      "Tambah, edit, hapus, dan kelola aturan rank, pathway, quest, reward, inventory, combat, dan sistem komunitas.",
-  },
-  {
-    key: "characters",
     title: "Character Management",
     href: "/admin/characters",
     status: "Active",
-    description:
-      "Tambah, edit, approve, suspend, dan kelola ID Card karakter Lunaria.",
+    description: "Approve, suspend, edit, dan kelola ID Card karakter Lunaria.",
+    stats: [
+      ["Review", "Pending"],
+      ["Registry", "Active"],
+    ],
+  },
+  {
+    title: "Quest Applications",
+    href: "/admin/applications",
+    status: "Active",
+    description: "Approve Take Quest sebelum player menjalankan misi.",
+    stats: [
+      ["Take Quest", "Approval"],
+      ["Quest Lock", "Active"],
+    ],
+  },
+  {
+    title: "Quest Reports",
+    href: "/admin/reports",
+    status: "Active",
+    description: "Review laporan quest dan apply reward distribution ke ID Card.",
+    stats: [
+      ["Reward", "Auto"],
+      ["Party", "Supported"],
+    ],
+  },
+  {
+    title: "Quest Management",
+    href: "/admin/quests",
+    status: "Active",
+    description: "Tambah, edit, hapus, dan kelola status quest Lunaria.",
+    stats: [
+      ["Board", "Public"],
+      ["Status", "Managed"],
+    ],
+  },
+  {
+    title: "Economy Management",
+    href: "/admin/economy",
+    status: "Active",
+    description: "Kelola harga item, makanan, blacksmith, material, dan layanan.",
+    stats: [
+      ["Items", "Managed"],
+      ["Shop", "Ready"],
+    ],
+  },
+  {
+    title: "Rules Management",
+    href: "/admin/rules",
+    status: "Active",
+    description: "Kelola aturan rank, pathway, reward, inventory, combat, dan komunitas.",
+    stats: [
+      ["Rules", "Managed"],
+      ["Guide", "Public"],
+    ],
   },
 ];
 
-function getStatValue(stats, moduleKey, groupKey, valueKey) {
-  return stats?.[moduleKey]?.[groupKey]?.[valueKey] || 0;
-}
-
-export default function AdminDashboardPage() {
+export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
-  const [loginMessage, setLoginMessage] = useState("");
-  const [stats, setStats] = useState(null);
-  const [statsLoading, setStatsLoading] = useState(false);
-  const [statsMessage, setStatsMessage] = useState("");
-
-  async function loadStats(currentPassword = password) {
-    setStatsLoading(true);
-    setStatsMessage("");
-
-    const response = await fetch("/api/admin/stats", {
-      headers: {
-        "x-admin-password": currentPassword,
-      },
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      setStatsMessage(result.error || "Gagal memuat admin stats.");
-      setStatsLoading(false);
-      return;
-    }
-
-    setStats(result);
-    setStatsLoading(false);
-  }
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const savedPassword = window.localStorage.getItem("lunaria_admin_password");
@@ -80,29 +79,26 @@ export default function AdminDashboardPage() {
     if (savedPassword === ADMIN_PASSWORD) {
       setPassword(savedPassword);
       setUnlocked(true);
-      loadStats(savedPassword);
     }
   }, []);
 
-  async function handleLogin(event) {
+  function handleLogin(event) {
     event.preventDefault();
 
     if (password === ADMIN_PASSWORD) {
       window.localStorage.setItem("lunaria_admin_password", password);
       setUnlocked(true);
-      setLoginMessage("");
-      await loadStats(password);
+      setMessage("");
       return;
     }
 
-    setLoginMessage("Password salah.");
+    setMessage("Password salah.");
   }
 
   function logoutAdmin() {
     window.localStorage.removeItem("lunaria_admin_password");
     setUnlocked(false);
     setPassword("");
-    setStats(null);
   }
 
   return (
@@ -112,13 +108,22 @@ export default function AdminDashboardPage() {
         <div className="subtitle">Admin Dashboard</div>
 
         <nav className="nav">
+          <div className="nav-section-title">PUBLIC</div>
           <Link href="/">Home</Link>
           <Link href="/registry">Adventurer Registry</Link>
           <Link href="/quests">Quest Board</Link>
+          <Link href="/quest-report">Quest Report</Link>
           <Link href="/economy">Economy System</Link>
           <Link href="/rules">Rules & Guide</Link>
+
+          <div className="nav-section-title">PLAYER</div>
+          <Link href="/registration">Character Registration</Link>
+
+          <div className="nav-section-title">ADMIN</div>
           <Link href="/admin">Admin Dashboard</Link>
           <Link href="/admin/characters">Character Admin</Link>
+          <Link href="/admin/applications">Applications Admin</Link>
+          <Link href="/admin/reports">Reports Admin</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
           <Link href="/admin/rules">Rules Admin</Link>
@@ -129,8 +134,7 @@ export default function AdminDashboardPage() {
         <section className="hero">
           <h1>ADMIN PANEL</h1>
           <p>
-            Dashboard utama pengelolaan sistem Lunaria. Pilih modul kerja admin
-            sesuai kebutuhan operasional.
+            Dashboard utama pengelolaan sistem Lunaria. Pilih modul kerja admin sesuai kebutuhan operasional.
           </p>
         </section>
 
@@ -144,29 +148,24 @@ export default function AdminDashboardPage() {
                 <input
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(event) => setPassword(event.target.value)}
                   placeholder="Masukkan password admin"
                   required
                 />
               </label>
 
               <button className="admin-submit" type="submit">
-                Unlock Admin Dashboard
+                Unlock Admin Panel
               </button>
 
-              {loginMessage && <p className="admin-message">{loginMessage}</p>}
+              {message && <p className="admin-message">{message}</p>}
             </form>
           </section>
         ) : (
           <>
             <div className="admin-top-actions">
-              <button
-                className="admin-secondary"
-                type="button"
-                onClick={() => loadStats()}
-                disabled={statsLoading}
-              >
-                {statsLoading ? "Refreshing..." : "Refresh Stats"}
+              <button className="admin-secondary" type="button">
+                System Online
               </button>
 
               <button className="admin-danger" type="button" onClick={logoutAdmin}>
@@ -174,13 +173,11 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {statsMessage && <p className="admin-message">{statsMessage}</p>}
-
             <section className="section">
               <h2>Management Modules</h2>
 
               <div className="admin-module-grid">
-                {adminModules.map((module) => (
+                {modules.map((module) => (
                   <Link className="admin-module-card" href={module.href} key={module.title}>
                     <div className="admin-module-header">
                       <h3>{module.title}</h3>
@@ -189,89 +186,14 @@ export default function AdminDashboardPage() {
 
                     <p>{module.description}</p>
 
-                    {module.key === "quests" && (
-                      <div className="admin-stat-grid">
-                        <div>
-                          <strong>{stats?.quests?.total || 0}</strong>
-                          <span>Total Quests</span>
+                    <div className="admin-module-stats">
+                      {module.stats.map(([label, value]) => (
+                        <div key={`${module.title}-${label}`}>
+                          <strong>{value}</strong>
+                          <span>{label}</span>
                         </div>
-                        <div>
-                          <strong>{getStatValue(stats, "quests", "byStatus", "Available")}</strong>
-                          <span>Available</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "quests", "byStatus", "Draft")}</strong>
-                          <span>Draft</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "quests", "byStatus", "Closed")}</strong>
-                          <span>Closed</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {module.key === "economy" && (
-                      <div className="admin-stat-grid">
-                        <div>
-                          <strong>{stats?.economy?.total || 0}</strong>
-                          <span>Total Items</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "economy", "byAvailability", "Available")}</strong>
-                          <span>Available</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "economy", "byAvailability", "Limited")}</strong>
-                          <span>Limited</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "economy", "byAvailability", "Restricted")}</strong>
-                          <span>Restricted</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {module.key === "rules" && (
-                      <div className="admin-stat-grid">
-                        <div>
-                          <strong>{stats?.rules?.total || 0}</strong>
-                          <span>Total Rules</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "rules", "byStatus", "Active")}</strong>
-                          <span>Active</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "rules", "byStatus", "Draft")}</strong>
-                          <span>Draft</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "rules", "byStatus", "Archived")}</strong>
-                          <span>Archived</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {module.key === "characters" && (
-                      <div className="admin-stat-grid">
-                        <div>
-                          <strong>{stats?.characters?.total || 0}</strong>
-                          <span>Total Characters</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "characters", "byStatus", "Active")}</strong>
-                          <span>Active</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "characters", "byStatus", "Pending")}</strong>
-                          <span>Pending</span>
-                        </div>
-                        <div>
-                          <strong>{getStatValue(stats, "characters", "byStatus", "Suspended")}</strong>
-                          <span>Suspended</span>
-                        </div>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </Link>
                 ))}
               </div>
