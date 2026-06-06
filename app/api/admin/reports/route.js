@@ -131,7 +131,7 @@ export async function PATCH(request) {
 
     const { data: existingReport, error: existingReportError } = await supabase
       .from("quest_reports")
-      .select("id,status,quest_title,quest_application_id,character_id")
+      .select("id,status,quest_title,quest_application_id,quest_id,character_id")
       .eq("id", id)
       .single();
 
@@ -204,6 +204,31 @@ export async function PATCH(request) {
     }
 
     if (status === "Approved") {
+      if (existingReport.quest_application_id) {
+        const { error: applicationUpdateError } = await supabase
+          .from("quest_applications")
+          .update({
+            status: "Completed",
+            reviewed_at: new Date().toISOString(),
+          })
+          .eq("id", existingReport.quest_application_id);
+
+        if (applicationUpdateError) {
+          return NextResponse.json({ error: applicationUpdateError.message }, { status: 500 });
+        }
+      }
+
+      if (existingReport.quest_id) {
+        const { error: questUpdateError } = await supabase
+          .from("quests")
+          .update({ status: "Completed" })
+          .eq("id", existingReport.quest_id);
+
+        if (questUpdateError) {
+          return NextResponse.json({ error: questUpdateError.message }, { status: 500 });
+        }
+      }
+
       for (const reward of normalizedDistribution) {
         const { data: character, error: characterError } = await supabase
           .from("characters")
