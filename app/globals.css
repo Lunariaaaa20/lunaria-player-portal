@@ -1188,3 +1188,88 @@
 .report-approval-grid select:focus {
   border-color: rgba(190, 160, 95, 0.55);
 }
+
+.take-quest-panel {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.take-quest-panel strong {
+  color: var(--gold);
+  font-size: 13px;
+}
+
+.take-quest-panel select,
+.take-quest-panel textarea {
+  width: 100%;
+  background: rgba(9, 13, 19, 0.72);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+
+.take-quest-panel select:focus,
+.take-quest-panel textarea:focus {
+  border-color: rgba(190, 160, 95, 0.55);
+}
+
+.quest-category {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.quest-list {
+  display: grid;
+  gap: 16px;
+}
+
+.quest-card {
+  border: 1px solid var(--border);
+  background: rgba(21, 27, 36, 0.78);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.quest-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.quest-card-header h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 24px;
+}
+
+.quest-card-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.quest-card-header span {
+  border: 1px solid rgba(190, 160, 95, 0.28);
+  background: rgba(190, 160, 95, 0.12);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .quest-card-header {
+    flex-direction: column;
+  }
+}
