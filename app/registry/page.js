@@ -178,7 +178,7 @@ export default function RegistryPage() {
             </button>
           </div>
 
-          <div className="filter-row">
+          <div className="registry-filter-row">
             <input
               type="text"
               value={search}

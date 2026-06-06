@@ -1872,3 +1872,50 @@
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 18px;
 }
+
+.registry-filter-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(130px, 0.7fr) minmax(130px, 0.7fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 18px 0;
+}
+
+.registry-filter-row input,
+.registry-filter-row select {
+  min-height: 44px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  background: rgba(8, 12, 18, 0.72);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0 13px;
+  outline: none;
+}
+
+.registry-filter-row input::placeholder {
+  color: rgba(210, 215, 225, 0.48);
+}
+
+.registry-filter-row input:focus,
+.registry-filter-row select:focus {
+  border-color: rgba(190, 160, 95, 0.45);
+  box-shadow: 0 0 0 3px rgba(190, 160, 95, 0.09);
+}
+
+.registry-filter-row select option {
+  background: #10151d;
+  color: #e8e4d8;
+}
+
+.registry-count-text {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 820px) {
+  .registry-filter-row {
+    grid-template-columns: 1fr;
+  }
+}
