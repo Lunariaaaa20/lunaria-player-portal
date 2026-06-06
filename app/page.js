@@ -16,7 +16,7 @@ const stats = [
 
                                             <nav className="nav">
                                                       <Link href="/">Home</Link>
-                                                                <Link href="/adventurers">Adventurer Registry</Link>
+                                                                <Link href="/registry">Adventurer Registry</Link>
                                                                           <Link href="/quests">Quest Board</Link>
                                                                                     <Link href="/registration">Character Registration</Link>
                                                                                               <Link href="/quest-report">Quest Report</Link>
