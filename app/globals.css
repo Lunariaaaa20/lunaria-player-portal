@@ -4254,3 +4254,48 @@ body::after {
                                                      border-color: rgba(226, 186, 95, 0.68);
                                                        box-shadow: 0 0 28px rgba(226, 186, 95, 0.18), inset 0 0 24px rgba(226, 186, 95, 0.09);
                                                        }
+                                                       /* ================================
+                                                          Registry Premium Polish
+                                                          ================================ */
+
+                                                          .registry-card .rank-icon {
+                                                            width: 28px;
+                                                              height: 28px;
+                                                              }
+
+                                                              .registry-card .pathway-icon {
+                                                                width: 24px;
+                                                                  height: 24px;
+                                                                  }
+
+                                                                  .registry-card .rank-badge {
+                                                                    padding: 7px 13px;
+                                                                      gap: 9px;
+                                                                        min-width: 104px;
+                                                                          justify-content: center;
+                                                                          }
+
+                                                                          .registry-card.rank-initiate {
+                                                                            border-color: rgba(190, 196, 205, 0.24);
+                                                                              box-shadow: 0 0 18px rgba(190, 196, 205, 0.06);
+                                                                              }
+
+                                                                              .registry-card.rank-seeker {
+                                                                                border-color: rgba(104, 156, 220, 0.38);
+                                                                                  box-shadow: 0 0 24px rgba(87, 130, 190, 0.1);
+                                                                                  }
+
+                                                                                  .registry-card.rank-warden {
+                                                                                    border-color: rgba(117, 190, 135, 0.42);
+                                                                                      box-shadow: 0 0 26px rgba(86, 160, 108, 0.12);
+                                                                                      }
+
+                                                                                      .registry-card.rank-arbiter {
+                                                                                        border-color: rgba(190, 82, 70, 0.5);
+                                                                                          box-shadow: 0 0 28px rgba(160, 45, 38, 0.14);
+                                                                                          }
+
+                                                                                          .registry-card.rank-high-council {
+                                                                                            border-color: rgba(226, 186, 95, 0.62);
+                                                                                              box-shadow: 0 0 34px rgba(226, 186, 95, 0.18);
+                                                                                              }
