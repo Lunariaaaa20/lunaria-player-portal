@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { getRankTheme, getPathwayTheme } from "../../lib/visualTheme";
 
 function formatTextBlock(value) {
   if (!value || String(value).trim() === "") return "-";
@@ -227,7 +228,10 @@ export default function RegistryPage() {
                       <p>{character.player_name || "-"}</p>
                     </div>
 
-                    <span className="rank-seal">{character.guild_rank || "Unranked"}</span>
+                    <span className={`rank-seal rank-badge ${rankVisual.className}`}>
+                    <img src={rankVisual.icon} alt="" className="rank-icon" />
+                    {character.guild_rank || "Unranked"}
+                  </span>
                   </div>
 
                   <div className="registry-info-grid">
@@ -238,7 +242,12 @@ export default function RegistryPage() {
 
                     <div className="registry-info-box">
                       <span>Pathway</span>
-                      <strong>{character.pathway || "-"}</strong>
+                      <strong className="pathway-badge">
+                    {pathwayVisual.icon && (
+                      <img src={pathwayVisual.icon} alt="" className="pathway-icon" />
+                    )}
+                    {character.pathway || "-"}
+                  </strong>
                     </div>
 
                     <div className="registry-info-box">
