@@ -12,6 +12,10 @@ const defaultStats = [
         ];
 
         export default function HomePage() {
+  function safeNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+  }
           
   const [liveCounts, setLiveCounts] = useState({
     activeAdventurers: 0,
