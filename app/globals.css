@@ -2616,3 +2616,108 @@
     min-height: auto;
   }
 }
+
+/* Admin dashboard metric polish */
+.stats-grid,
+.dashboard-stats,
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.stat-card,
+.metric-card {
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.08), transparent 34%),
+    rgba(17, 23, 31, 0.82);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.stat-card strong,
+.metric-card strong,
+.stat-card h3,
+.metric-card h3 {
+  color: var(--gold);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.stat-card p,
+.metric-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* Quick Access polish */
+.quick-access-grid,
+.quick-grid,
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.quick-access-card,
+.quick-card,
+.portal-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.08), transparent 34%),
+    rgba(8, 12, 18, 0.48);
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 110px;
+  text-decoration: none;
+}
+
+.quick-access-card::before,
+.quick-card::before,
+.portal-card::before {
+  content: "ACCESS";
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  color: rgba(190, 160, 95, 0.045);
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+.quick-access-card h3,
+.quick-card h3,
+.portal-card h3 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 22px;
+}
+
+.quick-access-card p,
+.quick-card p,
+.portal-card p {
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.quick-access-card:hover,
+.quick-card:hover,
+.portal-card:hover {
+  border-color: rgba(190, 160, 95, 0.36);
+  transform: translateY(-1px);
+  transition: 160ms ease;
+}
