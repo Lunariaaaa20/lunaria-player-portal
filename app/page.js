@@ -55,7 +55,7 @@ const defaultStats = [
           .from("characters")
           .select("id, player_name, guild_rank, completed_quests")
           .eq("status", "Active")
-          .order("completed_quests", { ascending: false })
+          .order("completed_quests", { ascending: false, nullsFirst: false })
           .limit(3),
       ]);
 
@@ -162,7 +162,7 @@ return (
                     <div>
                       <strong>{adventurer.player_name || "Unknown Adventurer"}</strong>
                       <p>
-                        {adventurer.guild_rank || "Unranked"} • {Number(adventurer.completed_quests || 0)} Completed Missions
+                        {adventurer.guild_rank || "Unranked"} • {safeNumber(adventurer.completed_quests)} Completed Missions
                       </p>
                     </div>
                     <span>Top {index + 1}</span>
