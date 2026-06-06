@@ -77,11 +77,17 @@ export default function QuestsPage() {
     }));
   }
 
-  function updateParty(questId, value) {
-    setPartyByQuest((current) => ({
-      ...current,
-      [questId]: value,
-    }));
+  function updatePartyMember(questId, slotIndex, characterId) {
+    setPartyByQuest((current) => {
+      const currentSlots = current[questId] || ["", "", ""];
+      const nextSlots = [...currentSlots];
+      nextSlots[slotIndex] = characterId;
+
+      return {
+        ...current,
+        [questId]: nextSlots,
+      };
+    });
   }
 
   function updateNote(questId, value) {
@@ -91,18 +97,37 @@ export default function QuestsPage() {
     }));
   }
 
+  function getPartyIds(questId) {
+    return [...new Set((partyByQuest[questId] || []).filter(Boolean))];
+  }
+
+  function getAvailablePartyCharacters(questId) {
+    const mainCharacterId = selectedCharacterByQuest[questId] || "";
+    return characters.filter((character) => character.id !== mainCharacterId);
+  }
+
   async function takeQuest(quest) {
     const characterId = selectedCharacterByQuest[quest.id] || "";
-    const partyMembers = partyByQuest[quest.id] || "";
+    const partyIds = getPartyIds(quest.id);
     const applicationNote = noteByQuest[quest.id] || "";
 
     if (!characterId) {
-      window.alert("Pilih character dulu sebelum Take Quest.");
+      window.alert("Pilih Main Character dulu sebelum Take Quest.");
       return;
     }
 
-    if ((quest.mode === "Duo" || quest.mode === "Party") && !partyMembers.trim()) {
-      window.alert(`Quest ${quest.mode} wajib isi party members.`);
+    if (quest.mode === "Solo" && partyIds.length > 0) {
+      window.alert("Quest Solo tidak boleh memiliki party member.");
+      return;
+    }
+
+    if (quest.mode === "Duo" && partyIds.length !== 1) {
+      window.alert("Quest Duo wajib pilih tepat 1 Partner Character.");
+      return;
+    }
+
+    if (quest.mode === "Party" && partyIds.length < 2) {
+      window.alert("Quest Party wajib pilih minimal 2 Party Member.");
       return;
     }
 
@@ -119,7 +144,7 @@ export default function QuestsPage() {
       body: JSON.stringify({
         character_id: characterId,
         quest_id: quest.id,
-        party_members: partyMembers,
+        party_member_ids: partyIds,
         application_note: applicationNote,
       }),
     });
@@ -138,8 +163,10 @@ export default function QuestsPage() {
     window.alert(successMessage);
 
     setSelectedCharacterByQuest((current) => ({ ...current, [quest.id]: "" }));
-    setPartyByQuest((current) => ({ ...current, [quest.id]: "" }));
+    setPartyByQuest((current) => ({ ...current, [quest.id]: ["", "", ""] }));
     setNoteByQuest((current) => ({ ...current, [quest.id]: "" }));
+
+    await loadData();
   }
 
   function clearFilters() {
@@ -228,82 +255,100 @@ export default function QuestsPage() {
                   <p className="muted">{items.length} quests</p>
 
                   <div className="quest-list">
-                    {items.map((quest) => (
-                      <article className="quest-card" key={quest.id}>
-                        <div className="quest-card-header">
-                          <div>
-                            <h3>{quest.title}</h3>
-                            <p>
-                              {quest.rank} • {quest.type} • {quest.mode} • {quest.location}
-                            </p>
+                    {items.map((quest) => {
+                      const availablePartyCharacters = getAvailablePartyCharacters(quest.id);
+                      const partySlots = quest.mode === "Duo" ? [0] : quest.mode === "Party" ? [0, 1, 2] : [];
+
+                      return (
+                        <article className="quest-card" key={quest.id}>
+                          <div className="quest-card-header">
+                            <div>
+                              <h3>{quest.title}</h3>
+                              <p>
+                                {quest.rank} • {quest.type} • {quest.mode} • {quest.location}
+                              </p>
+                            </div>
+
+                            <span>{quest.status}</span>
                           </div>
 
-                          <span>{quest.status}</span>
-                        </div>
+                          <p>{quest.description}</p>
 
-                        <p>{quest.description}</p>
+                          <div className="report-block">
+                            <strong>Objective</strong>
+                            <p>{quest.objective}</p>
+                          </div>
 
-                        <div className="report-block">
-                          <strong>Objective</strong>
-                          <p>{quest.objective}</p>
-                        </div>
+                          <div className="report-block">
+                            <strong>Monster / Target</strong>
+                            <p>{quest.monster}</p>
+                          </div>
 
-                        <div className="report-block">
-                          <strong>Monster / Target</strong>
-                          <p>{quest.monster}</p>
-                        </div>
+                          <div className="report-block">
+                            <strong>Reward</strong>
+                            <p>{quest.reward}</p>
+                          </div>
 
-                        <div className="report-block">
-                          <strong>Reward</strong>
-                          <p>{quest.reward}</p>
-                        </div>
+                          <div className="report-block">
+                            <strong>Possible Loot</strong>
+                            <p>{quest.possible_loot}</p>
+                          </div>
 
-                        <div className="report-block">
-                          <strong>Possible Loot</strong>
-                          <p>{quest.possible_loot}</p>
-                        </div>
+                          <div className="take-quest-panel">
+                            <strong>Take Quest Application</strong>
 
-                        <div className="take-quest-panel">
-                          <strong>Take Quest Application</strong>
+                            <label className="take-quest-label">
+                              Main Character
+                              <select
+                                value={selectedCharacterByQuest[quest.id] || ""}
+                                onChange={(e) => updateSelectedCharacter(quest.id, e.target.value)}
+                              >
+                                <option value="">Select Main Character</option>
+                                {characters.map((character) => (
+                                  <option key={character.id} value={character.id}>
+                                    {character.character_name} — {character.player_name} — {character.guild_rank}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
 
-                          <select
-                            value={selectedCharacterByQuest[quest.id] || ""}
-                            onChange={(e) => updateSelectedCharacter(quest.id, e.target.value)}
-                          >
-                            <option value="">Select Active Character</option>
-                            {characters.map((character) => (
-                              <option key={character.id} value={character.id}>
-                                {character.character_name} — {character.player_name} — {character.guild_rank}
-                              </option>
+                            {partySlots.map((slotIndex) => (
+                              <label className="take-quest-label" key={slotIndex}>
+                                {quest.mode === "Duo"
+                                  ? "Partner Character"
+                                  : `Party Member ${slotIndex + 1}`}
+                                <select
+                                  value={(partyByQuest[quest.id] || [])[slotIndex] || ""}
+                                  onChange={(e) => updatePartyMember(quest.id, slotIndex, e.target.value)}
+                                >
+                                  <option value="">Select Party Member</option>
+                                  {availablePartyCharacters.map((character) => (
+                                    <option key={character.id} value={character.id}>
+                                      {character.character_name} — {character.player_name} — {character.guild_rank}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
                             ))}
-                          </select>
 
-                          {(quest.mode === "Duo" || quest.mode === "Party") && (
                             <textarea
-                              value={partyByQuest[quest.id] || ""}
-                              onChange={(e) => updateParty(quest.id, e.target.value)}
-                              placeholder="Party members wajib diisi. Contoh: Rei, Aeltheria"
+                              value={noteByQuest[quest.id] || ""}
+                              onChange={(e) => updateNote(quest.id, e.target.value)}
+                              placeholder="Application note opsional. Contoh: rencana pendek, alasan ambil quest, atau catatan party."
                               rows="3"
                             />
-                          )}
 
-                          <textarea
-                            value={noteByQuest[quest.id] || ""}
-                            onChange={(e) => updateNote(quest.id, e.target.value)}
-                            placeholder="Application note opsional. Contoh: rencana pendek, partner, atau alasan ambil quest."
-                            rows="3"
-                          />
-
-                          <button
-                            className="admin-submit"
-                            type="button"
-                            onClick={() => takeQuest(quest)}
-                          >
-                            Take Quest
-                          </button>
-                        </div>
-                      </article>
-                    ))}
+                            <button
+                              className="admin-submit"
+                              type="button"
+                              onClick={() => takeQuest(quest)}
+                            >
+                              Take Quest
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                 </div>
               );
