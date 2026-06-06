@@ -15,6 +15,15 @@ function getAdminClient() {
 function isAuthorized(request) {
   const password = request.headers.get("x-admin-password");
   return password && password === process.env.ADMIN_PASSWORD;
+}\n\nfunction generateClaimCode(characterName) {
+  const cleaned = String(characterName || "LUN")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase();
+
+  const prefix = (cleaned.slice(0, 3) || "LUN").padEnd(3, "X");
+  const number = Math.floor(1000 + Math.random() * 9000);
+
+  return `${prefix}-${number}`;
 }
 
 export async function GET(request) {
@@ -82,6 +91,34 @@ export async function PATCH(request) {
       return NextResponse.json({ error: "Missing character id." }, { status: 400 });
     }
 
+    if (action === "regenerate_claim_code") {
+      const { data: character, error: characterError } = await supabase
+        .from("characters")
+        .select("id,character_name")
+        .eq("id", id)
+        .single();
+
+      if (characterError) {
+        return NextResponse.json({ error: characterError.message }, { status: 500 });
+      }
+
+      const nextCode = generateClaimCode(character.character_name);
+
+      const { error: updateCodeError } = await supabase
+        .from("characters")
+        .update({
+          claim_code: nextCode,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+
+      if (updateCodeError) {
+        return NextResponse.json({ error: updateCodeError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ ok: true, claim_code: nextCode });
+    }
+
     const supabase = getAdminClient();
 
     const payload = {
@@ -118,6 +155,34 @@ export async function DELETE(request) {
 
     if (!id) {
       return NextResponse.json({ error: "Missing character id." }, { status: 400 });
+    }
+
+    if (action === "regenerate_claim_code") {
+      const { data: character, error: characterError } = await supabase
+        .from("characters")
+        .select("id,character_name")
+        .eq("id", id)
+        .single();
+
+      if (characterError) {
+        return NextResponse.json({ error: characterError.message }, { status: 500 });
+      }
+
+      const nextCode = generateClaimCode(character.character_name);
+
+      const { error: updateCodeError } = await supabase
+        .from("characters")
+        .update({
+          claim_code: nextCode,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+
+      if (updateCodeError) {
+        return NextResponse.json({ error: updateCodeError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ ok: true, claim_code: nextCode });
     }
 
     const supabase = getAdminClient();
