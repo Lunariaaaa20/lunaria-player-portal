@@ -310,7 +310,10 @@ export default function QuestsPage() {
                             <span>{quest.status}</span>
                           </div>
 
-                          <p>{quest.description}</p>
+                          <div className="report-block">
+                    <strong>Description</strong>
+                    <p>{quest.description || "No description provided."}</p>
+                  </div>
 
                           <div className="report-block">
                             <strong>Objective</strong>
@@ -319,7 +322,7 @@ export default function QuestsPage() {
 
                           <div className="report-block">
                             <strong>Monster / Target</strong>
-                            <p>{quest.monster}</p>
+                            <p>{quest.monster || "No specific monster / target."}</p>
                           </div>
 
                           <div className="report-block">
