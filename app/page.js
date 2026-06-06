@@ -59,6 +59,7 @@ const defaultStats = [
         reportsResult,
         topAdventurersResult,
         reportsLatestResult,
+        portalNoticeResult,
       ] = await Promise.all([
         supabase
           .from("characters")
@@ -93,6 +94,13 @@ const defaultStats = [
           .eq("status", "Completed")
           .order("submitted_at", { ascending: false })
           .limit(3),
+
+        supabase
+          .from("portal_notices")
+          .select("id, title, message, is_active, created_at")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(1),
       ]);
 
       setLiveCounts({
@@ -105,18 +113,22 @@ const defaultStats = [
       setTopAdventurers(topAdventurersResult.data || []);
 
       const latestReports = reportsLatestResult.data || [];
-      if (latestReports.length > 0) {
-        setTickerNotices([
-          ...latestReports.map((report) => {
-            const actor = report.character_name || report.player_name || "An adventurer";
-            const quest = report.quest_title || "an official quest";
-            return `✦ ${actor} has completed ${quest}.`;
-          }),
-          "📜 New quests are available at the Guild Board.",
-          "🏆 Top adventurers will be featured every week.",
-          "⚙ Developer Notice: Lunaria Portal is entering premium launch phase.",
-        ]);
-      }
+      const activeNotice = portalNoticeResult.data?.[0];
+
+      const dynamicNotices = [
+        ...latestReports.map((report) => {
+          const actor = report.character_name || report.player_name || "An adventurer";
+          const quest = report.quest_title || "an official quest";
+          return `✦ ${actor} has completed ${quest}.`;
+        }),
+        "📜 New quests are available at the Guild Board.",
+        "🏆 Top adventurers will be featured every week.",
+        activeNotice?.message
+          ? `⚙ ${activeNotice.title || "Developer Notice"}: ${activeNotice.message}`
+          : "⚙ Developer Notice: Lunaria Portal is entering premium launch phase.",
+      ];
+
+      setTickerNotices(dynamicNotices);
     }
 
     loadHomeStats();
