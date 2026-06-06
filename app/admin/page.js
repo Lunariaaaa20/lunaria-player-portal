@@ -72,6 +72,9 @@ export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [noticeTitle, setNoticeTitle] = useState("Developer Notice");
+  const [noticeMessage, setNoticeMessage] = useState("");
+  const [noticeSaving, setNoticeSaving] = useState(false);
 
   useEffect(() => {
     const savedPassword = window.localStorage.getItem("lunaria_admin_password");
@@ -80,6 +83,24 @@ export default function AdminPage() {
       setPassword(savedPassword);
       setUnlocked(true);
     }
+  }, []);
+
+  useEffect(() => {
+    async function loadNotice() {
+      try {
+        const response = await fetch("/api/admin/notices");
+        const result = await response.json();
+
+        if (result.notice) {
+          setNoticeTitle(result.notice.title || "Developer Notice");
+          setNoticeMessage(result.notice.message || "");
+        }
+      } catch (error) {
+        console.error("Failed to load developer notice:", error);
+      }
+    }
+
+    loadNotice();
   }, []);
 
   function handleLogin(event) {
@@ -99,6 +120,48 @@ export default function AdminPage() {
     window.localStorage.removeItem("lunaria_admin_password");
     setUnlocked(false);
     setPassword("");
+  }
+
+  async function handleSaveNotice(event) {
+    event.preventDefault();
+
+    const cleanTitle = noticeTitle.trim() || "Developer Notice";
+    const cleanMessage = noticeMessage.trim();
+
+    if (!cleanMessage) {
+      setMessage("Developer notice message cannot be empty.");
+      return;
+    }
+
+    setNoticeSaving(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/admin/notices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: cleanTitle,
+          message: cleanMessage,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save developer notice.");
+      }
+
+      setNoticeTitle(result.notice?.title || cleanTitle);
+      setNoticeMessage(result.notice?.message || cleanMessage);
+      setMessage("Developer notice updated successfully.");
+    } catch (error) {
+      setMessage(error.message || "Failed to save developer notice.");
+    } finally {
+      setNoticeSaving(false);
+    }
   }
 
   return (
