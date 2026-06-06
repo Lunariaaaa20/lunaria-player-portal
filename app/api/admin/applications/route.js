@@ -68,6 +68,16 @@ export async function PATCH(request) {
 
     const supabase = getAdminClient();
 
+    const { data: application, error: applicationError } = await supabase
+      .from("quest_applications")
+      .select("id,quest_id,status")
+      .eq("id", id)
+      .single();
+
+    if (applicationError) {
+      return NextResponse.json({ error: applicationError.message }, { status: 500 });
+    }
+
     const { error } = await supabase
       .from("quest_applications")
       .update({
@@ -79,6 +89,29 @@ export async function PATCH(request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (application?.quest_id) {
+      let nextQuestStatus = null;
+
+      if (["Approved", "Ongoing", "Completed"].includes(status)) {
+        nextQuestStatus = "Unavailable";
+      }
+
+      if (["Rejected", "Archived"].includes(status)) {
+        nextQuestStatus = "Available";
+      }
+
+      if (nextQuestStatus) {
+        const { error: questError } = await supabase
+          .from("quests")
+          .update({ status: nextQuestStatus })
+          .eq("id", application.quest_id);
+
+        if (questError) {
+          return NextResponse.json({ error: questError.message }, { status: 500 });
+        }
+      }
     }
 
     return NextResponse.json({ ok: true });

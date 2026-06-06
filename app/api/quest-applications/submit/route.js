@@ -79,7 +79,24 @@ export async function POST(request) {
 
     if (!quest || quest.status !== "Available") {
       return NextResponse.json(
-        { error: "Quest tidak Available." },
+        { error: "Quest ini sudah tidak Available atau sedang diambil player lain." },
+        { status: 400 }
+      );
+    }
+
+    const { data: questApplications, error: questAppError } = await supabase
+      .from("quest_applications")
+      .select("id,status")
+      .eq("quest_id", quest_id)
+      .in("status", ["Pending Approval", "Approved", "Ongoing"]);
+
+    if (questAppError) {
+      return NextResponse.json({ error: questAppError.message }, { status: 500 });
+    }
+
+    if ((questApplications || []).length > 0) {
+      return NextResponse.json(
+        { error: "Quest ini sudah diambil atau sedang menunggu approval." },
         { status: 400 }
       );
     }
@@ -139,9 +156,18 @@ export async function POST(request) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
+    const { error: questUpdateError } = await supabase
+      .from("quests")
+      .update({ status: "Unavailable" })
+      .eq("id", quest.id);
+
+    if (questUpdateError) {
+      return NextResponse.json({ error: questUpdateError.message }, { status: 500 });
+    }
+
     return NextResponse.json({
       ok: true,
-      message: "Quest application submitted. Waiting for admin approval.",
+      message: "Quest application submitted. Quest dikunci sementara sampai admin review.",
     });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
