@@ -18,26 +18,31 @@ function isAuthorized(request) {
 }
 
 function appendTextList(currentText, newText) {
-  if (!newText || newText.trim() === "") {
+  if (!newText || String(newText).trim() === "") {
     return currentText || "";
   }
 
-  if (!currentText || currentText.trim() === "") {
-    return newText.trim();
+  if (!currentText || String(currentText).trim() === "") {
+    return String(newText).trim();
   }
 
-  return `${currentText.trim()}\n${newText.trim()}`;
+  return `${String(currentText).trim()}\n${String(newText).trim()}`;
 }
 
 function appendCompletedQuest(currentCompleted, questTitle) {
-  if (!questTitle || questTitle.trim() === "") {
+  if (!questTitle || String(questTitle).trim() === "") {
     return currentCompleted || "";
   }
 
-  const title = questTitle.trim();
+  const title = String(questTitle).trim();
   const current = currentCompleted || "";
 
-  if (current.split("\n").map((item) => item.replace(/^•\s*/, "").trim()).includes(title)) {
+  const existingTitles = current
+    .split("\n")
+    .map((item) => item.replace(/^•\s*/, "").trim())
+    .filter(Boolean);
+
+  if (existingTitles.includes(title)) {
     return current;
   }
 
@@ -48,6 +53,18 @@ function appendCompletedQuest(currentCompleted, questTitle) {
   }
 
   return `${current.trim()}\n${line}`;
+}
+
+function normalizeRewardEntry(entry) {
+  return {
+    character_id: entry.character_id || "",
+    character_name: entry.character_name || "",
+    gold: Number(entry.gold || 0),
+    silver: Number(entry.silver || 0),
+    bronze: Number(entry.bronze || 0),
+    inventory: entry.inventory || "",
+    rank: entry.rank || "",
+  };
 }
 
 export async function GET(request) {
@@ -91,6 +108,7 @@ export async function PATCH(request) {
       approved_bronze = 0,
       approved_inventory = "",
       approved_rank = "",
+      reward_distribution = [],
     } = body;
 
     if (!id) {
@@ -113,7 +131,7 @@ export async function PATCH(request) {
 
     const { data: existingReport, error: existingReportError } = await supabase
       .from("quest_reports")
-      .select("id,status,quest_title")
+      .select("id,status,quest_title,quest_application_id,character_id")
       .eq("id", id)
       .single();
 
@@ -128,17 +146,53 @@ export async function PATCH(request) {
       );
     }
 
+    let normalizedDistribution = Array.isArray(reward_distribution)
+      ? reward_distribution.map(normalizeRewardEntry).filter((entry) => entry.character_id)
+      : [];
+
+    if (status === "Approved" && normalizedDistribution.length === 0 && character_id) {
+      normalizedDistribution = [
+        {
+          character_id,
+          character_name: "",
+          gold: Number(approved_gold || 0),
+          silver: Number(approved_silver || 0),
+          bronze: Number(approved_bronze || 0),
+          inventory: approved_inventory || "",
+          rank: approved_rank || "",
+        },
+      ];
+    }
+
+    if (status === "Approved" && normalizedDistribution.length === 0) {
+      return NextResponse.json(
+        { error: "Reward distribution kosong. Pilih minimal 1 character target." },
+        { status: 400 }
+      );
+    }
+
     const reportPayload = {
       status,
       admin_notes: admin_notes || "",
       reviewed_at: new Date().toISOString(),
-      character_id: character_id || null,
-      approved_gold: Number(approved_gold || 0),
-      approved_silver: Number(approved_silver || 0),
-      approved_bronze: Number(approved_bronze || 0),
-      approved_inventory: approved_inventory || "",
-      approved_rank: approved_rank || "",
+      reward_distribution: normalizedDistribution,
     };
+
+    if (normalizedDistribution.length === 1) {
+      reportPayload.character_id = normalizedDistribution[0].character_id;
+      reportPayload.approved_gold = normalizedDistribution[0].gold;
+      reportPayload.approved_silver = normalizedDistribution[0].silver;
+      reportPayload.approved_bronze = normalizedDistribution[0].bronze;
+      reportPayload.approved_inventory = normalizedDistribution[0].inventory;
+      reportPayload.approved_rank = normalizedDistribution[0].rank;
+    } else {
+      reportPayload.character_id = existingReport.character_id || normalizedDistribution[0]?.character_id || null;
+      reportPayload.approved_gold = 0;
+      reportPayload.approved_silver = 0;
+      reportPayload.approved_bronze = 0;
+      reportPayload.approved_inventory = "";
+      reportPayload.approved_rank = "";
+    }
 
     const { error: reportError } = await supabase
       .from("quest_reports")
@@ -149,37 +203,39 @@ export async function PATCH(request) {
       return NextResponse.json({ error: reportError.message }, { status: 500 });
     }
 
-    if (status === "Approved" && character_id) {
-      const { data: character, error: characterError } = await supabase
-        .from("characters")
-        .select("gold,silver,bronze,inventory,guild_rank,completed_quests")
-        .eq("id", character_id)
-        .single();
+    if (status === "Approved") {
+      for (const reward of normalizedDistribution) {
+        const { data: character, error: characterError } = await supabase
+          .from("characters")
+          .select("id,gold,silver,bronze,inventory,guild_rank,completed_quests")
+          .eq("id", reward.character_id)
+          .single();
 
-      if (characterError) {
-        return NextResponse.json({ error: characterError.message }, { status: 500 });
-      }
+        if (characterError) {
+          return NextResponse.json({ error: characterError.message }, { status: 500 });
+        }
 
-      const characterPayload = {
-        gold: Number(character.gold || 0) + Number(approved_gold || 0),
-        silver: Number(character.silver || 0) + Number(approved_silver || 0),
-        bronze: Number(character.bronze || 0) + Number(approved_bronze || 0),
-        inventory: appendTextList(character.inventory, approved_inventory),
-        completed_quests: appendCompletedQuest(character.completed_quests, existingReport.quest_title),
-        updated_at: new Date().toISOString(),
-      };
+        const characterPayload = {
+          gold: Number(character.gold || 0) + Number(reward.gold || 0),
+          silver: Number(character.silver || 0) + Number(reward.silver || 0),
+          bronze: Number(character.bronze || 0) + Number(reward.bronze || 0),
+          inventory: appendTextList(character.inventory, reward.inventory),
+          completed_quests: appendCompletedQuest(character.completed_quests, existingReport.quest_title),
+          updated_at: new Date().toISOString(),
+        };
 
-      if (approved_rank && approved_rank.trim() !== "") {
-        characterPayload.guild_rank = approved_rank;
-      }
+        if (reward.rank && String(reward.rank).trim() !== "") {
+          characterPayload.guild_rank = reward.rank;
+        }
 
-      const { error: updateCharacterError } = await supabase
-        .from("characters")
-        .update(characterPayload)
-        .eq("id", character_id);
+        const { error: updateCharacterError } = await supabase
+          .from("characters")
+          .update(characterPayload)
+          .eq("id", reward.character_id);
 
-      if (updateCharacterError) {
-        return NextResponse.json({ error: updateCharacterError.message }, { status: 500 });
+        if (updateCharacterError) {
+          return NextResponse.json({ error: updateCharacterError.message }, { status: 500 });
+        }
       }
     }
 
