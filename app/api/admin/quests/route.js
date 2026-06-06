@@ -85,6 +85,33 @@ export async function DELETE(request) {
 
     const supabase = getAdminClient();
 
+    const { data: linkedApplications, error: linkedError } = await supabase
+      .from("quest_applications")
+      .select("id")
+      .eq("quest_id", id)
+      .limit(1);
+
+    if (linkedError) {
+      return NextResponse.json({ error: linkedError.message }, { status: 500 });
+    }
+
+    if ((linkedApplications || []).length > 0) {
+      const { error: archiveError } = await supabase
+        .from("quests")
+        .update({ status: "Archived" })
+        .eq("id", id);
+
+      if (archiveError) {
+        return NextResponse.json({ error: archiveError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        archived: true,
+        message: "Quest sudah punya application/report, jadi tidak dihapus. Status diubah menjadi Archived.",
+      });
+    }
+
     const { error } = await supabase
       .from("quests")
       .delete()
@@ -94,7 +121,7 @@ export async function DELETE(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, deleted: true });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
