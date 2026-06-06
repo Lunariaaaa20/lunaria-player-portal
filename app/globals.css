@@ -3003,3 +3003,178 @@
     font-size: 24px;
   }
 }
+
+/* Quest Reports Admin Premium UI */
+.report-admin-grid,
+.reports-list,
+.admin-report-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.report-admin-card,
+.report-card,
+.admin-report-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(190, 160, 95, 0.09), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(70, 85, 110, 0.08), transparent 34%),
+    rgba(17, 23, 31, 0.86);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    0 14px 34px rgba(0, 0, 0, 0.13);
+}
+
+.report-admin-card::before,
+.report-card::before,
+.admin-report-card::before {
+  content: "REPORT";
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  color: rgba(190, 160, 95, 0.045);
+  font-family: var(--font-serif);
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+}
+
+.report-admin-card > *,
+.report-card > *,
+.admin-report-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.report-admin-card h3,
+.report-card h3,
+.admin-report-card h3 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 25px;
+  letter-spacing: 0.03em;
+}
+
+.report-admin-card p,
+.report-card p,
+.admin-report-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.report-meta-grid,
+.report-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.report-info-box,
+.report-meta-box {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.5);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 5px;
+}
+
+.report-info-box span,
+.report-meta-box span {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.report-info-box strong,
+.report-meta-box strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.report-detail-box,
+.report-summary-box,
+.report-reward-box {
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  background: rgba(8, 12, 18, 0.5);
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 12px;
+}
+
+.report-detail-box strong,
+.report-summary-box strong,
+.report-reward-box strong {
+  display: block;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.report-detail-box p,
+.report-summary-box p,
+.report-reward-box p {
+  margin: 0;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.report-admin-actions,
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.report-admin-actions button,
+.report-actions button {
+  flex: 1;
+  min-width: 130px;
+  min-height: 42px;
+}
+
+.report-status-badge {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(190, 160, 95, 0.22);
+  background: rgba(190, 160, 95, 0.1);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@media (max-width: 760px) {
+  .report-meta-grid,
+  .report-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-admin-card,
+  .report-card,
+  .admin-report-card {
+    padding: 15px;
+  }
+
+  .report-admin-card::before,
+  .report-card::before,
+  .admin-report-card::before {
+    font-size: 28px;
+  }
+}
