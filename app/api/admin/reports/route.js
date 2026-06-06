@@ -208,7 +208,7 @@ export async function PATCH(request) {
         const { error: applicationUpdateError } = await supabase
           .from("quest_applications")
           .update({
-            status: "Completed",
+            status: "Archived",
             reviewed_at: new Date().toISOString(),
           })
           .eq("id", existingReport.quest_application_id);
