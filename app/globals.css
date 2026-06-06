@@ -1294,3 +1294,67 @@
   font-weight: 800;
   font-size: 13px;
 }
+
+.reward-distribution-panel {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: grid;
+  gap: 14px;
+}
+
+.reward-distribution-panel h4 {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 22px;
+}
+
+.reward-row {
+  border: 1px solid var(--border);
+  background: rgba(9, 13, 19, 0.48);
+  border-radius: 16px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(90px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.reward-row label {
+  display: grid;
+  gap: 8px;
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.reward-row input,
+.reward-row select,
+.reward-row textarea {
+  width: 100%;
+  background: rgba(9, 13, 19, 0.72);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  outline: none;
+}
+
+.reward-row textarea {
+  resize: vertical;
+}
+
+.reward-inventory-field {
+  grid-column: 1 / -2;
+}
+
+@media (max-width: 900px) {
+  .reward-row {
+    grid-template-columns: 1fr;
+  }
+
+  .reward-inventory-field {
+    grid-column: auto;
+  }
+}

@@ -17,6 +17,13 @@ const rankOptions = ["Common", "Uncommon", "Dangerous", "Special"];
 const modeOptions = ["Solo", "Duo", "Party"];
 const characterRankOptions = ["", "Initiate", "Seeker", "Warden", "Arbiter", "High Council"];
 
+function parsePartyIds(value) {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export default function AdminReportsPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
@@ -24,6 +31,7 @@ export default function AdminReportsPage() {
 
   const [reports, setReports] = useState([]);
   const [characters, setCharacters] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -33,7 +41,17 @@ export default function AdminReportsPage() {
   const [modeFilter, setModeFilter] = useState("All");
 
   const [notesById, setNotesById] = useState({});
-  const [approvalById, setApprovalById] = useState({});
+  const [distributionById, setDistributionById] = useState({});
+
+  const characterById = characters.reduce((acc, character) => {
+    acc[character.id] = character;
+    return acc;
+  }, {});
+
+  const applicationById = applications.reduce((acc, application) => {
+    acc[application.id] = application;
+    return acc;
+  }, {});
 
   const filteredReports = reports.filter((report) => {
     const keyword = searchQuery.toLowerCase().trim();
@@ -53,58 +71,101 @@ export default function AdminReportsPage() {
     return matchesSearch && matchesStatus && matchesRank && matchesMode;
   });
 
-  async function loadReports(currentPassword = password) {
+  function buildDefaultDistribution(report, loadedCharacters = characters, loadedApplications = applications) {
+    const loadedCharacterById = loadedCharacters.reduce((acc, character) => {
+      acc[character.id] = character;
+      return acc;
+    }, {});
+
+    const loadedApplicationById = loadedApplications.reduce((acc, application) => {
+      acc[application.id] = application;
+      return acc;
+    }, {});
+
+    if (Array.isArray(report.reward_distribution) && report.reward_distribution.length > 0) {
+      return report.reward_distribution.map((entry) => ({
+        character_id: entry.character_id || "",
+        character_name: entry.character_name || loadedCharacterById[entry.character_id]?.character_name || "",
+        gold: entry.gold || 0,
+        silver: entry.silver || 0,
+        bronze: entry.bronze || 0,
+        inventory: entry.inventory || "",
+        rank: entry.rank || "",
+      }));
+    }
+
+    const application = loadedApplicationById[report.quest_application_id];
+    const ids = [];
+
+    if (report.character_id) ids.push(report.character_id);
+    if (application?.character_id && !ids.includes(application.character_id)) {
+      ids.push(application.character_id);
+    }
+
+    for (const partyId of parsePartyIds(application?.party_member_ids)) {
+      if (!ids.includes(partyId)) ids.push(partyId);
+    }
+
+    if (ids.length === 0 && report.character_id) {
+      ids.push(report.character_id);
+    }
+
+    return ids.map((id) => ({
+      character_id: id,
+      character_name: loadedCharacterById[id]?.character_name || "",
+      gold: 0,
+      silver: 0,
+      bronze: 0,
+      inventory: "",
+      rank: "",
+    }));
+  }
+
+  async function loadAll(currentPassword = password) {
     setLoading(true);
     setMessage("");
 
-    const response = await fetch("/api/admin/reports", {
-      headers: {
-        "x-admin-password": currentPassword,
-      },
-    });
+    const [reportsResponse, charactersResponse, applicationsResponse] = await Promise.all([
+      fetch("/api/admin/reports", {
+        headers: { "x-admin-password": currentPassword },
+      }),
+      fetch("/api/admin/characters", {
+        headers: { "x-admin-password": currentPassword },
+      }),
+      fetch("/api/admin/applications", {
+        headers: { "x-admin-password": currentPassword },
+      }),
+    ]);
 
-    const result = await response.json();
+    const reportsResult = await reportsResponse.json();
+    const charactersResult = await charactersResponse.json();
+    const applicationsResult = await applicationsResponse.json();
 
-    if (!response.ok) {
-      setMessage(result.error || "Gagal memuat quest reports.");
+    if (!reportsResponse.ok) {
+      setMessage(reportsResult.error || "Gagal memuat quest reports.");
       setLoading(false);
       return;
     }
 
-    setReports(result.reports || []);
+    const nextReports = reportsResult.reports || [];
+    const nextCharacters = charactersResponse.ok ? charactersResult.characters || [] : [];
+    const nextApplications = applicationsResponse.ok ? applicationsResult.applications || [] : [];
+
+    setReports(nextReports);
+    setCharacters(nextCharacters);
+    setApplications(nextApplications);
 
     const nextNotes = {};
-    const nextApproval = {};
+    const nextDistribution = {};
 
-    for (const report of result.reports || []) {
+    for (const report of nextReports) {
       nextNotes[report.id] = report.admin_notes || "";
-      nextApproval[report.id] = {
-        character_id: report.character_id || "",
-        approved_gold: report.approved_gold || 0,
-        approved_silver: report.approved_silver || 0,
-        approved_bronze: report.approved_bronze || 0,
-        approved_inventory: report.approved_inventory || "",
-        approved_rank: report.approved_rank || "",
-      };
+      nextDistribution[report.id] = buildDefaultDistribution(report, nextCharacters, nextApplications);
     }
 
     setNotesById(nextNotes);
-    setApprovalById(nextApproval);
+    setDistributionById(nextDistribution);
     setLoading(false);
-  }
-
-  async function loadCharacters(currentPassword = password) {
-    const response = await fetch("/api/admin/characters", {
-      headers: {
-        "x-admin-password": currentPassword,
-      },
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      setCharacters(result.characters || []);
-    }
   }
 
   useEffect(() => {
@@ -113,8 +174,7 @@ export default function AdminReportsPage() {
     if (savedPassword === ADMIN_PASSWORD) {
       setPassword(savedPassword);
       setUnlocked(true);
-      loadReports(savedPassword);
-      loadCharacters(savedPassword);
+      loadAll(savedPassword);
     }
   }, []);
 
@@ -125,8 +185,7 @@ export default function AdminReportsPage() {
       window.localStorage.setItem("lunaria_admin_password", password);
       setUnlocked(true);
       setLoginMessage("");
-      await loadReports(password);
-      await loadCharacters(password);
+      await loadAll(password);
       return;
     }
 
@@ -153,22 +212,88 @@ export default function AdminReportsPage() {
     }));
   }
 
-  function updateApproval(reportId, field, value) {
-    setApprovalById((current) => ({
+  function updateDistribution(reportId, index, field, value) {
+    setDistributionById((current) => {
+      const currentRows = current[reportId] || [];
+      const nextRows = currentRows.map((row, rowIndex) => {
+        if (rowIndex !== index) return row;
+
+        if (field === "character_id") {
+          return {
+            ...row,
+            character_id: value,
+            character_name: characterById[value]?.character_name || "",
+          };
+        }
+
+        return {
+          ...row,
+          [field]: value,
+        };
+      });
+
+      return {
+        ...current,
+        [reportId]: nextRows,
+      };
+    });
+  }
+
+  function addDistributionRow(reportId) {
+    setDistributionById((current) => ({
       ...current,
-      [reportId]: {
-        ...(current[reportId] || {}),
-        [field]: value,
-      },
+      [reportId]: [
+        ...(current[reportId] || []),
+        {
+          character_id: "",
+          character_name: "",
+          gold: 0,
+          silver: 0,
+          bronze: 0,
+          inventory: "",
+          rank: "",
+        },
+      ],
     }));
   }
 
-  async function updateReportStatus(report, nextStatus) {
-    const approval = approvalById[report.id] || {};
+  function removeDistributionRow(reportId, index) {
+    setDistributionById((current) => ({
+      ...current,
+      [reportId]: (current[reportId] || []).filter((_, rowIndex) => rowIndex !== index),
+    }));
+  }
 
-    if (nextStatus === "Approved" && !approval.character_id) {
-      window.alert("Pilih Character Target dulu sebelum Approve agar reward masuk ke ID Card.");
-      return;
+  function getPartyDisplay(report) {
+    const application = applicationById[report.quest_application_id];
+    if (!application) return report.character_name || "-";
+
+    const partyNames = parsePartyIds(application.party_member_ids)
+      .map((id) => characterById[id]?.character_name)
+      .filter(Boolean);
+
+    return [application.character_name, ...partyNames].filter(Boolean).join(" + ");
+  }
+
+  async function updateReportStatus(report, nextStatus) {
+    const distribution = distributionById[report.id] || [];
+
+    if (nextStatus === "Approved") {
+      const validRows = distribution.filter((row) => row.character_id);
+
+      if (validRows.length === 0) {
+        window.alert("Reward Distribution kosong. Pilih minimal 1 character target.");
+        return;
+      }
+
+      const duplicateIds = validRows
+        .map((row) => row.character_id)
+        .filter((id, index, arr) => arr.indexOf(id) !== index);
+
+      if (duplicateIds.length > 0) {
+        window.alert("Ada Character Target yang dobel di Reward Distribution.");
+        return;
+      }
     }
 
     const confirmed = window.confirm(
@@ -180,6 +305,18 @@ export default function AdminReportsPage() {
     setLoading(true);
     setMessage("");
 
+    const normalizedDistribution = distribution
+      .filter((row) => row.character_id)
+      .map((row) => ({
+        character_id: row.character_id,
+        character_name: row.character_name || characterById[row.character_id]?.character_name || "",
+        gold: Number(row.gold || 0),
+        silver: Number(row.silver || 0),
+        bronze: Number(row.bronze || 0),
+        inventory: row.inventory || "",
+        rank: row.rank || "",
+      }));
+
     const response = await fetch("/api/admin/reports", {
       method: "PATCH",
       headers: {
@@ -190,12 +327,7 @@ export default function AdminReportsPage() {
         id: report.id,
         status: nextStatus,
         admin_notes: notesById[report.id] || "",
-        character_id: approval.character_id || "",
-        approved_gold: approval.approved_gold || 0,
-        approved_silver: approval.approved_silver || 0,
-        approved_bronze: approval.approved_bronze || 0,
-        approved_inventory: approval.approved_inventory || "",
-        approved_rank: approval.approved_rank || "",
+        reward_distribution: normalizedDistribution,
       }),
     });
 
@@ -211,14 +343,13 @@ export default function AdminReportsPage() {
 
     const successMessage =
       nextStatus === "Approved"
-        ? `Report "${report.quest_title}" approved. Reward sudah masuk ke ID Card.`
+        ? `Report "${report.quest_title}" approved. Reward Distribution sudah masuk ke ID Card.`
         : `Report "${report.quest_title}" diupdate menjadi ${nextStatus}.`;
 
     setMessage(successMessage);
     window.alert(successMessage);
 
-    await loadReports();
-    await loadCharacters();
+    await loadAll();
   }
 
   return (
@@ -237,6 +368,7 @@ export default function AdminReportsPage() {
           <Link href="/rules">Rules & Guide</Link>
           <Link href="/admin">Admin Dashboard</Link>
           <Link href="/admin/characters">Character Admin</Link>
+          <Link href="/admin/applications">Applications Admin</Link>
           <Link href="/admin/reports">Reports Admin</Link>
           <Link href="/admin/quests">Quest Admin</Link>
           <Link href="/admin/economy">Economy Admin</Link>
@@ -248,7 +380,7 @@ export default function AdminReportsPage() {
         <section className="hero">
           <h1>QUEST REPORT ADMIN</h1>
           <p>
-            Review laporan quest, validasi hasil RP, dan approve reward langsung ke ID Card karakter.
+            Review laporan quest, validasi hasil RP, dan approve reward langsung ke ID Card semua anggota.
           </p>
         </section>
 
@@ -294,10 +426,7 @@ export default function AdminReportsPage() {
                 <button
                   className="admin-secondary"
                   type="button"
-                  onClick={() => {
-                    loadReports();
-                    loadCharacters();
-                  }}
+                  onClick={() => loadAll()}
                   disabled={loading}
                 >
                   {loading ? "Loading..." : "Refresh List"}
@@ -348,16 +477,14 @@ export default function AdminReportsPage() {
                   <p className="muted">Belum ada report yang cocok dengan filter.</p>
                 ) : (
                   filteredReports.map((report) => {
-                    const approval = approvalById[report.id] || {};
+                    const distribution = distributionById[report.id] || [];
 
                     return (
                       <article className="report-card" key={report.id}>
                         <div className="report-card-header">
                           <div>
                             <h3>{report.quest_title}</h3>
-                            <p>
-                              {report.character_name} • {report.player_name}
-                            </p>
+                            <p>{getPartyDisplay(report)}</p>
                           </div>
 
                           <span>{report.status}</span>
@@ -392,84 +519,136 @@ export default function AdminReportsPage() {
                         </div>
 
                         <div className="report-block">
+                          <strong>Injury / Condition Report</strong>
+                          <p>{report.injury_report || report.condition_report || "-"}</p>
+                        </div>
+
+                        <div className="report-block">
                           <strong>Proof Link / Evidence</strong>
                           <p>{report.proof_link || "-"}</p>
                         </div>
 
                         <div className="report-block">
-                          <strong>Reward Request</strong>
-                          <p>{report.reward_request || "-"}</p>
+                          <strong>Loot Claim</strong>
+                          <p>{report.loot_claim || report.reward_request || "-"}</p>
                         </div>
 
-                        <div className="report-approval-grid">
-                          <label>
-                            Character Target
-                            <select
-                              value={approval.character_id || ""}
-                              onChange={(e) => updateApproval(report.id, "character_id", e.target.value)}
+                        <div className="reward-distribution-panel">
+                          <div className="admin-section-header">
+                            <h4>Reward Distribution</h4>
+                            <button
+                              className="admin-secondary"
+                              type="button"
+                              onClick={() => addDistributionRow(report.id)}
+                              disabled={report.status === "Approved"}
                             >
-                              <option value="">Select Character</option>
-                              {characters.map((character) => (
-                                <option key={character.id} value={character.id}>
-                                  {character.character_name} — {character.player_name} — {character.guild_rank}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
+                              Add Character
+                            </button>
+                          </div>
 
-                          <label>
-                            Approved Gold
-                            <input
-                              type="number"
-                              min="0"
-                              value={approval.approved_gold || 0}
-                              onChange={(e) => updateApproval(report.id, "approved_gold", e.target.value)}
-                            />
-                          </label>
+                          {distribution.length === 0 ? (
+                            <p className="muted">Belum ada character target.</p>
+                          ) : (
+                            distribution.map((row, index) => (
+                              <div className="reward-row" key={`${report.id}-${index}`}>
+                                <label>
+                                  Character Target
+                                  <select
+                                    value={row.character_id || ""}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "character_id", e.target.value)
+                                    }
+                                    disabled={report.status === "Approved"}
+                                  >
+                                    <option value="">Select Character</option>
+                                    {characters.map((character) => (
+                                      <option key={character.id} value={character.id}>
+                                        {character.character_name} — {character.player_name} — {character.guild_rank}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
 
-                          <label>
-                            Approved Silver
-                            <input
-                              type="number"
-                              min="0"
-                              value={approval.approved_silver || 0}
-                              onChange={(e) => updateApproval(report.id, "approved_silver", e.target.value)}
-                            />
-                          </label>
+                                <label>
+                                  Gold
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={row.gold || 0}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "gold", e.target.value)
+                                    }
+                                    disabled={report.status === "Approved"}
+                                  />
+                                </label>
 
-                          <label>
-                            Approved Bronze
-                            <input
-                              type="number"
-                              min="0"
-                              value={approval.approved_bronze || 0}
-                              onChange={(e) => updateApproval(report.id, "approved_bronze", e.target.value)}
-                            />
-                          </label>
+                                <label>
+                                  Silver
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={row.silver || 0}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "silver", e.target.value)
+                                    }
+                                    disabled={report.status === "Approved"}
+                                  />
+                                </label>
 
-                          <label>
-                            Approved Rank
-                            <select
-                              value={approval.approved_rank || ""}
-                              onChange={(e) => updateApproval(report.id, "approved_rank", e.target.value)}
-                            >
-                              <option value="">No Rank Change</option>
-                              {characterRankOptions.filter(Boolean).map((rank) => (
-                                <option key={rank}>{rank}</option>
-                              ))}
-                            </select>
-                          </label>
+                                <label>
+                                  Bronze
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    value={row.bronze || 0}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "bronze", e.target.value)
+                                    }
+                                    disabled={report.status === "Approved"}
+                                  />
+                                </label>
+
+                                <label>
+                                  Rank Update
+                                  <select
+                                    value={row.rank || ""}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "rank", e.target.value)
+                                    }
+                                    disabled={report.status === "Approved"}
+                                  >
+                                    <option value="">No Change</option>
+                                    {characterRankOptions.filter(Boolean).map((rank) => (
+                                      <option key={rank}>{rank}</option>
+                                    ))}
+                                  </select>
+                                </label>
+
+                                <label className="reward-inventory-field">
+                                  Inventory / Loot
+                                  <textarea
+                                    value={row.inventory || ""}
+                                    onChange={(e) =>
+                                      updateDistribution(report.id, index, "inventory", e.target.value)
+                                    }
+                                    rows="3"
+                                    placeholder="Contoh: • Ember Horn Chip x1"
+                                    disabled={report.status === "Approved"}
+                                  />
+                                </label>
+
+                                <button
+                                  className="admin-danger"
+                                  type="button"
+                                  onClick={() => removeDistributionRow(report.id, index)}
+                                  disabled={report.status === "Approved"}
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ))
+                          )}
                         </div>
-
-                        <label className="report-note-field">
-                          Approved Inventory / Loot
-                          <textarea
-                            value={approval.approved_inventory || ""}
-                            onChange={(e) => updateApproval(report.id, "approved_inventory", e.target.value)}
-                            rows="3"
-                            placeholder="Contoh: • Thornback Spine x1&#10;• Whisper Sap x2"
-                          />
-                        </label>
 
                         <label className="report-note-field">
                           Admin Notes
@@ -478,6 +657,7 @@ export default function AdminReportsPage() {
                             onChange={(e) => updateNote(report.id, e.target.value)}
                             rows="3"
                             placeholder="Catatan review admin..."
+                            disabled={report.status === "Approved"}
                           />
                         </label>
 
@@ -486,16 +666,16 @@ export default function AdminReportsPage() {
                             className="admin-secondary"
                             type="button"
                             onClick={() => updateReportStatus(report, "Approved")}
-                            disabled={loading}
+                            disabled={loading || report.status === "Approved"}
                           >
-                            Approve + Apply Reward
+                            Approve + Apply Distribution
                           </button>
 
                           <button
                             className="admin-secondary"
                             type="button"
                             onClick={() => updateReportStatus(report, "Needs Revision")}
-                            disabled={loading}
+                            disabled={loading || report.status === "Approved"}
                           >
                             Needs Revision
                           </button>
@@ -504,7 +684,7 @@ export default function AdminReportsPage() {
                             className="admin-danger"
                             type="button"
                             onClick={() => updateReportStatus(report, "Rejected")}
-                            disabled={loading}
+                            disabled={loading || report.status === "Approved"}
                           >
                             Reject
                           </button>
@@ -513,7 +693,7 @@ export default function AdminReportsPage() {
                             className="admin-danger"
                             type="button"
                             onClick={() => updateReportStatus(report, "Archived")}
-                            disabled={loading}
+                            disabled={loading || report.status === "Approved"}
                           >
                             Archive
                           </button>
