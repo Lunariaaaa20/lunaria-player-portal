@@ -5,36 +5,43 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
 function buildIdCard(character) {
-  return `╔══════════════════════╗
-       LUNARIA ID CARD
-╚══════════════════════╝
+  return `╔════════════════════════════╗
+        𓆩 LUNARIA ID CARD 𓆪
+╚════════════════════════════╝
 
-Player Name: ${character.player_name}
-Character Name: ${character.character_name}
-Race: ${character.race}
+✦ PLAYER DATA
+Player Name      : ${character.player_name}
+Character Name   : ${character.character_name}
+Race             : ${character.race}
+Status           : ${character.status}
 
-Guild Rank: ${character.guild_rank}
-Pathway: ${character.pathway}
+✦ GUILD PROFILE
+Guild Rank       : ${character.guild_rank}
+Pathway          : ${character.pathway}
+Registered Guild : ${character.registered_guild}
 
-Primary Skills:
+✦ PRIMARY SKILLS
 1. ${character.skill_1_name}
    ${character.skill_1_description}
 
 2. ${character.skill_2_name}
    ${character.skill_2_description}
 
-Inventory:
+✦ INVENTORY
 ${character.inventory || "-"}
 
-Currency:
-${character.gold || 0}G / ${character.silver || 0}S / ${character.bronze || 0}B
+✦ CURRENCY
+Gold   : ${character.gold || 0}G
+Silver : ${character.silver || 0}S
+Bronze : ${character.bronze || 0}B
 
-Registered Guild:
-${character.registered_guild}
+✦ COMPLETED MISSIONS
+${character.completed_quests || "-"}
 
-Status: ${character.status}`;
+━━━━━━━━━━━━━━━━━━━━
+Last Updated:
+Adventurer’s Guild of Valenford`;
 }
-
 export default function RegistryPage() {
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -207,6 +214,11 @@ export default function RegistryPage() {
                       1. {character.skill_1_name}<br />
                       2. {character.skill_2_name}
                     </p>
+                  </div>
+
+                  <div className="registry-skills">
+                    <strong>Completed Missions</strong>
+                    <p>{character.completed_quests || "-"}</p>
                   </div>
 
                   <button className="admin-secondary" type="button" onClick={() => copyIdCard(character)}>

@@ -17,16 +17,37 @@ function isAuthorized(request) {
   return password && password === process.env.ADMIN_PASSWORD;
 }
 
-function appendInventory(currentInventory, approvedInventory) {
-  if (!approvedInventory || approvedInventory.trim() === "") {
-    return currentInventory || "";
+function appendTextList(currentText, newText) {
+  if (!newText || newText.trim() === "") {
+    return currentText || "";
   }
 
-  if (!currentInventory || currentInventory.trim() === "") {
-    return approvedInventory.trim();
+  if (!currentText || currentText.trim() === "") {
+    return newText.trim();
   }
 
-  return `${currentInventory.trim()}\n${approvedInventory.trim()}`;
+  return `${currentText.trim()}\n${newText.trim()}`;
+}
+
+function appendCompletedQuest(currentCompleted, questTitle) {
+  if (!questTitle || questTitle.trim() === "") {
+    return currentCompleted || "";
+  }
+
+  const title = questTitle.trim();
+  const current = currentCompleted || "";
+
+  if (current.split("\n").map((item) => item.replace(/^•\s*/, "").trim()).includes(title)) {
+    return current;
+  }
+
+  const line = `• ${title}`;
+
+  if (!current.trim()) {
+    return line;
+  }
+
+  return `${current.trim()}\n${line}`;
 }
 
 export async function GET(request) {
@@ -90,6 +111,23 @@ export async function PATCH(request) {
 
     const supabase = getAdminClient();
 
+    const { data: existingReport, error: existingReportError } = await supabase
+      .from("quest_reports")
+      .select("id,status,quest_title")
+      .eq("id", id)
+      .single();
+
+    if (existingReportError) {
+      return NextResponse.json({ error: existingReportError.message }, { status: 500 });
+    }
+
+    if (existingReport.status === "Approved" && status === "Approved") {
+      return NextResponse.json(
+        { error: "Report ini sudah Approved. Reward tidak bisa diaplikasikan dua kali." },
+        { status: 400 }
+      );
+    }
+
     const reportPayload = {
       status,
       admin_notes: admin_notes || "",
@@ -114,7 +152,7 @@ export async function PATCH(request) {
     if (status === "Approved" && character_id) {
       const { data: character, error: characterError } = await supabase
         .from("characters")
-        .select("gold,silver,bronze,inventory,guild_rank")
+        .select("gold,silver,bronze,inventory,guild_rank,completed_quests")
         .eq("id", character_id)
         .single();
 
@@ -126,7 +164,8 @@ export async function PATCH(request) {
         gold: Number(character.gold || 0) + Number(approved_gold || 0),
         silver: Number(character.silver || 0) + Number(approved_silver || 0),
         bronze: Number(character.bronze || 0) + Number(approved_bronze || 0),
-        inventory: appendInventory(character.inventory, approved_inventory),
+        inventory: appendTextList(character.inventory, approved_inventory),
+        completed_quests: appendCompletedQuest(character.completed_quests, existingReport.quest_title),
         updated_at: new Date().toISOString(),
       };
 
