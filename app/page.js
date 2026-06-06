@@ -28,6 +28,15 @@ const stats = [
                                                                                                                                                     </aside>
 
                                                                                                                                                           <main className="main">
+          <div className="lunaria-ticker">
+            <div className="lunaria-ticker-track">
+              <span>✦ Weekly Aid will be distributed every Solarys.</span>
+              <span>📜 New quests are available at the Guild Board.</span>
+              <span>🏆 Top adventurers will be featured every week.</span>
+              <span>⚙ Developer Notice: Lunaria Portal is entering premium launch phase.</span>
+            </div>
+          </div>
+
                                                                                                                                                                   <section className="hero">
                                                                                                                                                                             <h1>LUNARIA PLAYER PORTAL</h1>
                                                                                                                                                                                       <p>
@@ -46,7 +55,50 @@ const stats = [
                                                                                                                                                                                                                                                                                                                               ))}
                                                                                                                                                                                                                                                                                                                                       </section>
 
-                                                                                                                                                                                                                                                                                                                                              <section className="section">
+                                                                                                                                                                                                                                                                                                                                              
+          <section className="home-grid">
+            <div className="lunaria-notice">
+              <h3>Guild Notice Board</h3>
+              <p>
+                Lunaria Player Portal is now active for adventurer registry, quest reports,
+                reward distribution, economy records, and official guild rules.
+              </p>
+            </div>
+
+            <div className="lunaria-notice">
+              <h3>Top Adventurers</h3>
+              <div className="lunaria-leaderboard">
+                <div className="lunaria-rank-card">
+                  <div className="lunaria-rank-medal">I</div>
+                  <div>
+                    <strong>Shiroka</strong>
+                    <p>Seeker • Completed Missions</p>
+                  </div>
+                  <span>Top 1</span>
+                </div>
+
+                <div className="lunaria-rank-card">
+                  <div className="lunaria-rank-medal">II</div>
+                  <div>
+                    <strong>Vesper</strong>
+                    <p>Initiate • Active Adventurer</p>
+                  </div>
+                  <span>Top 2</span>
+                </div>
+
+                <div className="lunaria-rank-card">
+                  <div className="lunaria-rank-medal">III</div>
+                  <div>
+                    <strong>Anila Van Haldegard</strong>
+                    <p>Initiate • Guild Registered</p>
+                  </div>
+                  <span>Top 3</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+<section className="section">
                                                                                                                                                                                                                                                                                                                                                         <h2>Quick Access</h2>
                                                                                                                                                                                                                                                                                                                                                                   <div className="grid">
                                                                                                                                                                                                                                                                                                                                                                               <Link className="card" href="/registration">
