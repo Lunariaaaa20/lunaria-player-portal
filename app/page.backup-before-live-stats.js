@@ -1,10 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
-const defaultStats = [
+const stats = [
   { label: "Active Adventurers", value: "0", desc: "Data dari Adventurer Registry" },
     { label: "Open Quests", value: "0", desc: "Quest tersedia untuk player" },
       { label: "Pending Reviews", value: "0", desc: "Menunggu approval admin" },
@@ -12,78 +8,7 @@ const defaultStats = [
         ];
 
         export default function HomePage() {
-          
-  const [liveCounts, setLiveCounts] = useState({
-    activeAdventurers: 0,
-    openQuests: 0,
-    pendingReviews: 0,
-    economyRecords: 3,
-  });
-
-  useEffect(() => {
-    async function loadHomeStats() {
-      const [
-        charactersResult,
-        questsResult,
-        applicationsResult,
-        reportsResult,
-      ] = await Promise.all([
-        supabase
-          .from("characters")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "Active"),
-
-        supabase
-          .from("quests")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "Available"),
-
-        supabase
-          .from("quest_applications")
-          .select("id", { count: "exact", head: true })
-          .in("status", ["Pending", "Approved", "Ongoing"]),
-
-        supabase
-          .from("quest_reports")
-          .select("id", { count: "exact", head: true })
-          .in("status", ["Pending", "Needs Revision"]),
-      ]);
-
-      setLiveCounts({
-        activeAdventurers: charactersResult.count || 0,
-        openQuests: questsResult.count || 0,
-        pendingReviews: (applicationsResult.count || 0) + (reportsResult.count || 0),
-        economyRecords: 3,
-      });
-    }
-
-    loadHomeStats();
-  }, []);
-
-  const stats = useMemo(() => [
-    {
-      label: "Active Adventurers",
-      value: String(liveCounts.activeAdventurers),
-      desc: "Data dari Adventurer Registry",
-    },
-    {
-      label: "Open Quests",
-      value: String(liveCounts.openQuests),
-      desc: "Quest tersedia untuk player",
-    },
-    {
-      label: "Pending Reviews",
-      value: String(liveCounts.pendingReviews),
-      desc: "Menunggu approval admin",
-    },
-    {
-      label: "Economy Records",
-      value: String(liveCounts.economyRecords),
-      desc: "Data harga aktif",
-    },
-  ], [liveCounts]);
-
-return (
+          return (
               <div className="page">
                     <aside className="sidebar">
                             <div className="logo">LUNARIA</div>
