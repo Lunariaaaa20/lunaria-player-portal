@@ -12,9 +12,26 @@ const defaultStats = [
         ];
 
         export default function HomePage() {
-  function safeNumber(value) {
-    const number = Number(value);
-    return Number.isFinite(number) ? number : 0;
+  function countCompletedQuests(value) {
+    if (!value) return 0;
+
+    if (Array.isArray(value)) {
+      return value.filter(Boolean).length;
+    }
+
+    const raw = String(value).trim();
+
+    if (!raw) return 0;
+
+    const directNumber = Number(raw);
+    if (Number.isFinite(directNumber)) {
+      return directNumber;
+    }
+
+    return raw
+      .split(/\n|,|;/)
+      .map((item) => item.replace(/^[-•]\s*/, "").trim())
+      .filter(Boolean).length;
   }
           
   const [liveCounts, setLiveCounts] = useState({
@@ -166,7 +183,7 @@ return (
                     <div>
                       <strong>{adventurer.player_name || "Unknown Adventurer"}</strong>
                       <p>
-                        {adventurer.guild_rank || "Unranked"} • {safeNumber(adventurer.completed_quests)} Completed Missions
+                        {adventurer.guild_rank || "Unranked"} • {countCompletedQuests(adventurer.completed_quests)} Completed Missions
                       </p>
                     </div>
                     <span>Top {index + 1}</span>
