@@ -1581,3 +1581,38 @@
     font-size: 21px;
   }
 }
+
+.claim-code-panel {
+  margin-top: 12px;
+  border: 1px solid rgba(190, 160, 95, 0.18);
+  background: rgba(190, 160, 95, 0.055);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.claim-code-panel span {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.claim-code-panel strong {
+  color: var(--text);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+
+.claim-code-panel div {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.claim-code-panel button {
+  flex: 1;
+  min-width: 120px;
+}

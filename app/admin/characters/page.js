@@ -267,6 +267,52 @@ export default function AdminCharactersPage() {
     setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
   }
 
+  async function copyClaimCode(code) {
+    if (!code) {
+      window.alert("Claim Code kosong.");
+      return;
+    }
+
+    await navigator.clipboard.writeText(code);
+    window.alert(`Claim Code disalin: ${code}`);
+  }
+
+  async function regenerateClaimCode(character) {
+    const confirmed = window.confirm(
+      `Regenerate Claim Code untuk ${character.character_name}? Kode lama tidak bisa dipakai lagi.`
+    );
+
+    if (!confirmed) return;
+
+    setLoading(true);
+    setMessage("");
+
+    const response = await fetch("/api/admin/characters", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": password,
+      },
+      body: JSON.stringify({
+        id: character.id,
+        action: "regenerate_claim_code",
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = result.error || "Gagal regenerate Claim Code.";
+      setMessage(errorMessage);
+      window.alert(errorMessage);
+      setLoading(false);
+      return;
+    }
+
+    window.alert(`Claim Code baru: ${result.claim_code}`);
+    await loadCharacters();
+  }
+
   return (
     <div className="page">
       <aside className="sidebar">
