@@ -3703,3 +3703,277 @@
     font-size: 28px;
   }
 }
+
+/* Lunaria Fantasy Premium Foundation */
+:root {
+  --lunaria-gold-soft: rgba(205, 176, 104, 0.92);
+  --lunaria-gold-dim: rgba(190, 160, 95, 0.22);
+  --lunaria-blue-mist: rgba(74, 104, 145, 0.18);
+  --lunaria-panel: rgba(14, 19, 27, 0.88);
+  --lunaria-panel-deep: rgba(7, 11, 17, 0.94);
+}
+
+/* Animated world ambience */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(190, 160, 95, 0.10), transparent 32%),
+    radial-gradient(circle at 82% 12%, rgba(74, 104, 145, 0.14), transparent 38%),
+    radial-gradient(circle at 50% 92%, rgba(90, 37, 48, 0.10), transparent 35%),
+    linear-gradient(135deg, #030609 0%, #080d14 42%, #020305 100%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0.42;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+}
+
+/* Premium fantasy panel */
+.fantasy-frame,
+.hero,
+.dashboard-hero,
+.home-hero,
+.panel,
+.card,
+.admin-panel {
+  position: relative;
+}
+
+.fantasy-frame::before,
+.hero::before,
+.dashboard-hero::before,
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgba(205, 176, 104, 0.20);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.025),
+    inset 0 0 36px rgba(205, 176, 104, 0.035),
+    0 18px 42px rgba(0, 0, 0, 0.20);
+}
+
+/* Ornamental corner accents */
+.fantasy-frame::after,
+.hero::after,
+.dashboard-hero::after,
+.home-hero::after {
+  content: "✦";
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  color: rgba(205, 176, 104, 0.30);
+  font-size: 22px;
+  letter-spacing: 0.18em;
+  pointer-events: none;
+}
+
+/* Card polish */
+.card,
+.stat-card,
+.quick-card,
+.registry-card,
+.quest-card,
+.economy-card,
+.rule-card,
+.admin-card {
+  border: 1px solid rgba(205, 176, 104, 0.14) !important;
+  background:
+    radial-gradient(circle at top left, rgba(205, 176, 104, 0.07), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(74, 104, 145, 0.08), transparent 34%),
+    rgba(13, 18, 26, 0.86) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.018),
+    0 14px 34px rgba(0,0,0,0.16);
+}
+
+/* Moving shimmer for important cards */
+.hero,
+.dashboard-hero,
+.home-hero {
+  overflow: hidden;
+}
+
+.hero > *,
+.dashboard-hero > *,
+.home-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero .shimmer,
+.dashboard-hero .shimmer,
+.home-hero .shimmer {
+  display: none;
+}
+
+.hero::selection,
+.dashboard-hero::selection,
+.home-hero::selection {
+  background: rgba(205, 176, 104, 0.25);
+}
+
+@keyframes lunariaFloat {
+  0% { transform: translate3d(0, 0, 0); opacity: 0.34; }
+  50% { transform: translate3d(14px, -10px, 0); opacity: 0.58; }
+  100% { transform: translate3d(0, 0, 0); opacity: 0.34; }
+}
+
+.lunaria-ambience {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.lunaria-ambience::before,
+.lunaria-ambience::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  filter: blur(70px);
+  animation: lunariaFloat 9s ease-in-out infinite;
+}
+
+.lunaria-ambience::before {
+  left: -120px;
+  top: 12%;
+  background: rgba(205, 176, 104, 0.08);
+}
+
+.lunaria-ambience::after {
+  right: -160px;
+  bottom: 4%;
+  background: rgba(74, 104, 145, 0.12);
+  animation-delay: -3s;
+}
+
+/* Fantasy divider */
+.lunaria-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--lunaria-gold-soft);
+  margin: 18px 0;
+  opacity: 0.85;
+}
+
+.lunaria-divider::before,
+.lunaria-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, rgba(205,176,104,0.35), transparent);
+}
+
+.lunaria-divider span {
+  font-family: var(--font-serif);
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* Announcement ticker */
+.lunaria-ticker {
+  border: 1px solid rgba(205, 176, 104, 0.16);
+  background:
+    linear-gradient(90deg, rgba(205,176,104,0.09), rgba(9,13,19,0.86), rgba(74,104,145,0.08));
+  border-radius: 999px;
+  overflow: hidden;
+  padding: 9px 0;
+  margin-bottom: 16px;
+}
+
+.lunaria-ticker-track {
+  display: inline-flex;
+  gap: 36px;
+  white-space: nowrap;
+  animation: lunariaTicker 24s linear infinite;
+  color: rgba(235, 229, 211, 0.88);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@keyframes lunariaTicker {
+  from { transform: translateX(100%); }
+  to { transform: translateX(-100%); }
+}
+
+/* Leaderboard */
+.lunaria-leaderboard {
+  display: grid;
+  gap: 12px;
+}
+
+.lunaria-rank-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(205,176,104,0.14);
+  background: rgba(7, 11, 17, 0.56);
+}
+
+.lunaria-rank-medal {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: var(--lunaria-gold-soft);
+  border: 1px solid rgba(205,176,104,0.24);
+  background: rgba(205,176,104,0.08);
+  font-weight: 900;
+}
+
+/* Developer notice */
+.lunaria-notice {
+  border: 1px solid rgba(205,176,104,0.16);
+  background:
+    radial-gradient(circle at top left, rgba(205,176,104,0.08), transparent 36%),
+    rgba(9, 13, 19, 0.78);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.lunaria-notice h3 {
+  margin-top: 0;
+  color: var(--lunaria-gold-soft);
+  font-family: var(--font-serif);
+}
+
+/* Mobile safety */
+@media (max-width: 760px) {
+  .lunaria-ticker-track {
+    animation-duration: 18s;
+    font-size: 12px;
+  }
+
+  .hero::after,
+  .dashboard-hero::after,
+  .home-hero::after {
+    font-size: 16px;
+    top: 12px;
+    right: 14px;
+  }
+}
