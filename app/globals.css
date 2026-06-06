@@ -1133,3 +1133,25 @@
     width: 100%;
   }
 }
+
+.report-note-field textarea {
+  width: 100%;
+  background: rgba(9, 13, 19, 0.72);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  line-height: 1.55;
+  outline: none;
+  resize: vertical;
+}
+
+.report-note-field textarea::placeholder {
+  color: var(--muted);
+}
+
+.report-note-field textarea:focus {
+  border-color: rgba(190, 160, 95, 0.55);
+  box-shadow: 0 0 0 3px rgba(190, 160, 95, 0.1);
+}
