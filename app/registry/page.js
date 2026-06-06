@@ -220,8 +220,12 @@ export default function RegistryPage() {
             <p className="muted">Belum ada karakter aktif yang cocok dengan filter.</p>
           ) : (
             <div className="registry-card-grid">
-              {filteredCharacters.map((character) => (
-                <article className="registry-card" key={character.id}>
+              {filteredCharacters.map((character) => {
+            const rankVisual = getRankTheme(character.guild_rank);
+            const pathwayVisual = getPathwayTheme(character.pathway);
+
+            return (
+                <article className={`registry-card ${rankVisual.className}`} key={character.id}>
                   <div className="registry-card-header">
                     <div>
                       <h3>{character.character_name || "-"}</h3>
@@ -288,7 +292,8 @@ export default function RegistryPage() {
                     </button>
                   </div>
                 </article>
-              ))}
+              );
+            })}
             </div>
           )}
         </section>
