@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabaseAdmin";
 
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "lunaria-admin";
+
+function isAdminAuthorized(request) {
+  return request.headers.get("x-admin-password") === ADMIN_PASSWORD;
+}
+
 function toBronze(gold = 0, silver = 0, bronze = 0) {
   return Number(gold || 0) * 100000 + Number(silver || 0) * 100 + Number(bronze || 0);
 }
@@ -135,6 +141,43 @@ export async function PATCH(request) {
         { error: orderError?.message || "Blacksmith order tidak ditemukan." },
         { status: 404 }
       );
+    }
+
+    if (action === "admin_approve") {
+      if (!isAdminAuthorized(request)) {
+        return NextResponse.json(
+          { error: "Admin password salah atau tidak ada." },
+          { status: 401 }
+        );
+      }
+
+      if (order.status !== "Pending Admin Approval") {
+        return NextResponse.json(
+          { error: `Order status ${order.status} tidak membutuhkan admin approval.` },
+          { status: 400 }
+        );
+      }
+
+      const { data: updatedOrder, error } = await supabaseAdmin
+        .from("blacksmith_orders")
+        .update({
+          status: "Pending Pricing",
+          approved_at: new Date().toISOString(),
+          admin_note: `${order.admin_note || ""} Approved by admin. Ready for pricing.`,
+        })
+        .eq("id", order.id)
+        .select("*")
+        .single();
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        ok: true,
+        message: "Special order berhasil di-approve admin. Order sekarang masuk Pending Pricing.",
+        order: updatedOrder,
+      });
     }
 
     if (action === "take") {

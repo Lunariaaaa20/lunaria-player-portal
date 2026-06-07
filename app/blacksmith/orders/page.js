@@ -28,6 +28,7 @@ export default function BlacksmithOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [statusFilter, setStatusFilter] = useState("Pending Pricing");
   const [priceInputs, setPriceInputs] = useState({});
+  const [adminPassword, setAdminPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState("");
   const [message, setMessage] = useState("");
@@ -119,6 +120,7 @@ export default function BlacksmithOrdersPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          ...(action === "admin_approve" ? { "x-admin-password": adminPassword } : {}),
         },
         body: JSON.stringify(body),
       });
@@ -202,6 +204,16 @@ export default function BlacksmithOrdersPage() {
           </select>
         </label>
 
+        <label className="shop-label">
+          Admin Password
+          <input
+            type="password"
+            value={adminPassword}
+            onChange={(event) => setAdminPassword(event.target.value)}
+            placeholder="Untuk approve Special order"
+          />
+        </label>
+
         {message && <p className="shop-message">{message}</p>}
       </section>
 
@@ -256,6 +268,16 @@ export default function BlacksmithOrdersPage() {
                 )}
 
                 <div className="blacksmith-actions">
+                  {order.status === "Pending Admin Approval" && (
+                    <button
+                      type="button"
+                      onClick={() => runAction(order, "admin_approve")}
+                      disabled={actionLoadingId === order.id}
+                    >
+                      Approve Special Order
+                    </button>
+                  )}
+
                   {(order.status === "Pending Pricing" || order.status === "Pending") && (
                     <button
                       type="button"
