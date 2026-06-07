@@ -247,7 +247,53 @@ export default function AdminCharactersPage() {
   }
 
 
-  async function copyIdCard(character) {
+  async function archiveCharacter(id) {
+    if (!id) {
+      window.alert("Gagal archive character: ID tidak ditemukan.");
+      return;
+    }
+
+    const confirmed = window.confirm("Archive character ini? Data quest report tetap aman.");
+
+    if (!confirmed) return;
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/admin/characters", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({
+          id,
+          status: "Archived",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        const errorMessage = result.error || `Gagal archive character. Status: ${response.status}`;
+        window.alert(errorMessage);
+        setMessage(errorMessage);
+        return;
+      }
+
+      setMessage("Character berhasil di-archive.");
+      await loadCharacters();
+    } catch (error) {
+      const errorMessage = error.message || "Gagal archive character.";
+      window.alert(errorMessage);
+      setMessage(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+async function copyIdCard(character) {
     const text = buildIdCard(character);
     await navigator.clipboard.writeText(text);
     setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
@@ -645,10 +691,10 @@ export default function AdminCharactersPage() {
                         <button
                           className="admin-danger"
                           type="button"
-                          onClick={() => deleteCharacter(character.id)}
+                          onClick={() => archiveCharacter(character.id)}
                           disabled={loading}
                         >
-                          Delete
+                          Archive
                         </button>
                       </div>
                     </div>
