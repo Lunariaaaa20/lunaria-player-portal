@@ -4806,3 +4806,73 @@ body::after {
   background: rgba(0, 0, 0, 0.24);
   color: #f4f1e8;
 }
+
+/* MVP Mobile Layout Fix */
+@media (max-width: 768px) {
+  .portal-home {
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 14px 90px;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .portal-hero,
+  .portal-section {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .portal-hero h1 {
+    font-size: clamp(30px, 9vw, 46px);
+    line-height: 1.08;
+    letter-spacing: 0.08em;
+    word-break: normal;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .hero-meta-grid,
+  .portal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-card {
+    min-height: 118px;
+  }
+}
+
+.hero-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.hero-stat-card {
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(244, 213, 138, 0.18);
+  background: linear-gradient(135deg, rgba(244, 213, 138, 0.08), rgba(120, 160, 255, 0.04));
+  box-shadow: inset 0 0 28px rgba(244, 213, 138, 0.04);
+}
+
+.hero-stat-card span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 232, 0.58);
+}
+
+.hero-stat-card strong {
+  display: block;
+  color: #f4d58a;
+  font-size: 17px;
+}
