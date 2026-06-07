@@ -1,4 +1,30 @@
 import Link from "next/link";
+
+function safeNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function calculateScore(character) {
+  const completedQuests = safeNumber(character.completed_quests);
+  const gold = safeNumber(character.gold);
+  const silver = safeNumber(character.silver);
+  const bronze = safeNumber(character.bronze);
+
+  const rankBonus = {
+    Initiate: 10,
+    Seeker: 30,
+    Warden: 60,
+    Arbiter: 120,
+    "High Council": 250,
+  };
+
+  const rankScore = rankBonus[character.guild_rank] || 0;
+  const currencyScore = gold * 1000 + silver + Math.floor(bronze / 100);
+
+  return completedQuests * 25 + rankScore + currencyScore;
+}
+
 import { supabase } from "../../lib/supabase";
 
 const rankWeight = {
@@ -104,7 +130,7 @@ export default async function LeaderboardPage() {
                 </div>
                 <div className="leaderboard-score">
                   <span>Total Score</span>
-                  <strong>{character.total_score}</strong>
+                  <strong>{calculateScore(character)}</strong>
                 </div>
                 <div className="leaderboard-meta">
                   <span>Quest: {character.completed_quests || 0}</span>
@@ -134,7 +160,7 @@ export default async function LeaderboardPage() {
                   </span>
                 </div>
                 <div className="leaderboard-row-score">
-                  <strong>{character.total_score}</strong>
+                  <strong>{calculateScore(character)}</strong>
                   <span>{character.completed_quests || 0} Quest</span>
                 </div>
               </article>
