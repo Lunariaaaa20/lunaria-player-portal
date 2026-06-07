@@ -95,7 +95,9 @@ export default async function LeaderboardPage() {
                 <div className="leaderboard-rank">#{index + 1}</div>
                 <div>
                   <p className="eyebrow">{character.guild_rank || "Unranked"}</p>
-                  <h3>{character.character_name}</h3>
+                  <h3><span className={character.equipped_effect_class || ""}>
+                    {character.character_name}
+                  </span></h3>
                   <p className="muted">
                     {character.player_name} • {character.race || "-"} • {character.pathway || "-"}
                   </p>
