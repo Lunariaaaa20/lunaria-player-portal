@@ -68,8 +68,11 @@ export default function CharacterRegistrationPage() {
           <Link href="/">Home</Link>
           <Link href="/registration">Character Registration</Link>
           <Link href="/registry">Adventurer Registry</Link>
-          <Link href="/rules">Rules & Guide</Link>
-          <Link href="/admin">Admin Panel</Link>
+          <Link href="/leaderboard">Leaderboard</Link>
+          <Link href="/profile">Character Profile</Link>
+          <Link href="/id-card">ID Card</Link>
+          <Link href="/cosmetic-shop">Cosmetic Shop</Link>
+<Link href="/admin">Admin Panel</Link>
         </nav>
       </aside>
 

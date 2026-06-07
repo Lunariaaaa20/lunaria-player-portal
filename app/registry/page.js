@@ -144,12 +144,10 @@ export default function RegistryPage() {
           <div className="nav-section-title">PUBLIC</div>
           <Link href="/">Home</Link>
           <Link href="/registry">Adventurer Registry</Link>
-          <Link href="/quests">Quest Board</Link>
-          <Link href="/quest-report">Quest Report</Link>
-          <Link href="/economy">Economy System</Link>
-          <Link href="/rules">Rules & Guide</Link>
-
-          <div className="nav-section-title">PLAYER</div>
+          <Link href="/leaderboard">Leaderboard</Link>
+          <Link href="/profile">Character Profile</Link>
+          <Link href="/cosmetic-shop">Cosmetic Shop</Link>
+<div className="nav-section-title">PLAYER</div>
           <Link href="/registration">Character Registration</Link>
 
           <div className="nav-section-title">ADMIN</div>
