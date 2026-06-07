@@ -212,13 +212,11 @@ export default function AdminCharactersPage() {
     setLoading(true);
     setMessage("");
 
-    const response = await fetch("/api/admin/characters", {
+    const response = await fetch(`/api/admin/characters?id=${encodeURIComponent(id)}`, {
       method: "DELETE",
       headers: {
-        "Content-Type": "application/json",
         "x-admin-password": password,
       },
-      body: JSON.stringify({ id }),
     });
 
     const result = await response.json();
