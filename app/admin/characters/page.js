@@ -624,7 +624,7 @@ export default function AdminCharactersPage() {
                         <button
                           className="admin-danger"
                           type="button"
-                          onClick={() => deleteCharacter(character)}
+                          onClick={() => deleteCharacter(character.id)}
                           disabled={loading}
                         >
                           Delete
