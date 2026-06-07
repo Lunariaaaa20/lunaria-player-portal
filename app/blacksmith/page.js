@@ -126,23 +126,6 @@ export default function BlacksmithPage() {
     loadCharacters();
   }, []);
 
-  useEffect(() => {
-    if (!selectedCharacter) return;
-
-    const characterRank = selectedCharacter.guild_rank || "Initiate";
-    const characterPower = rankPower[characterRank] || 1;
-    const requiredRank = tierRequirement[form.tier] || "Initiate";
-    const requiredPower = rankPower[requiredRank] || 1;
-
-    if (form.tier === "Epic" || form.tier === "Legend" || characterPower < requiredPower) {
-      setForm((current) => ({
-        ...current,
-        tier: "Basic",
-        required_rank: "Initiate",
-      }));
-    }
-  }, [selectedCharacter, form.tier]);
-
   const selectedCharacter = useMemo(
     () => characters.find((character) => character.id === selectedCharacterId),
     [characters, selectedCharacterId]
@@ -166,6 +149,23 @@ export default function BlacksmithPage() {
     priceGuide[form.tier]?.[form.equipment_type] ||
     priceGuide[form.tier]?.Weapon ||
     "Admin Pricing";
+
+  useEffect(() => {
+    if (!selectedCharacter) return;
+
+    const characterRank = selectedCharacter.guild_rank || "Initiate";
+    const characterPower = rankPower[characterRank] || 1;
+    const requiredRank = tierRequirement[form.tier] || "Initiate";
+    const requiredPower = rankPower[requiredRank] || 1;
+
+    if (form.tier === "Epic" || form.tier === "Legend" || characterPower < requiredPower) {
+      setForm((current) => ({
+        ...current,
+        tier: "Basic",
+        required_rank: "Initiate",
+      }));
+    }
+  }, [selectedCharacter, form.tier]);
 
   function updateForm(field, value) {
     setForm((current) => {
