@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminClient } from "../../../../lib/supabaseAdmin";
+import { supabaseAdmin } from "../../../../lib/supabaseAdmin";
 
 function toBronze(gold = 0, silver = 0, bronze = 0) {
   return Number(gold || 0) * 100000 + Number(silver || 0) * 100 + Number(bronze || 0);
@@ -53,7 +53,7 @@ export async function POST(request) {
       );
     }
 
-    const supabase = getAdminClient();
+    const supabase = supabaseAdmin;
 
     const { data: buyer, error: buyerError } = await supabase
       .from("characters")
