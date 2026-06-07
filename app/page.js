@@ -292,6 +292,16 @@ return (
             <strong>Character Inventory</strong>
             <span>Lihat item character yang tersimpan.</span>
           </a>
+
+          <a className="portal-card" href="/blacksmith">
+            <strong>Blacksmith Order</strong>
+            <span>Buat order weapon, armor, atau repair.</span>
+          </a>
+
+          <a className="portal-card" href="/blacksmith/orders">
+            <strong>Blacksmith Worker Inbox</strong>
+            <span>Approve, ambil, beri harga, dan selesaikan order.</span>
+          </a>
         </div>
       </section>
 
