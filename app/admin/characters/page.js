@@ -322,10 +322,16 @@ function formatInventoryForIdCard(items = []) {
     setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
   }
 
-  function previewIdCardData(character) {
-    const text = buildIdCard(character);
-    setPreviewIdCard(text);
-    setMessage(`Preview ID Card "${character.character_name || "-"}" dibuka.`);
+  async function previewIdCardData(character) {
+    try {
+      const characterWithInventory = await getCharacterWithInventory(character);
+      const text = buildIdCard(characterWithInventory);
+      setPreviewIdCard(text);
+      setMessage(`Preview ID Card "${character.character_name || "-"}" dibuka.`);
+    } catch (error) {
+      window.alert(error.message || "Gagal memuat preview ID Card.");
+      setMessage(error.message || "Gagal memuat preview ID Card.");
+    }
   }
 
   async function copyClaimCode(code) {
