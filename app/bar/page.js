@@ -83,14 +83,33 @@ export default function BarPage() {
   }, [items]);
 
   function getItemQuantity(itemId) {
-    return Math.max(1, Math.min(20, Number(quantities[itemId] || 1)));
+    const rawValue = quantities[itemId];
+
+    if (rawValue === "" || rawValue === undefined || rawValue === null) {
+      return 1;
+    }
+
+    return Math.max(1, Math.min(20, Number(rawValue || 1)));
   }
 
   function updateItemQuantity(itemId, value) {
-    const quantity = Math.max(1, Math.min(20, Number(value || 1)));
+    if (value === "") {
+      setQuantities((current) => ({
+        ...current,
+        [itemId]: "",
+      }));
+      return;
+    }
+
+    const numberValue = Number(value);
+
+    if (Number.isNaN(numberValue)) return;
+
+    const quantity = Math.max(1, Math.min(20, numberValue));
+
     setQuantities((current) => ({
       ...current,
-      [itemId]: quantity,
+      [itemId]: String(quantity),
     }));
   }
 
@@ -245,7 +264,7 @@ export default function BarPage() {
                       type="number"
                       min="1"
                       max="20"
-                      value={getItemQuantity(item.id)}
+                      value={quantities[item.id] ?? 1}
                       onChange={(event) => updateItemQuantity(item.id, event.target.value)}
                     />
                   </label>
