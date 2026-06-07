@@ -4299,3 +4299,20 @@ body::after {
                                                                                             border-color: rgba(226, 186, 95, 0.62);
                                                                                               box-shadow: 0 0 34px rgba(226, 186, 95, 0.18);
                                                                                               }
+/* ID Card Preview */
+.id-card-preview {
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(10, 10, 15, 0.78);
+  border: 1px solid rgba(214, 190, 122, 0.18);
+  color: #f4f1e8;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-x: auto;
+  box-shadow:
+    inset 0 0 22px rgba(214, 190, 122, 0.04),
+    0 16px 38px rgba(0, 0, 0, 0.28);
+}

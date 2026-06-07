@@ -40,6 +40,7 @@ export default function AdminCharactersPage() {
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [previewIdCard, setPreviewIdCard] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [rankFilter, setRankFilter] = useState("All");
@@ -229,6 +230,12 @@ export default function AdminCharactersPage() {
     const text = buildIdCard(character);
     await navigator.clipboard.writeText(text);
     setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
+  }
+
+  function previewIdCardData(character) {
+    const text = buildIdCard(character);
+    setPreviewIdCard(text);
+    setMessage(`Preview ID Card "${character.character_name || "-"}" dibuka.`);
   }
 
   async function copyClaimCode(code) {
@@ -621,7 +628,28 @@ export default function AdminCharactersPage() {
             </section>
           </>
         )}
-      </main>
+      
+      {previewIdCard && (
+        <section className="admin-panel">
+          <div className="admin-card-header">
+            <div>
+              <h2>Preview ID Card</h2>
+              <p className="muted">Cek format ID Card sebelum disalin ke WhatsApp atau Discord.</p>
+            </div>
+
+            <button
+              className="admin-secondary"
+              type="button"
+              onClick={() => setPreviewIdCard("")}
+            >
+              Close Preview
+            </button>
+          </div>
+
+          <pre className="id-card-preview">{previewIdCard}</pre>
+        </section>
+      )}
+</main>
     </div>
   );
 }
