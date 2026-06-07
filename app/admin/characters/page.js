@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { buildIdCard } from "../../../lib/idCard";
 
 const ADMIN_PASSWORD = "lunaria-admin";
 
@@ -28,44 +29,7 @@ const rankOptions = ["Initiate", "Seeker", "Warden", "Arbiter", "High Council"];
 const pathwayOptions = ["Warrior", "Mystic", "Shadow", "Nature"];
 const statusOptions = ["Pending", "Active", "Rejected", "Suspended", "Archived"];
 
-function buildIdCard(character) {
-  return `╔════════════════════════════╗
-        𓆩 LUNARIA ID CARD 𓆪
-╚════════════════════════════╝
 
-✦ PLAYER DATA
-Player Name      : ${character.player_name}
-Character Name   : ${character.character_name}
-Race             : ${character.race}
-Status           : ${character.status}
-
-✦ GUILD PROFILE
-Guild Rank       : ${character.guild_rank}
-Pathway          : ${character.pathway}
-Registered Guild : ${character.registered_guild}
-
-✦ PRIMARY SKILLS
-1. ${character.skill_1_name}
-   ${character.skill_1_description}
-
-2. ${character.skill_2_name}
-   ${character.skill_2_description}
-
-✦ INVENTORY
-${character.inventory || "-"}
-
-✦ CURRENCY
-Gold   : ${character.gold || 0}G
-Silver : ${character.silver || 0}S
-Bronze : ${character.bronze || 0}B
-
-✦ COMPLETED MISSIONS
-${character.completed_quests || "-"}
-
-━━━━━━━━━━━━━━━━━━━━
-Last Updated:
-Adventurer’s Guild of Valenford`;
-}
 export default function AdminCharactersPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
@@ -629,7 +593,7 @@ export default function AdminCharactersPage() {
                           onClick={() => copyIdCard(character)}
                           disabled={loading}
                         >
-                          Copy ID
+                          Copy ID Card
                         </button>
 
                         <button
