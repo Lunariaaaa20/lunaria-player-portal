@@ -206,7 +206,16 @@ export async function DELETE(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    let id = searchParams.get("id");
+
+    if (!id) {
+      try {
+        const body = await request.json();
+        id = body?.id;
+      } catch {
+        id = null;
+      }
+    }
 
     if (!id) {
       return NextResponse.json({ error: "Missing character id." }, { status: 400 });
