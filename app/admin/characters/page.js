@@ -594,6 +594,15 @@ export default function AdminCharactersPage() {
                       </div>
 
                       <div className="admin-actions">
+            <button
+              className="admin-secondary"
+              type="button"
+              onClick={() => copyClaimCode(character.claim_code)}
+              disabled={loading}
+            >
+              Copy Code
+            </button>
+
                         <button
                           className="admin-secondary"
                           type="button"
