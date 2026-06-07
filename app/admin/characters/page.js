@@ -194,8 +194,19 @@ export default function AdminCharactersPage() {
     await loadCharacters();
   }
 
-  async function deleteCharacter(character) {
-    const confirmed = window.confirm(`Hapus character "${character.character_name}"?`);
+  async function deleteCharacter(characterOrId) {
+    const id =
+      typeof characterOrId === "object"
+        ? characterOrId.id
+        : characterOrId;
+
+    if (!id) {
+      setMessage("Gagal menghapus character: ID tidak ditemukan.");
+      return;
+    }
+
+    const confirmed = window.confirm("Hapus character ini? Data tidak bisa dikembalikan.");
+
     if (!confirmed) return;
 
     setLoading(true);
@@ -207,7 +218,7 @@ export default function AdminCharactersPage() {
         "Content-Type": "application/json",
         "x-admin-password": password,
       },
-      body: JSON.stringify({ id: character.id }),
+      body: JSON.stringify({ id }),
     });
 
     const result = await response.json();
@@ -218,13 +229,11 @@ export default function AdminCharactersPage() {
       return;
     }
 
-    if (editingId === character.id) {
-      cancelEdit();
-    }
-
-    setMessage(`Character "${character.character_name}" berhasil dihapus.`);
+    setMessage("Character berhasil dihapus.");
     await loadCharacters();
+    setLoading(false);
   }
+
 
   async function copyIdCard(character) {
     const text = buildIdCard(character);
