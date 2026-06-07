@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { buildIdCard } from "../../../lib/idCard";
 
 export default function AdminCharactersPage() {
   return (
