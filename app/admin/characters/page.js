@@ -293,8 +293,31 @@ export default function AdminCharactersPage() {
     }
   }
 
-async function copyIdCard(character) {
-    const text = buildIdCard(character);
+function formatInventoryForIdCard(items = []) {
+    if (!items.length) return "-";
+
+    return items
+      .map((item) => `• ${item.item_name} x${item.quantity}`)
+      .join("\n");
+  }
+
+  async function getCharacterWithInventory(character) {
+    const response = await fetch(`/api/characters/inventory?character_id=${character.id}`);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Gagal memuat inventory character.");
+    }
+
+    return {
+      ...character,
+      inventory: formatInventoryForIdCard(result.items || []),
+    };
+  }
+
+  async function copyIdCard(character) {
+    const characterWithInventory = await getCharacterWithInventory(character);
+    const text = buildIdCard(characterWithInventory);
     await navigator.clipboard.writeText(text);
     setMessage(`ID Card "${character.character_name}" berhasil disalin.`);
   }
