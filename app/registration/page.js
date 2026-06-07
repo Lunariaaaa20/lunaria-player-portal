@@ -86,7 +86,17 @@ export default function CharacterRegistrationPage() {
         </section>
 
         <section className="section">
-          <h2>Registration Form</h2>
+          
+        <div className="hero-actions">
+          <Link className="admin-secondary" href="/">
+            Back to Home
+          </Link>
+          <Link className="admin-secondary" href="/registry">
+            Adventurer Registry
+          </Link>
+        </div>
+
+<h2>Registration Form</h2>
 
           <form className="admin-form" onSubmit={handleSubmit}>
             <div className="form-grid">
