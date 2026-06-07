@@ -1,6 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function HomePage() {
+  const [time, setTime] = useState("");
+
+  useEffect(() => {
+    function updateClock() {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        })
+      );
+    }
+
+    updateClock();
+    const timer = setInterval(updateClock, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <main className="portal-home">
       <section className="portal-hero">
@@ -10,6 +33,22 @@ export default function HomePage() {
           Portal resmi untuk identitas karakter, ID card, profile adventurer,
           leaderboard, dan cosmetic prestige komunitas roleplay fantasy Lunaria.
         </p>
+
+        <div className="lunaria-live-row">
+          <div className="lunaria-clock-card">
+            <span>LUNARIA CLOCK</span>
+            <strong>{time || "--:--:--"}</strong>
+            <small>Solarys • Virelune Season</small>
+          </div>
+
+          <div className="lunaria-announcement">
+            <div className="lunaria-marquee">
+              <span>
+                ✦ Welcome to Lunaria Character Portal ✦ Register your adventurer ✦ Build your legend ✦ Claim your prestige through ID Card, Profile, Leaderboard, and Cosmetics ✦
+              </span>
+            </div>
+          </div>
+        </div>
 
         <div className="hero-meta-grid">
           <div className="hero-stat-card">
