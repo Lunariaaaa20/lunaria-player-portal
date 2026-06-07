@@ -37,6 +37,7 @@ export default function BarPage() {
   const [orderingId, setOrderingId] = useState("");
   const [message, setMessage] = useState("");
   const [ticket, setTicket] = useState(null);
+  const [quantities, setQuantities] = useState({});
 
   async function loadData() {
     setLoading(true);
@@ -81,13 +82,27 @@ export default function BarPage() {
     }, {});
   }, [items]);
 
+  function getItemQuantity(itemId) {
+    return Math.max(1, Math.min(20, Number(quantities[itemId] || 1)));
+  }
+
+  function updateItemQuantity(itemId, value) {
+    const quantity = Math.max(1, Math.min(20, Number(value || 1)));
+    setQuantities((current) => ({
+      ...current,
+      [itemId]: quantity,
+    }));
+  }
+
   async function orderItem(item) {
     if (!selectedCharacterId) {
       window.alert("Pilih character dulu.");
       return;
     }
 
-    const confirmed = window.confirm(`Order ${item.name} seharga ${formatCurrency(item.price_bronze)}?`);
+    const quantity = getItemQuantity(item.id);
+    const totalPrice = Number(item.price_bronze || 0) * quantity;
+    const confirmed = window.confirm(`Order ${item.name} x${quantity} seharga ${formatCurrency(totalPrice)}?`);
     if (!confirmed) return;
 
     setOrderingId(item.id);
@@ -103,6 +118,7 @@ export default function BarPage() {
         body: JSON.stringify({
           buyer_character_id: selectedCharacterId,
           item_id: item.id,
+          quantity,
           order_note: orderNote || "Tidak ada catatan.",
         }),
       });
@@ -222,6 +238,17 @@ export default function BarPage() {
                   </div>
 
                   <strong>{formatCurrency(item.price_bronze)}</strong>
+
+                  <label className="shop-qty">
+                    Qty
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={getItemQuantity(item.id)}
+                      onChange={(event) => updateItemQuantity(item.id, event.target.value)}
+                    />
+                  </label>
 
                   <button
                     type="button"

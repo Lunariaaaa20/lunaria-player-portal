@@ -4579,3 +4579,20 @@ body::after {
     justify-self: start;
   }
 }
+
+.shop-qty {
+  display: grid;
+  gap: 6px;
+  color: rgba(244, 241, 232, 0.68);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.shop-qty input {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(244, 241, 232, 0.12);
+  background: rgba(0, 0, 0, 0.24);
+  color: #f4f1e8;
+}

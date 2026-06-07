@@ -202,7 +202,7 @@ export default function BarOrdersPage() {
                   <div>
                     <h3>{order.order_code}</h3>
                     <p>
-                      {order.item_name} • {order.category} • {formatCurrency(order.price_bronze)}
+                      {order.item_name} x{order.quantity || 1} • {order.category} • {formatCurrency(order.price_bronze)}
                     </p>
                   </div>
 
@@ -214,6 +214,9 @@ export default function BarOrdersPage() {
                 <div className="bar-order-details">
                   <p><strong>Customer:</strong> {order.buyer?.character_name || "-"}</p>
                   <p><strong>Worker:</strong> {order.worker?.character_name || "Belum diambil"}</p>
+                  <p><strong>Quantity:</strong> {order.quantity || 1}</p>
+                  <p><strong>Unit Price:</strong> {formatCurrency(order.unit_price_bronze || order.price_bronze)}</p>
+                  <p><strong>Total Price:</strong> {formatCurrency(order.price_bronze)}</p>
                   <p><strong>Commission:</strong> {formatCurrency(order.commission_bronze)}</p>
                   <p><strong>Note:</strong> {order.order_note || "-"}</p>
                   <p><strong>Created:</strong> {formatDate(order.created_at)}</p>

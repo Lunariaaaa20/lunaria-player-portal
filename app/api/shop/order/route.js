@@ -30,9 +30,9 @@ function createOrderCode() {
   return `ORD-${Date.now().toString().slice(-6)}-${random}`;
 }
 
-function getCommissionBronze(item) {
+function getCommissionBronze(item, totalPriceBronze) {
   if (item.location === "The Golden Barrel") {
-    return Math.floor(Number(item.price_bronze || 0) * 0.2);
+    return Math.floor(Number(totalPriceBronze || 0) * 0.2);
   }
 
   return 0;
@@ -45,6 +45,7 @@ export async function POST(request) {
     const buyerCharacterId = body?.buyer_character_id;
     const itemId = body?.item_id;
     const orderNote = body?.order_note || "";
+    const quantity = Math.max(1, Math.min(20, Number(body?.quantity || 1)));
 
     if (!buyerCharacterId || !itemId) {
       return NextResponse.json(
@@ -90,7 +91,8 @@ export async function POST(request) {
     }
 
     const currentBalance = toBronze(buyer.gold, buyer.silver, buyer.bronze);
-    const price = Number(item.price_bronze || 0);
+    const unitPrice = Number(item.price_bronze || 0);
+    const price = unitPrice * quantity;
 
     if (currentBalance < price) {
       return NextResponse.json(
@@ -104,7 +106,7 @@ export async function POST(request) {
     const newBalance = currentBalance - price;
     const newCurrency = fromBronze(newBalance);
     const orderCode = createOrderCode();
-    const commissionBronze = getCommissionBronze(item);
+    const commissionBronze = getCommissionBronze(item, price);
 
     const { error: updateBalanceError } = await supabase
       .from("characters")
@@ -132,6 +134,8 @@ export async function POST(request) {
         location: item.location,
         category: item.category,
         price_bronze: price,
+        unit_price_bronze: unitPrice,
+        quantity,
         commission_bronze: commissionBronze,
         status: item.requires_worker ? "Pending" : "Completed",
         order_note: orderNote,
@@ -156,7 +160,7 @@ export async function POST(request) {
         silver_change: 0,
         bronze_change: -price,
         total_bronze_change: -price,
-        reason: `Order ${item.name} from ${item.location}`,
+        reason: `Order ${item.name} x${quantity} from ${item.location}`,
         related_order_id: order.id,
         created_by: "system",
       });
@@ -171,7 +175,7 @@ export async function POST(request) {
     const ticket = {
       order_code: order.order_code,
       customer: buyer.character_name,
-      item: item.name,
+      item: `${item.name} x${quantity}`,
       location: item.location,
       category: item.category,
       price: formatCurrency(price),
