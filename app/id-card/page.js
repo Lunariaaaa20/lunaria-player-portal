@@ -100,11 +100,13 @@ export default function IdCardPage() {
             </label>
 
             {selectedCharacter && (
-              <div className="id-card-preview-shell">
+              <div className={`id-card-preview-shell ${selectedCharacter.equipped_border_class || ""}`}>
                 <div className="id-card-preview-header">
                   <div>
                     <p className="eyebrow">ACTIVE ID CARD</p>
-                    <h2>{selectedCharacter.character_name}</h2>
+                    <h2 className={selectedCharacter.equipped_effect_class || ""}>
+                      {selectedCharacter.character_name}
+                    </h2>
                   </div>
 
                   <button className="admin-primary" onClick={copyIdCard}>
