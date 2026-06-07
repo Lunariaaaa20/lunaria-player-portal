@@ -223,17 +223,35 @@ export async function DELETE(request) {
 
     const supabase = getAdminClient();
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("characters")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .select("id, character_name");
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message || "Failed to delete character." },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ ok: true });
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: "Character not found or already deleted." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      deleted: data[0],
+    });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to delete character." },
+      { status: 500 }
+    );
   }
 }
+

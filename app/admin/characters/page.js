@@ -197,10 +197,11 @@ export default function AdminCharactersPage() {
   async function deleteCharacter(characterOrId) {
     const id =
       typeof characterOrId === "object"
-        ? characterOrId.id
+        ? characterOrId?.id
         : characterOrId;
 
     if (!id) {
+      window.alert("Gagal menghapus character: ID tidak ditemukan.");
       setMessage("Gagal menghapus character: ID tidak ditemukan.");
       return;
     }
@@ -212,24 +213,37 @@ export default function AdminCharactersPage() {
     setLoading(true);
     setMessage("");
 
-    const response = await fetch(`/api/admin/characters?id=${encodeURIComponent(id)}`, {
-      method: "DELETE",
-      headers: {
-        "x-admin-password": password,
-      },
-    });
+    try {
+      const response = await fetch(`/api/admin/characters?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: {
+          "x-admin-password": password,
+        },
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok) {
-      setMessage(result.error || "Gagal menghapus character.");
+      if (!response.ok) {
+        const errorMessage = result.error || `Gagal menghapus character. Status: ${response.status}`;
+        window.alert(errorMessage);
+        setMessage(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      setCharacters((currentCharacters) =>
+        currentCharacters.filter((character) => character.id !== id)
+      );
+
+      setMessage(`Character berhasil dihapus: ${result.deleted?.character_name || id}`);
+      await loadCharacters();
+    } catch (error) {
+      const errorMessage = error.message || "Gagal menghapus character.";
+      window.alert(errorMessage);
+      setMessage(errorMessage);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setMessage("Character berhasil dihapus.");
-    await loadCharacters();
-    setLoading(false);
   }
 
 
