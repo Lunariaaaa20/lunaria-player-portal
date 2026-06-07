@@ -4477,3 +4477,105 @@ body::after {
     border-radius: 16px;
   }
 }
+
+/* Bar Worker Orders */
+.bar-order-list {
+  display: grid;
+  gap: 14px;
+}
+
+.bar-order-card {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(244, 241, 232, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.bar-order-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.bar-order-header h3 {
+  margin: 0;
+  color: #f4d58a;
+}
+
+.bar-order-header p {
+  margin: 6px 0 0;
+  color: rgba(244, 241, 232, 0.62);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-pending {
+  background: rgba(244, 213, 138, 0.12);
+  color: #f4d58a;
+  border: 1px solid rgba(244, 213, 138, 0.25);
+}
+
+.status-taken {
+  background: rgba(138, 177, 244, 0.12);
+  color: #b8cdf7;
+  border: 1px solid rgba(138, 177, 244, 0.25);
+}
+
+.status-completed {
+  background: rgba(137, 221, 170, 0.12);
+  color: #9ee6ba;
+  border: 1px solid rgba(137, 221, 170, 0.25);
+}
+
+.bar-order-details {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.bar-order-details p {
+  margin: 0;
+  color: rgba(244, 241, 232, 0.72);
+}
+
+.bar-order-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bar-order-actions button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #d6be7a;
+  color: #12100a;
+  font-weight: 800;
+}
+
+.bar-order-actions button:disabled {
+  opacity: 0.55;
+}
+
+@media (max-width: 640px) {
+  .bar-order-header {
+    display: grid;
+  }
+
+  .status-pill {
+    justify-self: start;
+  }
+}
