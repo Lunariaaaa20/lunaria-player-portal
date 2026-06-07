@@ -62,7 +62,7 @@ export default function CharacterRegistrationPage() {
     <div className="page">
       <aside className="sidebar">
         <div className="logo">LUNARIA</div>
-        <div className="subtitle">Character Registration</div>
+        <div className="subtitle">Character Portal</div>
 
         <nav className="nav">
           <Link href="/">Home</Link>

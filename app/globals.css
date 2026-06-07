@@ -5554,3 +5554,93 @@ body::after {
   font-size: 16px;
   color: #f4d58a;
 }
+
+/* Registration Final MVP Polish */
+.registration-page,
+.registry-page,
+.profile-page,
+.id-card-page {
+  animation: pageFadeIn 0.45s ease both;
+}
+
+.registration-form,
+.registration-panel,
+.portal-form,
+.admin-form {
+  border: 1px solid rgba(244, 213, 138, 0.12);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018)),
+    rgba(8, 12, 18, 0.78);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  border-radius: 28px;
+}
+
+.registration-form input,
+.registration-form textarea,
+.registration-form select,
+.registration-panel input,
+.registration-panel textarea,
+.registration-panel select,
+.portal-form input,
+.portal-form textarea,
+.portal-form select {
+  border: 1px solid rgba(244, 213, 138, 0.10);
+  background: rgba(5, 8, 13, 0.74);
+  color: #f4f1e8;
+  border-radius: 14px;
+  min-height: 46px;
+}
+
+.registration-form input:focus,
+.registration-form textarea:focus,
+.registration-form select:focus,
+.registration-panel input:focus,
+.registration-panel textarea:focus,
+.registration-panel select:focus,
+.portal-form input:focus,
+.portal-form textarea:focus,
+.portal-form select:focus {
+  outline: none;
+  border-color: rgba(244, 213, 138, 0.42);
+  box-shadow: 0 0 0 4px rgba(244, 213, 138, 0.075);
+}
+
+.registration-form label,
+.registration-panel label,
+.portal-form label {
+  color: #d9bd73;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.registration-form button,
+.registration-panel button,
+.portal-form button {
+  border: 1px solid rgba(244, 213, 138, 0.18);
+  background: linear-gradient(135deg, #f4d58a, #b89445);
+  color: #0c1118;
+  border-radius: 16px;
+  font-weight: 900;
+  min-height: 48px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
