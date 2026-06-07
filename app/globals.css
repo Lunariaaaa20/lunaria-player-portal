@@ -5519,3 +5519,38 @@ body::after {
     grid-template-columns: 1fr;
   }
 }
+
+/* Cosmetic Shop Button Hardfix */
+.cosmetic-card button {
+  min-width: 92px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 213, 138, 0.22);
+  background: linear-gradient(135deg, #f4d58a, #b89445);
+  color: #0d1119;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24);
+}
+
+.cosmetic-card button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.cosmetic-card button:disabled {
+  cursor: default;
+  color: rgba(244, 241, 232, 0.72);
+  background: rgba(244, 241, 232, 0.08);
+  border-color: rgba(244, 241, 232, 0.12);
+  box-shadow: none;
+}
+
+.cosmetic-card-footer {
+  margin-top: 24px;
+}
+
+.cosmetic-card-footer strong {
+  font-size: 16px;
+  color: #f4d58a;
+}
