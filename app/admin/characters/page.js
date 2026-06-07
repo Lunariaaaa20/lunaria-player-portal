@@ -574,34 +574,7 @@ export default function AdminCharactersPage() {
                 <button className="admin-secondary" type="button" onClick={clearFilters}>
                   Clear Filter
                 </button>
-              </div>        <div className="admin-stats-grid">
-          <div className="admin-stat-card">
-            <span>Total</span>
-            <strong>{characterStats.total}</strong>
-          </div>
-          <div className="admin-stat-card">
-            <span>Shown</span>
-            <strong>{characterStats.shown}</strong>
-          </div>
-          <div className="admin-stat-card">
-            <span>Active</span>
-            <strong>{characterStats.active}</strong>
-          </div>
-          <div className="admin-stat-card">
-            <span>Pending</span>
-            <strong>{characterStats.pending}</strong>
-          </div>
-          <div className="admin-stat-card">
-            <span>Initiate</span>
-            <strong>{characterStats.initiate}</strong>
-          </div>
-          <div className="admin-stat-card">
-            <span>Seeker</span>
-            <strong>{characterStats.seeker}</strong>
-          </div>
-        </div>
-
-
+              </div>
 
               <p className="muted">
                 Showing {filteredCharacters.length} of {characters.length} characters.
