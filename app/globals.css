@@ -4596,3 +4596,34 @@ body::after {
   background: rgba(0, 0, 0, 0.24);
   color: #f4f1e8;
 }
+
+/* Character Inventory Page */
+.inventory-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.inventory-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(244, 241, 232, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.inventory-card h3 {
+  margin: 0;
+  color: #f4d58a;
+}
+
+.inventory-card p {
+  margin: 5px 0 0;
+  color: rgba(244, 241, 232, 0.62);
+}
+
+.inventory-card strong {
+  font-size: 24px;
+  color: #f4f1e8;
+}
