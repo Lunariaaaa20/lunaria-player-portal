@@ -5360,3 +5360,162 @@ body::after {
   background: rgba(0, 0, 0, 0.24);
   color: rgba(244, 241, 232, 0.8);
 }
+
+/* Lunaria Cosmetic Shop */
+.cosmetic-balance-card {
+  margin-top: 22px;
+  padding: 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(244, 213, 138, 0.2);
+  background:
+    radial-gradient(circle at top left, rgba(244, 213, 138, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(11, 14, 22, 0.96), rgba(20, 24, 35, 0.72));
+}
+
+.cosmetic-balance-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(244, 241, 232, 0.58);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cosmetic-balance-card strong {
+  color: #f4d58a;
+  font-size: 34px;
+}
+
+.cosmetic-balance-card p {
+  margin: 8px 0 0;
+  color: rgba(244, 241, 232, 0.65);
+}
+
+.cosmetic-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.cosmetic-tabs button {
+  min-width: 120px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 213, 138, 0.16);
+  background: rgba(10, 13, 20, 0.72);
+  color: rgba(244, 241, 232, 0.76);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cosmetic-tabs button.active {
+  color: #0d1119;
+  background: linear-gradient(135deg, #f4d58a, #b89445);
+}
+
+.cosmetic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cosmetic-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 310px;
+  padding: 22px;
+  border-radius: 26px;
+  border: 1px solid rgba(244, 213, 138, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(244, 213, 138, 0.1), transparent 34%),
+    linear-gradient(145deg, rgba(10, 13, 20, 0.96), rgba(20, 24, 35, 0.76));
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.3),
+    inset 0 0 34px rgba(244, 213, 138, 0.03);
+}
+
+.cosmetic-preview {
+  display: grid;
+  place-items: center;
+  min-height: 94px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(244, 213, 138, 0.12);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.cosmetic-preview span {
+  color: #f4d58a;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.cosmetic-card h3 {
+  margin: 6px 0 10px;
+  color: #f4d58a;
+}
+
+.cosmetic-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.cosmetic-card-footer strong {
+  color: #f4f1e8;
+}
+
+/* Border cosmetic visual classes */
+.border-bronze-adventurer { border-color: rgba(180, 115, 60, 0.48); }
+.border-oakhaven-green { border-color: rgba(90, 180, 110, 0.46); }
+.border-azure-coast { border-color: rgba(90, 150, 230, 0.48); }
+.border-whispering-wood { border-color: rgba(110, 170, 120, 0.48); box-shadow: 0 0 22px rgba(80, 160, 120, 0.12); }
+.border-silver-guild { border-color: rgba(210, 220, 230, 0.52); box-shadow: 0 0 24px rgba(210, 220, 230, 0.12); }
+.border-moonlit-seeker { border-color: rgba(190, 205, 255, 0.48); box-shadow: 0 0 28px rgba(150, 170, 255, 0.14); }
+.border-ruby-warden { border-color: rgba(210, 60, 80, 0.54); box-shadow: 0 0 30px rgba(210, 60, 80, 0.16); }
+.border-emerald-mist { border-color: rgba(40, 210, 140, 0.54); box-shadow: 0 0 32px rgba(40, 210, 140, 0.16); }
+.border-obsidian-court { border-color: rgba(80, 80, 95, 0.78); box-shadow: 0 0 35px rgba(10, 10, 15, 0.5); }
+.border-golden-laurel { border-color: rgba(244, 213, 138, 0.68); box-shadow: 0 0 38px rgba(244, 213, 138, 0.18); }
+.border-crimson-duelist { border-color: rgba(230, 40, 60, 0.7); box-shadow: 0 0 42px rgba(230, 40, 60, 0.2); }
+.border-astral-mystic { border-color: rgba(150, 110, 255, 0.68); box-shadow: 0 0 42px rgba(110, 90, 255, 0.2); }
+.border-ebonhall-royal { border-color: rgba(244, 213, 138, 0.74); box-shadow: 0 0 50px rgba(244, 213, 138, 0.24), inset 0 0 40px rgba(80, 80, 110, 0.12); }
+.border-void-crown { border-color: rgba(120, 80, 180, 0.82); box-shadow: 0 0 54px rgba(80, 40, 160, 0.26), inset 0 0 44px rgba(0, 0, 0, 0.32); }
+.border-lunaria-eternal { border-color: rgba(244, 213, 138, 0.95); box-shadow: 0 0 70px rgba(244, 213, 138, 0.34), inset 0 0 55px rgba(244, 213, 138, 0.12); }
+
+/* Name effect visual classes */
+.effect-soft-gold { color: #f4d58a !important; }
+.effect-silver-glow { color: #e8edf5 !important; text-shadow: 0 0 14px rgba(220, 235, 255, 0.42); }
+.effect-forest-whisper { color: #a8f0b0 !important; text-shadow: 0 0 14px rgba(90, 220, 120, 0.38); }
+.effect-azure-spark { color: #9dccff !important; text-shadow: 0 0 16px rgba(80, 150, 255, 0.5); }
+.effect-moon-dust { color: #dfe5ff !important; text-shadow: 0 0 18px rgba(180, 190, 255, 0.5); }
+.effect-ruby-pulse { color: #ff6b7a !important; text-shadow: 0 0 18px rgba(255, 60, 80, 0.58); animation: namePulse 1.8s ease-in-out infinite; }
+.effect-emerald-veil { color: #5ff2ad !important; text-shadow: 0 0 20px rgba(60, 240, 170, 0.55); }
+.effect-shadow-smoke { color: #c4b8ff !important; text-shadow: 0 0 22px rgba(40, 20, 90, 0.8); }
+.effect-golden-shimmer { color: #f4d58a !important; text-shadow: 0 0 22px rgba(244, 213, 138, 0.68); animation: nameShimmer 2.4s linear infinite; }
+.effect-crimson-flame { color: #ff405d !important; text-shadow: 0 0 24px rgba(255, 45, 70, 0.78); animation: namePulse 1.4s ease-in-out infinite; }
+.effect-astral-pulse { color: #b697ff !important; text-shadow: 0 0 26px rgba(130, 90, 255, 0.75); animation: namePulse 1.7s ease-in-out infinite; }
+.effect-royal-radiance { color: #ffe3a1 !important; text-shadow: 0 0 30px rgba(244, 213, 138, 0.86); animation: nameShimmer 2s linear infinite; }
+.effect-void-whisper { color: #c09cff !important; text-shadow: 0 0 34px rgba(80, 30, 160, 0.9); animation: namePulse 2.2s ease-in-out infinite; }
+.effect-celestial-crown { color: #fff0b8 !important; text-shadow: 0 0 38px rgba(255, 230, 160, 0.95); animation: nameShimmer 1.8s linear infinite; }
+.effect-lunaria-eternal { color: #fff6c9 !important; text-shadow: 0 0 44px rgba(244, 213, 138, 1); animation: nameShimmer 1.4s linear infinite; }
+
+@keyframes namePulse {
+  0%, 100% { opacity: 0.78; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.025); }
+}
+
+@keyframes nameShimmer {
+  0% { filter: brightness(0.92); }
+  50% { filter: brightness(1.35); }
+  100% { filter: brightness(0.92); }
+}
+
+@media (max-width: 1000px) {
+  .cosmetic-grid {
+    grid-template-columns: 1fr;
+  }
+}
