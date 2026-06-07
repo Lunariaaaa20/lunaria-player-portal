@@ -10,6 +10,7 @@ const initialProfile = {
   personality: "",
   quote: "",
   backstory: "",
+  avatar_url: "",
 };
 
 export default function ProfilePage() {
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(initialProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [message, setMessage] = useState("");
 
   async function loadCharacters() {
@@ -70,6 +72,7 @@ export default function ProfilePage() {
         personality: result.profile?.personality || "",
         quote: result.profile?.quote || "",
         backstory: result.profile?.backstory || "",
+        avatar_url: result.profile?.avatar_url || "",
       });
     } catch {
       setProfile(initialProfile);
@@ -94,6 +97,46 @@ export default function ProfilePage() {
       ...current,
       [field]: value,
     }));
+  }
+
+  async function uploadAvatar(event) {
+    const file = event.target.files?.[0];
+
+    if (!file || !selectedCharacterId) return;
+
+    setUploadingAvatar(true);
+    setMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("character_id", selectedCharacterId);
+      formData.append("avatar", file);
+
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        window.alert(result.error || "Gagal upload avatar.");
+        setMessage(result.error || "Gagal upload avatar.");
+        return;
+      }
+
+      setProfile((current) => ({
+        ...current,
+        avatar_url: result.avatar_url,
+      }));
+
+      setMessage("Avatar berhasil diupload.");
+    } catch (error) {
+      window.alert(error.message || "Gagal upload avatar.");
+      setMessage(error.message || "Gagal upload avatar.");
+    } finally {
+      setUploadingAvatar(false);
+    }
   }
 
   async function saveProfile(event) {
@@ -179,7 +222,11 @@ export default function ProfilePage() {
             {selectedCharacter && (
               <div className="profile-display-card">
                 <div className="profile-avatar-placeholder">
-                  {selectedCharacter.character_name?.slice(0, 1) || "L"}
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt={selectedCharacter.character_name || "Character Avatar"} />
+                  ) : (
+                    selectedCharacter.character_name?.slice(0, 1) || "L"
+                  )}
                 </div>
 
                 <div>
@@ -205,6 +252,22 @@ export default function ProfilePage() {
           <h2>Character Lore</h2>
 
           <form className="profile-form" onSubmit={saveProfile}>
+            <label className="shop-label">
+              Character Avatar
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={uploadAvatar}
+                disabled={uploadingAvatar}
+              />
+            </label>
+
+            {profile.avatar_url && (
+              <div className="profile-avatar-preview">
+                <img src={profile.avatar_url} alt="Character Avatar Preview" />
+              </div>
+            )}
+
             <label className="shop-label">
               Quote
               <input
