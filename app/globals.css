@@ -5056,3 +5056,170 @@ body::after {
     animation-duration: 20s;
   }
 }
+
+/* Lunaria Leaderboard */
+.leaderboard-hero {
+  position: relative;
+}
+
+.leaderboard-podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.leaderboard-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 260px;
+  padding: 26px;
+  border-radius: 26px;
+  border: 1px solid rgba(244, 213, 138, 0.22);
+  background:
+    radial-gradient(circle at top, rgba(244, 213, 138, 0.13), transparent 38%),
+    linear-gradient(145deg, rgba(11, 14, 22, 0.96), rgba(20, 24, 35, 0.78));
+  box-shadow:
+    0 22px 70px rgba(0, 0, 0, 0.35),
+    inset 0 0 42px rgba(244, 213, 138, 0.04);
+}
+
+.leaderboard-card::after {
+  content: "PRESTIGE";
+  position: absolute;
+  right: -8px;
+  bottom: 20px;
+  font-size: 42px;
+  letter-spacing: 0.16em;
+  font-weight: 800;
+  color: rgba(244, 213, 138, 0.035);
+}
+
+.leaderboard-card.top-1 {
+  border-color: rgba(244, 213, 138, 0.42);
+  transform: translateY(-10px);
+}
+
+.leaderboard-card.top-2 {
+  border-color: rgba(190, 210, 255, 0.28);
+}
+
+.leaderboard-card.top-3 {
+  border-color: rgba(190, 130, 80, 0.32);
+}
+
+.leaderboard-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 42px;
+  margin-bottom: 22px;
+  border-radius: 999px;
+  color: #0d1119;
+  background: linear-gradient(135deg, #f4d58a, #b89445);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.leaderboard-card h3 {
+  margin: 6px 0 10px;
+  color: #f4d58a;
+  font-size: 28px;
+  letter-spacing: 0.03em;
+}
+
+.leaderboard-score {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(244, 213, 138, 0.14);
+}
+
+.leaderboard-score span {
+  display: block;
+  margin-bottom: 6px;
+  color: rgba(244, 241, 232, 0.58);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.leaderboard-score strong {
+  color: #f4f1e8;
+  font-size: 34px;
+}
+
+.leaderboard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.leaderboard-meta span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(244, 213, 138, 0.08);
+  color: rgba(244, 241, 232, 0.72);
+  font-size: 12px;
+}
+
+.leaderboard-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 72px 1fr 120px;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(244, 213, 138, 0.13);
+  background: rgba(10, 13, 20, 0.62);
+}
+
+.leaderboard-row-rank {
+  color: #f4d58a;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.leaderboard-row-main strong,
+.leaderboard-row-score strong {
+  display: block;
+  color: #f4f1e8;
+}
+
+.leaderboard-row-main span,
+.leaderboard-row-score span {
+  display: block;
+  margin-top: 6px;
+  color: rgba(244, 241, 232, 0.55);
+  font-size: 13px;
+}
+
+.leaderboard-row-score {
+  text-align: right;
+}
+
+@media (max-width: 900px) {
+  .leaderboard-podium {
+    grid-template-columns: 1fr;
+  }
+
+  .leaderboard-card.top-1 {
+    transform: none;
+  }
+
+  .leaderboard-row {
+    grid-template-columns: 52px 1fr;
+  }
+
+  .leaderboard-row-score {
+    grid-column: 2;
+    text-align: left;
+  }
+}
