@@ -264,7 +264,38 @@ return (
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   </Link>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </div>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     </section>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </main>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+      <section className="portal-section">
+        <p className="eyebrow">LUNARIA PLAYER SERVICES</p>
+        <h2>Player Economy Portal</h2>
+        <p className="muted">
+          Akses cepat untuk order bar, pembelian merchant, dan pengecekan inventory character.
+        </p>
+
+        <div className="portal-grid">
+          <a className="portal-card" href="/bar">
+            <strong>The Golden Barrel</strong>
+            <span>Order makanan dan minuman.</span>
+          </a>
+
+          <a className="portal-card" href="/bar/orders">
+            <strong>Bar Worker Inbox</strong>
+            <span>Ambil dan selesaikan order bar.</span>
+          </a>
+
+          <a className="portal-card" href="/merchant">
+            <strong>Merchant’s Lane</strong>
+            <span>Beli item dan perlengkapan umum.</span>
+          </a>
+
+          <a className="portal-card" href="/inventory">
+            <strong>Character Inventory</strong>
+            <span>Lihat item character yang tersimpan.</span>
+          </a>
+        </div>
+      </section>
+
+</main>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 );
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
