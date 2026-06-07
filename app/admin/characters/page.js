@@ -391,6 +391,7 @@ function formatInventoryForIdCard(items = []) {
           <Link href="/registry">Adventurer Registry</Link>
           <Link href="/leaderboard">Leaderboard</Link>
           <Link href="/profile">Character Profile</Link>
+          <Link href="/id-card">ID Card</Link>
           <Link href="/cosmetic-shop">Cosmetic Shop</Link>
 <Link href="/admin">Admin Dashboard</Link>
           <Link href="/admin/characters">Character Admin</Link>
