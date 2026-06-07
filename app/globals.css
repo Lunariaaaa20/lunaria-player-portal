@@ -4837,9 +4837,12 @@ body::after {
     line-height: 1.7;
   }
 
-  .hero-meta-grid,
   .portal-grid {
     grid-template-columns: 1fr;
+  }
+
+  .hero-meta-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .portal-card {
@@ -4875,4 +4878,59 @@ body::after {
   display: block;
   color: #f4d58a;
   font-size: 17px;
+}
+
+/* MVP Home Container Polish */
+.portal-home {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.portal-hero {
+  margin-top: 28px;
+}
+
+@media (min-width: 1024px) {
+  .portal-home {
+    width: min(1180px, calc(100% - 80px));
+  }
+
+  .portal-hero h1 {
+    max-width: 900px;
+  }
+
+  .hero-copy {
+    max-width: 940px;
+  }
+
+  .portal-section {
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* MVP Quick Access Compact Cards */
+.portal-card {
+  min-height: 104px;
+}
+
+.portal-card strong {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.portal-card span {
+  line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+  .portal-card {
+    min-height: 96px;
+    padding: 18px;
+  }
+
+  .portal-section {
+    padding: 24px;
+  }
 }
