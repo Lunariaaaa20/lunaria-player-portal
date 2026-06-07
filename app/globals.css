@@ -4728,3 +4728,81 @@ body::after {
   background: rgba(214, 190, 122, 0.06);
   border-color: rgba(214, 190, 122, 0.16);
 }
+
+/* Blacksmith Orders */
+.blacksmith-order-list {
+  display: grid;
+  gap: 14px;
+}
+
+.blacksmith-order-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(244, 241, 232, 0.1);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.order-card-header h3 {
+  margin: 0 0 5px;
+  color: #f4d58a;
+}
+
+.order-card-header p {
+  margin: 0;
+  color: rgba(244, 241, 232, 0.66);
+}
+
+.status-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 213, 138, 0.22);
+  background: rgba(214, 190, 122, 0.1);
+  color: #f4d58a;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.order-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 14px;
+}
+
+.order-detail-grid p {
+  margin: 0;
+  color: rgba(244, 241, 232, 0.72);
+}
+
+.blacksmith-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.blacksmith-actions button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #d6be7a;
+  color: #12100a;
+  font-weight: 900;
+}
+
+.blacksmith-actions input {
+  min-width: 220px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(244, 241, 232, 0.12);
+  background: rgba(0, 0, 0, 0.24);
+  color: #f4f1e8;
+}
