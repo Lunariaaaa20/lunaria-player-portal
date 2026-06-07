@@ -29,6 +29,42 @@ function formatCurrency(totalBronze) {
   return parts.length ? parts.join(" ") : "0B";
 }
 
+
+const priceRangeBronze = {
+  Basic: {
+    Weapon: { min: 500, max: 2500 },
+    Armor: { min: 1000, max: 4000 },
+    Repair: { min: 200, max: 1000 },
+  },
+  Elite: {
+    Weapon: { min: 4000, max: 12000 },
+    Armor: { min: 4500, max: 15000 },
+    Repair: { min: 800, max: 3000 },
+  },
+  Special: {
+    Weapon: { min: 13000, max: 30000 },
+    Armor: { min: 15000, max: 35000 },
+    Repair: { min: 2500, max: 9000 },
+  },
+  Epic: {
+    Weapon: { min: 40000, max: 80000 },
+    Armor: { min: 45000, max: 90000 },
+    Repair: { min: 10000, max: 30000 },
+  },
+  Legend: {
+    Weapon: { min: 100000, max: null },
+    Armor: { min: 100000, max: null },
+    Repair: { min: 100000, max: null },
+  },
+};
+
+function getBlacksmithPriceRange(order) {
+  const tier = order.tier || "Basic";
+  const type = order.service_type === "Repair" ? "Repair" : order.equipment_type || "Weapon";
+
+  return priceRangeBronze[tier]?.[type] || priceRangeBronze[tier]?.Weapon || null;
+}
+
 async function isApprovedBlacksmithWorker(characterId) {
   const { data, error } = await supabaseAdmin
     .from("character_jobs")
@@ -216,6 +252,33 @@ export async function PATCH(request) {
       if (priceBronze <= 0) {
         return NextResponse.json(
           { error: "Harga final wajib lebih dari 0 bronze." },
+          { status: 400 }
+        );
+      }
+
+      const range = getBlacksmithPriceRange(order);
+
+      if (!range) {
+        return NextResponse.json(
+          { error: "Price range blacksmith tidak ditemukan untuk tier/type ini." },
+          { status: 400 }
+        );
+      }
+
+      if (priceBronze < range.min) {
+        return NextResponse.json(
+          {
+            error: `Harga terlalu rendah. Minimum untuk ${order.tier} ${order.equipment_type} adalah ${formatCurrency(range.min)}.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      if (range.max !== null && priceBronze > range.max) {
+        return NextResponse.json(
+          {
+            error: `Harga terlalu tinggi. Maximum untuk ${order.tier} ${order.equipment_type} adalah ${formatCurrency(range.max)}.`,
+          },
           { status: 400 }
         );
       }
