@@ -26,6 +26,59 @@ const tierOptions = [
   { value: "Legend", label: "Legend — High Council" },
 ];
 
+
+const rankPower = {
+  Initiate: 1,
+  Seeker: 2,
+  Warden: 3,
+  Arbiter: 4,
+  "High Council": 5,
+};
+
+const tierRequirement = {
+  Basic: "Initiate",
+  Elite: "Seeker",
+  Special: "Warden",
+  Epic: "Arbiter",
+  Legend: "High Council",
+};
+
+const tierAccessNote = {
+  Basic: "Available",
+  Elite: "Available if Seeker+",
+  Special: "Requires Admin Approval",
+  Epic: "Event/Admin Only",
+  Legend: "Story/Major Event Only",
+};
+
+const priceGuide = {
+  Basic: {
+    Weapon: "5S–25S",
+    Armor: "10S–40S",
+    Repair: "2S–10S",
+  },
+  Elite: {
+    Weapon: "40S–120S",
+    Armor: "45S–150S",
+    Repair: "8S–30S",
+  },
+  Special: {
+    Weapon: "130S–300S",
+    Armor: "150S–350S",
+    Repair: "25S–90S",
+  },
+  Epic: {
+    Weapon: "400S–800S",
+    Armor: "450S–900S",
+    Repair: "100S–300S",
+  },
+  Legend: {
+    Weapon: "1G+",
+    Armor: "1G+",
+    Repair: "Admin Only",
+  },
+};
+
 const rankByTier = {
   Basic: "Initiate",
   Elite: "Seeker",
@@ -73,10 +126,46 @@ export default function BlacksmithPage() {
     loadCharacters();
   }, []);
 
+  useEffect(() => {
+    if (!selectedCharacter) return;
+
+    const characterRank = selectedCharacter.guild_rank || "Initiate";
+    const characterPower = rankPower[characterRank] || 1;
+    const requiredRank = tierRequirement[form.tier] || "Initiate";
+    const requiredPower = rankPower[requiredRank] || 1;
+
+    if (form.tier === "Epic" || form.tier === "Legend" || characterPower < requiredPower) {
+      setForm((current) => ({
+        ...current,
+        tier: "Basic",
+        required_rank: "Initiate",
+      }));
+    }
+  }, [selectedCharacter, form.tier]);
+
   const selectedCharacter = useMemo(
     () => characters.find((character) => character.id === selectedCharacterId),
     [characters, selectedCharacterId]
   );
+
+  const allowedTierOptions = useMemo(() => {
+    const characterRank = selectedCharacter?.guild_rank || "Initiate";
+    const characterPower = rankPower[characterRank] || 1;
+
+    return tierOptions.filter((tier) => {
+      if (tier.value === "Epic" || tier.value === "Legend") return false;
+
+      const requiredRank = tierRequirement[tier.value] || "Initiate";
+      const requiredPower = rankPower[requiredRank] || 1;
+
+      return characterPower >= requiredPower;
+    });
+  }, [selectedCharacter]);
+
+  const currentPriceGuide =
+    priceGuide[form.tier]?.[form.equipment_type] ||
+    priceGuide[form.tier]?.Weapon ||
+    "Admin Pricing";
 
   function updateForm(field, value) {
     setForm((current) => {
@@ -190,6 +279,14 @@ export default function BlacksmithPage() {
                 </p>
               </div>
             )}
+
+            <div className="shop-balance-card">
+              <span>Blacksmith Rule</span>
+              <strong>{form.tier} • {currentPriceGuide}</strong>
+              <p>
+                Required Rank: {tierRequirement[form.tier]} • {tierAccessNote[form.tier]}
+              </p>
+            </div>
           </>
         )}
 
@@ -263,7 +360,7 @@ export default function BlacksmithPage() {
                 value={form.tier}
                 onChange={(event) => updateForm("tier", event.target.value)}
               >
-                {tierOptions.map((tier) => (
+                {allowedTierOptions.map((tier) => (
                   <option key={tier.value} value={tier.value}>
                     {tier.label}
                   </option>

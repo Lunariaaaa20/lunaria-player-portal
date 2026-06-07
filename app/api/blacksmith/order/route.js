@@ -1,6 +1,90 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "../../../../lib/supabaseAdmin";
 
+
+const rankPower = {
+  Initiate: 1,
+  Seeker: 2,
+  Warden: 3,
+  Arbiter: 4,
+  "High Council": 5,
+};
+
+const tierRules = {
+  Basic: {
+    requiredRank: "Initiate",
+    playerAllowed: true,
+    adminApproval: false,
+    note: "Basic equipment for Initiate+.",
+  },
+  Elite: {
+    requiredRank: "Seeker",
+    playerAllowed: true,
+    adminApproval: false,
+    note: "Elite equipment for Seeker+.",
+  },
+  Special: {
+    requiredRank: "Warden",
+    playerAllowed: true,
+    adminApproval: true,
+    note: "Special equipment requires admin approval.",
+  },
+  Epic: {
+    requiredRank: "Arbiter",
+    playerAllowed: false,
+    adminApproval: true,
+    note: "Epic equipment is Event/Admin Only.",
+  },
+  Legend: {
+    requiredRank: "High Council",
+    playerAllowed: false,
+    adminApproval: true,
+    note: "Legend equipment is Story/Major Event Only.",
+  },
+};
+
+const priceGuide = {
+  Basic: {
+    Weapon: "5S–25S",
+    Armor: "10S–40S",
+    Repair: "2S–10S",
+  },
+  Elite: {
+    Weapon: "40S–120S",
+    Armor: "45S–150S",
+    Repair: "8S–30S",
+  },
+  Special: {
+    Weapon: "130S–300S",
+    Armor: "150S–350S",
+    Repair: "25S–90S",
+  },
+  Epic: {
+    Weapon: "400S–800S",
+    Armor: "450S–900S",
+    Repair: "100S–300S",
+  },
+  Legend: {
+    Weapon: "1G+",
+    Armor: "1G+",
+    Repair: "Admin Only",
+  },
+};
+
+function getRankPower(rank) {
+  return rankPower[rank] || 0;
+}
+
+function getBlacksmithStatus(tier) {
+  const rule = tierRules[tier];
+
+  if (!rule) return "Pending";
+
+  if (rule.adminApproval) return "Pending Admin Approval";
+
+  return "Pending Pricing";
+}
+
 function createOrderCode() {
   const random = Math.random().toString(36).slice(2, 7).toUpperCase();
   return `BS-${Date.now().toString().slice(-6)}-${random}`;
@@ -41,7 +125,7 @@ export async function POST(request) {
 
     const { data: character, error: characterError } = await supabaseAdmin
       .from("characters")
-      .select("id, character_name, status")
+      .select("id, character_name, guild_rank, status")
       .eq("id", customerCharacterId)
       .single();
 
@@ -59,6 +143,66 @@ export async function POST(request) {
       );
     }
 
+    const tierRule = tierRules[tier];
+
+    if (!tierRule) {
+      return NextResponse.json(
+        { error: "Tier blacksmith tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    if (!["Buy", "Custom Order", "Repair"].includes(serviceType)) {
+      return NextResponse.json(
+        { error: "Service type tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    if (!["Weapon", "Armor", "Repair", "Equipment"].includes(equipmentType)) {
+      return NextResponse.json(
+        { error: "Equipment type tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    if (serviceType === "Repair" && equipmentType !== "Repair") {
+      return NextResponse.json(
+        { error: "Jika service Repair, equipment type harus Repair." },
+        { status: 400 }
+      );
+    }
+
+    if (serviceType !== "Repair" && equipmentType === "Repair") {
+      return NextResponse.json(
+        { error: "Equipment type Repair hanya boleh untuk service Repair." },
+        { status: 400 }
+      );
+    }
+
+    if (!tierRule.playerAllowed) {
+      return NextResponse.json(
+        { error: `${tier} tidak bisa dipesan langsung oleh player. ${tierRule.note}` },
+        { status: 403 }
+      );
+    }
+
+    const characterRankPower = getRankPower(character.guild_rank);
+    const requiredRankPower = getRankPower(tierRule.requiredRank);
+
+    if (characterRankPower < requiredRankPower) {
+      return NextResponse.json(
+        {
+          error: `${character.character_name} belum memenuhi syarat rank. ${tier} membutuhkan minimal ${tierRule.requiredRank}. Rank sekarang: ${character.guild_rank}.`,
+        },
+        { status: 403 }
+      );
+    }
+
+    const finalRequiredRank = tierRule.requiredRank;
+    const finalStatus = getBlacksmithStatus(tier);
+    const pricingGuide = priceGuide[tier]?.[equipmentType] || priceGuide[tier]?.Weapon || "Admin Pricing";
+
     const orderCode = createOrderCode();
 
     const { data: order, error: orderError } = await supabaseAdmin
@@ -71,7 +215,7 @@ export async function POST(request) {
         equipment_name: equipmentName,
         equipment_type: equipmentType,
         tier,
-        required_rank: requiredRank,
+        required_rank: finalRequiredRank,
         material,
         description,
 
@@ -84,7 +228,8 @@ export async function POST(request) {
         durability_current: 5,
         condition_status: "Baik",
 
-        status: "Pending",
+        status: finalStatus,
+        admin_note: `Price Guide: ${pricingGuide}. ${tierRule.note}`,
         customer_note: customerNote,
       })
       .select("*")
@@ -109,6 +254,8 @@ export async function POST(request) {
         equipment_type: order.equipment_type,
         tier: order.tier,
         status: order.status,
+        price_guide: pricingGuide,
+        admin_note: order.admin_note,
       },
     });
   } catch (error) {
