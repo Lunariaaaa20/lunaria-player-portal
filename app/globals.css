@@ -5223,3 +5223,55 @@ body::after {
     text-align: left;
   }
 }
+
+/* Lunaria ID Card Public Page */
+.id-card-preview-shell {
+  margin-top: 26px;
+  padding: 24px;
+  border-radius: 26px;
+  border: 1px solid rgba(244, 213, 138, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(244, 213, 138, 0.12), transparent 36%),
+    linear-gradient(145deg, rgba(11, 14, 22, 0.96), rgba(20, 24, 35, 0.76));
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.36),
+    inset 0 0 42px rgba(244, 213, 138, 0.035);
+}
+
+.id-card-preview-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.id-card-preview-header h2 {
+  margin: 4px 0 0;
+  color: #f4d58a;
+}
+
+.id-card-preview {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  min-height: 360px;
+  padding: 24px;
+  border-radius: 22px;
+  border: 1px solid rgba(244, 213, 138, 0.16);
+  background: rgba(5, 8, 14, 0.72);
+  color: rgba(244, 241, 232, 0.9);
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .id-card-preview-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .id-card-preview {
+    font-size: 12px;
+    padding: 18px;
+  }
+}
