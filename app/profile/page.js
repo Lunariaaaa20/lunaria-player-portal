@@ -220,7 +220,7 @@ export default function ProfilePage() {
             </label>
 
             {selectedCharacter && (
-              <div className="profile-display-card">
+              <div className={`profile-display-card ${selectedCharacter.equipped_border_class || ""}`}>
                 <div className="profile-avatar-placeholder">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={selectedCharacter.character_name || "Character Avatar"} />
@@ -231,7 +231,9 @@ export default function ProfilePage() {
 
                 <div>
                   <p className="eyebrow">Selected Character</p>
-                  <h2>{selectedCharacter.character_name}</h2>
+                  <h2 className={selectedCharacter.equipped_effect_class || ""}>
+                    {selectedCharacter.character_name}
+                  </h2>
                   <p className="muted">
                     {selectedCharacter.guild_rank || "Unranked"} • {selectedCharacter.race || "-"} • {selectedCharacter.pathway || "-"} • {selectedCharacter.status || "-"}
                   </p>
