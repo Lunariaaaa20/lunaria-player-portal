@@ -4719,3 +4719,12 @@ body::after {
     grid-template-columns: 1fr;
   }
 }
+
+.shop-label input:disabled,
+.shop-label select:disabled,
+.shop-label textarea:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  background: rgba(214, 190, 122, 0.06);
+  border-color: rgba(214, 190, 122, 0.16);
+}

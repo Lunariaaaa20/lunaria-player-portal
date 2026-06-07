@@ -372,7 +372,9 @@ export default function BlacksmithPage() {
               Syarat Rank
               <input
                 value={form.required_rank}
-                onChange={(event) => updateForm("required_rank", event.target.value)}
+                readOnly
+                disabled
+                title="Syarat rank dikunci otomatis berdasarkan tier."
               />
             </label>
           </div>
