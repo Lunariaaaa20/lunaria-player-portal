@@ -185,11 +185,7 @@ export default function AdminPage() {
           <Link href="/admin">Admin Dashboard</Link>
           <Link href="/admin/characters">Character Admin</Link>
           <Link href="/admin/applications">Applications Admin</Link>
-          <Link href="/admin/reports">Reports Admin</Link>
-          <Link href="/admin/quests">Quest Admin</Link>
-          <Link href="/admin/economy">Economy Admin</Link>
-          <Link href="/admin/rules">Rules Admin</Link>
-        </nav>
+</nav>
       </aside>
 
       <main className="content">
