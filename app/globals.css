@@ -5778,3 +5778,80 @@ body::after {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* LUNARIA MVP FINAL — remove sidebar globally */
+aside,
+.sidebar,
+.portal-sidebar,
+.app-sidebar,
+.admin-sidebar,
+.side-navigation,
+.layout-sidebar {
+  display: none !important;
+}
+
+main,
+.main,
+.portal-main,
+.admin-main,
+.page-main,
+.content,
+.page-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+}
+
+.portal-shell,
+.admin-shell,
+.app-shell,
+.layout-shell,
+.page-shell {
+  display: block !important;
+  grid-template-columns: 1fr !important;
+}
+
+/* Keep page content clean after sidebar removal */
+body {
+  overflow-x: hidden;
+}
+
+main {
+  padding-left: clamp(18px, 4vw, 48px) !important;
+  padding-right: clamp(18px, 4vw, 48px) !important;
+}
+
+/* LUNARIA FINAL LAYOUT — no global sidebar */
+aside,
+.sidebar,
+.portal-sidebar,
+.app-sidebar,
+.admin-sidebar,
+.layout-sidebar,
+.side-navigation {
+  display: none !important;
+}
+
+.app-shell,
+.portal-shell,
+.admin-shell,
+.layout-shell {
+  display: block !important;
+  grid-template-columns: 1fr !important;
+}
+
+main,
+.main-shell,
+.portal-main,
+.admin-main,
+.page-main {
+  width: 100% !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding-left: clamp(18px, 4vw, 48px) !important;
+  padding-right: clamp(18px, 4vw, 48px) !important;
+}
+
+body {
+  overflow-x: hidden;
+}
