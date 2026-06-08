@@ -1,11 +1,36 @@
 "use client";
 
 const links = [
-  { title: "Profile", href: "/profile", desc: "Edit profile character, quote, age, personality, appearance, dan backstory.", status: "Stable" },
-  { title: "ID Card", href: "/id-card", desc: "Lihat dan copy ID Card karakter Lunaria.", status: "Stable" },
-  { title: "Registration", href: "/registration", desc: "Daftar karakter baru untuk masuk approval admin.", status: "Open" },
-  { title: "Leaderboard", href: "/leaderboard", desc: "Ranking player berdasarkan score.", status: "Basic" },
-  { title: "Cosmetic Shop", href: "/cosmetic-shop", desc: "Preview border dan effect cosmetic. Buy/Equip sedang finalisasi.", status: "Preview" },
+  {
+    title: "Profile",
+    href: "/profile",
+    desc: "Edit profile character, quote, age, personality, appearance, dan backstory.",
+    status: "Stable",
+  },
+  {
+    title: "ID Card",
+    href: "/id-card",
+    desc: "Lihat dan copy ID Card karakter Lunaria.",
+    status: "Stable",
+  },
+  {
+    title: "Registration",
+    href: "/registration",
+    desc: "Daftar karakter baru untuk masuk approval admin.",
+    status: "Open",
+  },
+  {
+    title: "Leaderboard",
+    href: "/leaderboard",
+    desc: "Ranking player berdasarkan score.",
+    status: "Basic",
+  },
+  {
+    title: "Cosmetic Shop",
+    href: "/cosmetic-shop",
+    desc: "Preview border dan effect cosmetic. Buy/Equip sedang finalisasi.",
+    status: "Preview",
+  },
 ];
 
 export default function HomePage() {
