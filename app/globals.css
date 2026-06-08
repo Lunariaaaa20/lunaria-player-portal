@@ -5855,3 +5855,44 @@ main,
 body {
   overflow-x: hidden;
 }
+
+/* LUNARIA MVP — unified page action buttons */
+.page-actions,
+.lunaria-actions,
+.header-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin: 18px 0 26px !important;
+}
+
+.page-actions a,
+.lunaria-actions a,
+.header-actions a,
+.page-actions button,
+.lunaria-actions button,
+.header-actions button {
+  border: 1px solid rgba(224, 190, 117, 0.22) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(224,190,117,0.08)) !important;
+  color: #f3f0e8 !important;
+  border-radius: 12px !important;
+  padding: 11px 17px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+  box-shadow: 0 0 22px rgba(224, 190, 117, 0.05) !important;
+}
+
+.page-actions a:hover,
+.lunaria-actions a:hover,
+.header-actions a:hover {
+  border-color: rgba(224, 190, 117, 0.48) !important;
+  color: #e6c878 !important;
+}
+
+/* Hide old admin module clutter if still rendered */
+.admin-module-card,
+.management-module-card,
+.management-modules,
+.module-card {
+  display: none !important;
+}
