@@ -8,32 +8,62 @@ const ADMIN_PASSWORD = "lunaria-admin";
 const modules = [
   {
     title: "Character Management",
-    description: "Approve, suspend, edit, dan kelola ID Card karakter Lunaria.",
     href: "/admin/characters",
     status: "Active",
+    description: "Approve, suspend, edit, dan kelola ID Card karakter Lunaria.",
     stats: [
-      { label: "Pending", value: "Review" },
-      { label: "Active", value: "Registry" },
+      ["Review", "Pending"],
+      ["Registry", "Active"],
     ],
   },
   {
-    title: "Registration Applications",
-    description: "Review pendaftaran karakter baru sebelum masuk Adventurer Registry.",
+    title: "Quest Applications",
     href: "/admin/applications",
     status: "Active",
+    description: "Approve Take Quest sebelum player menjalankan misi.",
     stats: [
-      { label: "Review", value: "Pending" },
-      { label: "Approval", value: "Admin" },
+      ["Take Quest", "Approval"],
+      ["Quest Lock", "Active"],
     ],
   },
   {
-    title: "Portal Preview",
-    description: "Cek tampilan publik Lunaria Player Portal setelah update admin.",
-    href: "/",
-    status: "Ready",
+    title: "Quest Reports",
+    href: "/admin/reports",
+    status: "Active",
+    description: "Review laporan quest dan apply reward distribution ke ID Card.",
     stats: [
-      { label: "Public", value: "Portal" },
-      { label: "MVP", value: "Active" },
+      ["Reward", "Auto"],
+      ["Party", "Supported"],
+    ],
+  },
+  {
+    title: "Quest Management",
+    href: "/admin/quests",
+    status: "Active",
+    description: "Tambah, edit, hapus, dan kelola status quest Lunaria.",
+    stats: [
+      ["Board", "Public"],
+      ["Status", "Managed"],
+    ],
+  },
+  {
+    title: "Economy Management",
+    href: "/admin/economy",
+    status: "Active",
+    description: "Kelola harga item, makanan, blacksmith, material, dan layanan.",
+    stats: [
+      ["Items", "Managed"],
+      ["Shop", "Ready"],
+    ],
+  },
+  {
+    title: "Rules Management",
+    href: "/admin/rules",
+    status: "Active",
+    description: "Kelola aturan rank, pathway, reward, inventory, combat, dan komunitas.",
+    stats: [
+      ["Rules", "Managed"],
+      ["Guide", "Public"],
     ],
   },
 ];
