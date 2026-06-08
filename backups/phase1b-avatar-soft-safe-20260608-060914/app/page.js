@@ -181,11 +181,7 @@ export default function ProfilePage() {
       localStorage.setItem(STORAGE_KEY_CLAIM, cleanClaim);
       applyProfileToForm(payload.profile);
       setAvatarFile(null);
-      if (payload.warning) {
-        setMessage(`Profile text tersimpan. Avatar belum tersimpan: ${payload.warning}`);
-      } else {
-        setMessage("Profile berhasil disimpan permanen.");
-      }
+      setMessage("Profile berhasil disimpan permanen.");
     } catch (error) {
       setMessage(error.message || "Gagal menyimpan profile.");
     } finally {
@@ -500,7 +496,7 @@ export default function ProfilePage() {
               <input
                 value={claimCode}
                 onChange={(event) => setClaimCode(event.target.value)}
-                placeholder="Masukkan claim code, contoh: AEL-8168"
+                placeholder="Masukkan claim code karakter"
                 className="input"
               />
             </div>
@@ -517,7 +513,7 @@ export default function ProfilePage() {
           </div>
 
           <p className="claim-note">
-            Claim code dipakai untuk membuka dan menyimpan profile karakter. Admin boleh melihat kode ini; player lain tidak.
+            Claim code dipakai untuk membuka dan menyimpan profile karakter. Jangan tampilkan claim code ke player lain.
           </p>
 
           {message ? <div className="message-card">{message}</div> : null}
@@ -569,12 +565,10 @@ export default function ProfilePage() {
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif"
-                disabled
+                onChange={onAvatarChange}
                 className="file-input"
               />
-              <p className="hint">
-                Avatar upload sedang dikunci sementara. Profile text sudah permanen; avatar akan difix di Phase 1B khusus Storage.
-              </p>
+              <p className="hint">Format: PNG, JPG, WEBP, GIF. Maksimal 5MB.</p>
             </div>
 
             <div className="field-grid">

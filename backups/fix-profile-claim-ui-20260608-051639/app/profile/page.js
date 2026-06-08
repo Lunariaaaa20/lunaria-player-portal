@@ -181,11 +181,7 @@ export default function ProfilePage() {
       localStorage.setItem(STORAGE_KEY_CLAIM, cleanClaim);
       applyProfileToForm(payload.profile);
       setAvatarFile(null);
-      if (payload.warning) {
-        setMessage(`Profile text tersimpan. Avatar belum tersimpan: ${payload.warning}`);
-      } else {
-        setMessage("Profile berhasil disimpan permanen.");
-      }
+      setMessage("Profile berhasil disimpan permanen.");
     } catch (error) {
       setMessage(error.message || "Gagal menyimpan profile.");
     } finally {
@@ -417,36 +413,6 @@ export default function ProfilePage() {
           line-height: 1.5;
         }
 
-
-        .claim-top-card {
-          border: 1px solid rgba(238, 207, 132, 0.18);
-          background: linear-gradient(135deg, rgba(238, 207, 132, 0.10), rgba(255, 255, 255, 0.04));
-          border-radius: 24px;
-          padding: 18px;
-          margin-bottom: 18px;
-          box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
-        }
-
-        .claim-row {
-          display: grid;
-          grid-template-columns: 1fr 180px;
-          gap: 12px;
-          align-items: end;
-        }
-
-        .claim-note {
-          margin: 10px 0 0;
-          color: rgba(245, 241, 232, 0.48);
-          font-size: 12px;
-          line-height: 1.55;
-        }
-
-        @media (max-width: 720px) {
-          .claim-row {
-            grid-template-columns: 1fr;
-          }
-        }
-
         @media (max-width: 820px) {
           .lunaria-shell {
             padding: 18px 12px 34px;
@@ -491,36 +457,6 @@ export default function ProfilePage() {
             Simpan avatar, quote, age, backstory, personality, dan appearance secara permanen ke Supabase.
             Gunakan claim code untuk memuat dan menyimpan profile.
           </p>
-        </div>
-
-        <div className="claim-top-card">
-          <div className="claim-row">
-            <div>
-              <label className="label">Claim Code</label>
-              <input
-                value={claimCode}
-                onChange={(event) => setClaimCode(event.target.value)}
-                placeholder="Masukkan claim code, contoh: AEL-8168"
-                className="input"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => loadProfile()}
-              disabled={loading}
-              className="btn btn-primary"
-              style={{ height: 48 }}
-            >
-              {loading ? "Loading..." : "Load Profile"}
-            </button>
-          </div>
-
-          <p className="claim-note">
-            Claim code dipakai untuk membuka dan menyimpan profile karakter. Admin boleh melihat kode ini; player lain tidak.
-          </p>
-
-          {message ? <div className="message-card">{message}</div> : null}
         </div>
 
         <div className="grid">
@@ -569,12 +505,10 @@ export default function ProfilePage() {
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp,image/gif"
-                disabled
+                onChange={onAvatarChange}
                 className="file-input"
               />
-              <p className="hint">
-                Avatar upload sedang dikunci sementara. Profile text sudah permanen; avatar akan difix di Phase 1B khusus Storage.
-              </p>
+              <p className="hint">Format: PNG, JPG, WEBP, GIF. Maksimal 5MB.</p>
             </div>
 
             <div className="field-grid">

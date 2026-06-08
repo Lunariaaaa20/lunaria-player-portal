@@ -1,329 +1,353 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
-function formatCurrency(character) {
-  if (!character) return "0B";
-
-  const gold = Number(character.gold || 0);
-  const silver = Number(character.silver || 0);
-  const bronze = Number(character.bronze || 0);
-
-  const parts = [];
-  if (gold) parts.push(`${gold}G`);
-  if (silver) parts.push(`${silver}S`);
-  if (bronze) parts.push(`${bronze}B`);
-
-  return parts.length ? parts.join(" ") : "0B";
-}
-
-function formatPrice(cosmetic) {
-  const silver = Number(cosmetic.price_silver || 0);
-  const bronze = Number(cosmetic.price_bronze || 0);
-
-  const parts = [];
-  if (silver) parts.push(`${silver}S`);
-  if (bronze) parts.push(`${bronze}B`);
-
-  return parts.length ? parts.join(" ") : "Free";
-}
+const CLAIM_KEY = "lunaria_profile_claim_code";
 
 export default function CosmeticShopPage() {
-  const [characters, setCharacters] = useState([]);
-  const [selectedCharacterId, setSelectedCharacterId] = useState("");
+  const [claimCode, setClaimCode] = useState("");
   const [cosmetics, setCosmetics] = useState([]);
-  const [ownedIds, setOwnedIds] = useState([]);
+  const [owned, setOwned] = useState([]);
   const [equipped, setEquipped] = useState(null);
-  const [activeType, setActiveType] = useState("Border");
-  const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState("");
+  const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function loadCharacters() {
+  useEffect(() => {
+    const saved = localStorage.getItem(CLAIM_KEY) || "";
+    setClaimCode(saved);
+    loadShop(saved);
+  }, []);
+
+  const ownedSet = useMemo(() => {
+    return new Set(owned.map((item) => item.cosmetic_id));
+  }, [owned]);
+
+  const borderItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "border");
+  const effectItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "effect");
+
+  async function loadShop(nextCode = claimCode) {
     setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch("/api/characters");
-      const result = await response.json();
+      const code = String(nextCode || "").trim();
+      const query = code ? `?claim_code=${encodeURIComponent(code)}` : "";
 
-      if (!response.ok) {
-        setMessage(result.error || "Gagal memuat character.");
-        return;
+      const response = await fetch(`/api/cosmetics/list${query}`, {
+        cache: "no-store",
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "Gagal load cosmetic shop.");
       }
 
-      const activeCharacters = (result.characters || result.data || []).filter(
-        (character) => (character.status || "").toLowerCase() === "active"
-      );
+      if (code) localStorage.setItem(CLAIM_KEY, code);
 
-      setCharacters(activeCharacters);
-
-      if (activeCharacters.length) {
-        setSelectedCharacterId(activeCharacters[0].id);
-      }
+      setCosmetics(payload.cosmetics || []);
+      setOwned(payload.owned || []);
+      setEquipped(payload.equipped || null);
+      setProfile(payload.profile || null);
+      setMessage(code ? "Cosmetic shop berhasil dimuat." : "Masukkan claim code untuk buy/equip.");
     } catch (error) {
-      setMessage(error.message || "Gagal memuat character.");
+      setMessage(error.message || "Gagal load cosmetic shop.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadCosmetics(characterId) {
-    if (!characterId) return;
+  async function buyCosmetic(cosmeticId) {
+    await action("/api/cosmetics/buy", cosmeticId, "Buy selesai.");
+  }
 
+  async function equipCosmetic(cosmeticId) {
+    await action("/api/cosmetics/equip", cosmeticId, "Equip selesai.");
+  }
+
+  async function action(url, cosmeticId, successMessage) {
+    setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch(`/api/cosmetics?character_id=${encodeURIComponent(characterId)}`);
-      const result = await response.json();
+      const code = String(claimCode || "").trim();
 
-      if (!response.ok) {
-        setMessage(result.error || "Gagal memuat cosmetic.");
-        return;
+      if (!code) {
+        throw new Error("Claim code wajib diisi.");
       }
 
-      setCosmetics(result.cosmetics || []);
-      setOwnedIds(result.owned_cosmetic_ids || []);
-      setEquipped(result.equipped || null);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          claim_code: code,
+          cosmetic_id: cosmeticId,
+        }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "Action gagal.");
+      }
+
+      setMessage(payload.message || successMessage);
+      await loadShop(code);
     } catch (error) {
-      setMessage(error.message || "Gagal memuat cosmetic.");
+      setMessage(error.message || "Action gagal.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  useEffect(() => {
-    loadCharacters();
-  }, []);
+  function priceLabel(item) {
+    const silver = Number(item.price_silver || 0);
+    const bronze = Number(item.price_bronze || 0);
 
-  useEffect(() => {
-    loadCosmetics(selectedCharacterId);
-  }, [selectedCharacterId]);
-
-  const selectedCharacter = useMemo(
-    () => characters.find((character) => character.id === selectedCharacterId),
-    [characters, selectedCharacterId]
-  );
-
-  const filteredCosmetics = cosmetics.filter(
-    (cosmetic) => cosmetic.cosmetic_type === activeType
-  );
-
-  function isOwned(cosmeticId) {
-    return ownedIds.includes(cosmeticId);
+    if (silver && bronze) return `${silver}S ${bronze}B`;
+    if (silver) return `${silver}S`;
+    if (bronze) return `${bronze}B`;
+    return "Free";
   }
 
-  function isEquipped(cosmetic) {
-    if (!equipped) return false;
+  function isEquipped(item) {
+    const type = String(item.cosmetic_type || "").toLowerCase();
 
-    if (cosmetic.cosmetic_type === "Border") {
-      return equipped.border_cosmetic_id === cosmetic.id;
-    }
-
-    if (cosmetic.cosmetic_type === "Effect") {
-      return equipped.effect_cosmetic_id === cosmetic.id;
-    }
+    if (type === "border") return equipped?.border_cosmetic_id === item.id;
+    if (type === "effect") return equipped?.effect_cosmetic_id === item.id;
 
     return false;
   }
 
-  async function buyCosmetic(cosmetic) {
-    if (!selectedCharacterId) {
-      window.alert("Pilih character dulu.");
-      return;
-    }
+  function renderCard(item) {
+    const ownedItem = ownedSet.has(item.id);
+    const equippedItem = isEquipped(item);
 
-    const confirmed = window.confirm(`Beli ${cosmetic.name} seharga ${formatPrice(cosmetic)}?`);
-    if (!confirmed) return;
+    return (
+      <article key={item.id} className="cos-card">
+        <div className="cos-preview">
+          <div className={item.css_class || ""}>{item.preview_text || item.name}</div>
+        </div>
 
-    setProcessingId(cosmetic.id);
-    setMessage("");
+        <div className="cos-body">
+          <div className="cos-top">
+            <h3>{item.name}</h3>
+            <span>{item.rarity}</span>
+          </div>
 
-    try {
-      const response = await fetch("/api/cosmetics", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          character_id: selectedCharacterId,
-          cosmetic_id: cosmetic.id,
-        }),
-      });
+          <p>{item.description}</p>
 
-      const result = await response.json();
+          <div className="cos-meta">
+            <span>{item.cosmetic_type}</span>
+            <strong>{priceLabel(item)}</strong>
+          </div>
 
-      if (!response.ok) {
-        window.alert(result.error || "Gagal membeli cosmetic.");
-        setMessage(result.error || "Gagal membeli cosmetic.");
-        return;
-      }
+          <div className="btn-row">
+            <button
+              type="button"
+              onClick={() => buyCosmetic(item.id)}
+              disabled={loading || ownedItem}
+              className="btn btn-secondary"
+            >
+              {ownedItem ? "Owned" : "Buy"}
+            </button>
 
-      setMessage("Cosmetic berhasil dibeli.");
-      await loadCharacters();
-      await loadCosmetics(selectedCharacterId);
-    } catch (error) {
-      window.alert(error.message || "Gagal membeli cosmetic.");
-      setMessage(error.message || "Gagal membeli cosmetic.");
-    } finally {
-      setProcessingId("");
-    }
-  }
-
-  async function equipCosmetic(cosmetic) {
-    setProcessingId(cosmetic.id);
-    setMessage("");
-
-    try {
-      const response = await fetch("/api/cosmetics/equip", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          character_id: selectedCharacterId,
-          cosmetic_id: cosmetic.id,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        window.alert(result.error || "Gagal memasang cosmetic.");
-        setMessage(result.error || "Gagal memasang cosmetic.");
-        return;
-      }
-
-      setMessage("Cosmetic berhasil dipasang.");
-      await loadCosmetics(selectedCharacterId);
-    } catch (error) {
-      window.alert(error.message || "Gagal memasang cosmetic.");
-      setMessage(error.message || "Gagal memasang cosmetic.");
-    } finally {
-      setProcessingId("");
-    }
+            <button
+              type="button"
+              onClick={() => equipCosmetic(item.id)}
+              disabled={loading || !ownedItem || equippedItem}
+              className="btn btn-primary"
+            >
+              {equippedItem ? "Equipped" : "Equip"}
+            </button>
+          </div>
+        </div>
+      </article>
+    );
   }
 
   return (
-    <main className="portal-home">
-      <section className="portal-hero">
-        <p className="eyebrow">LUNARIA PRESTIGE MARKET</p>
-        <h1>COSMETIC SHOP</h1>
-        <p className="hero-copy">
-          Beli border dan name effect premium menggunakan currency karakter.
-          Cosmetic yang sudah dimiliki bisa dipasang ke profile dan ID Card.
-        </p>
+    <main className="shop-shell">
+      <style jsx global>{`
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          background: #06070b;
+          color: #f6f0df;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .shop-shell {
+          min-height: 100vh;
+          padding: 26px 14px 42px;
+          background:
+            radial-gradient(circle at top left, rgba(226, 184, 83, .16), transparent 34%),
+            radial-gradient(circle at top right, rgba(104, 137, 211, .12), transparent 30%),
+            linear-gradient(135deg, #07080c, #111622 48%, #050508);
+        }
+        .shop-wrap { width: min(1180px, 100%); margin: 0 auto; }
+        .panel {
+          border: 1px solid rgba(255,255,255,.10);
+          border-radius: 26px;
+          background: rgba(255,255,255,.045);
+          box-shadow: 0 24px 70px rgba(0,0,0,.36);
+          backdrop-filter: blur(12px);
+        }
+        .hero { padding: 24px; margin-bottom: 16px; }
+        .eyebrow {
+          margin: 0 0 10px;
+          color: rgba(232, 202, 127, .82);
+          letter-spacing: .28em;
+          text-transform: uppercase;
+          font-size: 12px;
+          font-weight: 900;
+        }
+        h1 { margin: 0; font-size: clamp(32px, 6vw, 54px); letter-spacing: -.05em; }
+        .sub { color: rgba(246,240,223,.62); line-height: 1.65; max-width: 820px; }
+        .claim-panel { padding: 18px; margin-bottom: 16px; }
+        .claim-row {
+          display: grid;
+          grid-template-columns: 1fr 180px;
+          gap: 12px;
+        }
+        .label {
+          display: block;
+          margin-bottom: 8px;
+          color: rgba(246,240,223,.50);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: .20em;
+          font-weight: 900;
+        }
+        .input {
+          width: 100%;
+          border: 1px solid rgba(255,255,255,.12);
+          border-radius: 14px;
+          background: rgba(0,0,0,.36);
+          color: #f6f0df;
+          padding: 13px 14px;
+          outline: none;
+        }
+        .message {
+          margin-top: 12px;
+          border-radius: 16px;
+          background: rgba(255,255,255,.06);
+          padding: 12px 14px;
+          color: rgba(246,240,223,.74);
+          font-size: 13px;
+        }
+        .section-title {
+          margin: 20px 4px 12px;
+          color: rgba(246,240,223,.76);
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          font-size: 13px;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px;
+        }
+        .cos-card {
+          border: 1px solid rgba(255,255,255,.10);
+          border-radius: 24px;
+          overflow: hidden;
+          background: rgba(255,255,255,.045);
+        }
+        .cos-preview {
+          min-height: 96px;
+          display: grid;
+          place-items: center;
+          background: rgba(0,0,0,.28);
+          padding: 18px;
+          text-align: center;
+          font-weight: 950;
+        }
+        .cos-body { padding: 16px; }
+        .cos-top {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          align-items: start;
+        }
+        .cos-top h3 {
+          margin: 0;
+          font-size: 16px;
+        }
+        .cos-top span {
+          color: rgba(232,202,127,.78);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: .12em;
+          font-weight: 900;
+        }
+        .cos-body p {
+          color: rgba(246,240,223,.58);
+          line-height: 1.55;
+          min-height: 48px;
+          font-size: 13px;
+        }
+        .cos-meta {
+          display: flex;
+          justify-content: space-between;
+          margin: 12px 0;
+          color: rgba(246,240,223,.70);
+          font-size: 13px;
+        }
+        .btn-row { display: flex; gap: 9px; }
+        .btn {
+          border: 0;
+          border-radius: 13px;
+          padding: 11px 14px;
+          font-weight: 950;
+          cursor: pointer;
+          width: 100%;
+        }
+        .btn-primary { background: linear-gradient(135deg, #f5d77f, #b88933); color: #110d05; }
+        .btn-secondary { background: rgba(255,255,255,.08); color: #f6f0df; border: 1px solid rgba(255,255,255,.10); }
+        .btn:disabled { opacity: .48; cursor: not-allowed; }
+        @media (max-width: 880px) {
+          .grid { grid-template-columns: 1fr; }
+          .claim-row { grid-template-columns: 1fr; }
+          .hero, .claim-panel { padding: 16px; border-radius: 22px; }
+        }
+      `}</style>
 
-        <div className="shop-actions">
-          <Link className="admin-secondary" href="/">
-            Back to Home
-          </Link>
-          <Link className="admin-secondary" href="/profile">
-            Profile
-          </Link>
+      <section className="shop-wrap">
+        <div className="panel hero">
+          <p className="eyebrow">Lunaria Player Portal</p>
+          <h1>Cosmetic Shop</h1>
+          <p className="sub">
+            Buy dan equip cosmetic memakai claim code. Benefit Top Leader nanti dipisahkan dari shop dan tidak ikut sistem cosmetic biasa.
+          </p>
         </div>
-      </section>
 
-      <section className="portal-section">
-        <p className="eyebrow">CUSTOMER</p>
-        <h2>Choose Character</h2>
+        <div className="panel claim-panel">
+          <label className="label">Claim Code</label>
+          <div className="claim-row">
+            <input
+              value={claimCode}
+              onChange={(event) => setClaimCode(event.target.value)}
+              placeholder="Contoh: AEL-8168"
+              className="input"
+            />
+            <button type="button" onClick={() => loadShop()} disabled={loading} className="btn btn-primary">
+              {loading ? "Loading..." : "Load Shop"}
+            </button>
+          </div>
 
-        {loading ? (
-          <p className="muted">Memuat character...</p>
-        ) : characters.length ? (
-          <>
-            <label className="shop-label">
-              Character
-              <select
-                value={selectedCharacterId}
-                onChange={(event) => setSelectedCharacterId(event.target.value)}
-              >
-                {characters.map((character) => (
-                  <option key={character.id} value={character.id}>
-                    {character.character_name} — {character.player_name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {selectedCharacter && (
-              <div className="cosmetic-balance-card">
-                <span>Current Balance</span>
-                <strong>{formatCurrency(selectedCharacter)}</strong>
-                <p>
-                  {selectedCharacter.character_name} • {selectedCharacter.guild_rank || "Unranked"} • {selectedCharacter.pathway || "-"}
-                </p>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="muted">Belum ada character aktif.</p>
-        )}
-
-        {message && <p className="shop-message">{message}</p>}
-      </section>
-
-      <section className="portal-section">
-        <div className="cosmetic-tabs">
-          <button
-            className={activeType === "Border" ? "active" : ""}
-            onClick={() => setActiveType("Border")}
-          >
-            Border
-          </button>
-          <button
-            className={activeType === "Effect" ? "active" : ""}
-            onClick={() => setActiveType("Effect")}
-          >
-            Effect
-          </button>
+          <div className="message">
+            {profile ? `Loaded: ${profile.display_name || profile.character_id}` : message || "Masukkan claim code untuk mulai."}
+          </div>
         </div>
 
-        <div className="cosmetic-grid">
-          {filteredCosmetics.map((cosmetic) => {
-            const owned = isOwned(cosmetic.id);
-            const equippedNow = isEquipped(cosmetic);
+        <h2 className="section-title">Border Cosmetics</h2>
+        <div className="grid">{borderItems.map(renderCard)}</div>
 
-            return (
-              <article key={cosmetic.id} className={`cosmetic-card ${cosmetic.css_class}`}>
-                <div className="cosmetic-preview">
-                  <span className={cosmetic.cosmetic_type === "Effect" ? cosmetic.css_class : ""}>
-                    {cosmetic.preview_text || cosmetic.name}
-                  </span>
-                </div>
-
-                <p className="eyebrow">{cosmetic.rarity}</p>
-                <h3>{cosmetic.name}</h3>
-                <p className="muted">{cosmetic.description}</p>
-
-                <div className="cosmetic-card-footer">
-                  <strong>{formatPrice(cosmetic)}</strong>
-
-                  {equippedNow ? (
-                    <button className="admin-secondary" disabled>
-                      Equipped
-                    </button>
-                  ) : owned ? (
-                    <button
-                      className="admin-primary"
-                      onClick={() => equipCosmetic(cosmetic)}
-                      disabled={processingId === cosmetic.id}
-                    >
-                      {processingId === cosmetic.id ? "Processing..." : "Equip"}
-                    </button>
-                  ) : (
-                    <button
-                      className="admin-primary"
-                      onClick={() => buyCosmetic(cosmetic)}
-                      disabled={processingId === cosmetic.id}
-                    >
-                      {processingId === cosmetic.id ? "Processing..." : "Buy"}
-                    </button>
-                  )}
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <h2 className="section-title">Effect Cosmetics</h2>
+        <div className="grid">{effectItems.map(renderCard)}</div>
       </section>
     </main>
   );

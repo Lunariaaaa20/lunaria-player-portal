@@ -1,149 +1,148 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 
-const initialProfile = {
-  bio: "",
-  age: "",
-  appearance: "",
-  personality: "",
+const STORAGE_KEY_CLAIM = "lunaria_profile_claim_code";
+const STORAGE_KEY_PROFILE_ID = "lunaria_profile_id";
+
+const emptyForm = {
   quote: "",
+  age: "",
   backstory: "",
-  avatar_url: "",
+  personality: "",
+  appearance: "",
 };
 
 export default function ProfilePage() {
-  const [characters, setCharacters] = useState([]);
-  const [selectedCharacterId, setSelectedCharacterId] = useState("");
-  const [profile, setProfile] = useState(initialProfile);
-  const [loading, setLoading] = useState(true);
+  const [claimCode, setClaimCode] = useState("");
+  const [profileId, setProfileId] = useState("");
+  const [profile, setProfile] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function loadCharacters() {
+  const displayName = useMemo(() => {
+    if (!profile) return "Unclaimed Profile";
+    return (
+      profile.name ||
+      profile.character_name ||
+      profile.username ||
+      profile.display_name ||
+      "Lunaria Adventurer"
+    );
+  }, [profile]);
+
+  useEffect(() => {
+    const savedClaim = localStorage.getItem(STORAGE_KEY_CLAIM) || "";
+    const savedProfileId = localStorage.getItem(STORAGE_KEY_PROFILE_ID) || "";
+
+    setClaimCode(savedClaim);
+    setProfileId(savedProfileId);
+
+    if (savedClaim) {
+      loadProfile(savedClaim, savedProfileId);
+    }
+  }, []);
+
+  function applyProfileToForm(nextProfile) {
+    setProfile(nextProfile);
+    setProfileId(nextProfile?.id || "");
+
+    setForm({
+      quote: nextProfile?.quote || "",
+      age: nextProfile?.age ? String(nextProfile.age) : "",
+      backstory: nextProfile?.backstory || "",
+      personality: nextProfile?.personality || "",
+      appearance: nextProfile?.appearance || "",
+    });
+
+    setAvatarPreview(nextProfile?.avatar_url || "");
+
+    if (nextProfile?.id) {
+      localStorage.setItem(STORAGE_KEY_PROFILE_ID, nextProfile.id);
+    }
+  }
+
+  async function loadProfile(nextClaimCode = claimCode, nextProfileId = profileId) {
+    const cleanClaim = String(nextClaimCode || "").trim();
+    const cleanProfileId = String(nextProfileId || "").trim();
+
+    if (!cleanClaim) {
+      setMessage("Masukkan claim code dulu.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch("/api/characters");
-      const result = await response.json();
+      const params = new URLSearchParams();
+      params.set("claim_code", cleanClaim);
+      if (cleanProfileId) params.set("profile_id", cleanProfileId);
 
-      if (!response.ok) {
-        setMessage(result.error || "Gagal memuat character.");
-        return;
+      const response = await fetch(`/api/profile/save?${params.toString()}`, {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "Gagal memuat profile.");
       }
 
-      const activeCharacters = (result.characters || result.data || []).filter(
-        (character) => (character.status || "").toLowerCase() === "active"
-      );
-
-      setCharacters(activeCharacters);
-
-      if (activeCharacters.length) {
-        setSelectedCharacterId(activeCharacters[0].id);
-      }
+      localStorage.setItem(STORAGE_KEY_CLAIM, cleanClaim);
+      applyProfileToForm(payload.profile);
+      setMessage("Profile berhasil dimuat dari Supabase.");
     } catch (error) {
-      setMessage(error.message || "Gagal memuat character.");
+      setMessage(error.message || "Gagal memuat profile.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadProfile(characterId) {
-    if (!characterId) return;
-
-    setMessage("");
-
-    try {
-      const response = await fetch(`/api/profile?character_id=${encodeURIComponent(characterId)}`);
-      const result = await response.json();
-
-      if (!response.ok) {
-        setProfile(initialProfile);
-        return;
-      }
-
-      setProfile({
-        bio: result.profile?.bio || "",
-        age: result.profile?.age || "",
-        appearance: result.profile?.appearance || "",
-        personality: result.profile?.personality || "",
-        quote: result.profile?.quote || "",
-        backstory: result.profile?.backstory || "",
-        avatar_url: result.profile?.avatar_url || "",
-      });
-    } catch {
-      setProfile(initialProfile);
-    }
-  }
-
-  useEffect(() => {
-    loadCharacters();
-  }, []);
-
-  useEffect(() => {
-    loadProfile(selectedCharacterId);
-  }, [selectedCharacterId]);
-
-  const selectedCharacter = useMemo(
-    () => characters.find((character) => character.id === selectedCharacterId),
-    [characters, selectedCharacterId]
-  );
-
-  function updateProfile(field, value) {
-    setProfile((current) => ({
+  function updateField(key, value) {
+    setForm((current) => ({
       ...current,
-      [field]: value,
+      [key]: value,
     }));
   }
 
-  async function uploadAvatar(event) {
+  function onAvatarChange(event) {
     const file = event.target.files?.[0];
 
-    if (!file || !selectedCharacterId) return;
-
-    setUploadingAvatar(true);
-    setMessage("");
-
-    try {
-      const formData = new FormData();
-      formData.append("character_id", selectedCharacterId);
-      formData.append("avatar", file);
-
-      const response = await fetch("/api/profile/avatar", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        window.alert(result.error || "Gagal upload avatar.");
-        setMessage(result.error || "Gagal upload avatar.");
-        return;
-      }
-
-      setProfile((current) => ({
-        ...current,
-        avatar_url: result.avatar_url,
-      }));
-
-      setMessage("Avatar berhasil diupload.");
-    } catch (error) {
-      window.alert(error.message || "Gagal upload avatar.");
-      setMessage(error.message || "Gagal upload avatar.");
-    } finally {
-      setUploadingAvatar(false);
+    if (!file) {
+      setAvatarFile(null);
+      setAvatarPreview(profile?.avatar_url || "");
+      return;
     }
+
+    if (!file.type.startsWith("image/")) {
+      setMessage("Avatar harus berupa file gambar.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("Ukuran avatar maksimal 5MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
   }
 
   async function saveProfile(event) {
     event.preventDefault();
 
-    if (!selectedCharacterId) {
-      window.alert("Pilih character dulu.");
+    const cleanClaim = String(claimCode || "").trim();
+
+    if (!cleanClaim) {
+      setMessage("Claim code wajib diisi.");
       return;
     }
 
@@ -151,25 +150,42 @@ export default function ProfilePage() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          character_id: selectedCharacterId,
-          ...profile,
-        }),
-      });
+      const body = new FormData();
+      body.set("claim_code", cleanClaim);
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        setMessage(result.error || "Gagal menyimpan profile.");
-        return;
+      if (profileId) {
+        body.set("profile_id", profileId);
       }
 
-      setMessage("Profile berhasil disimpan.");
+      body.set("quote", form.quote || "");
+      body.set("age", form.age || "");
+      body.set("backstory", form.backstory || "");
+      body.set("personality", form.personality || "");
+      body.set("appearance", form.appearance || "");
+
+      if (avatarFile) {
+        body.set("avatar", avatarFile);
+      }
+
+      const response = await fetch("/api/profile/save", {
+        method: "POST",
+        body,
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || "Gagal menyimpan profile.");
+      }
+
+      localStorage.setItem(STORAGE_KEY_CLAIM, cleanClaim);
+      applyProfileToForm(payload.profile);
+      setAvatarFile(null);
+      if (payload.warning) {
+        setMessage(`Profile text tersimpan. Avatar belum tersimpan: ${payload.warning}`);
+      } else {
+        setMessage("Profile berhasil disimpan permanen.");
+      }
     } catch (error) {
       setMessage(error.message || "Gagal menyimpan profile.");
     } finally {
@@ -178,158 +194,463 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="portal-home">
-      <section className="portal-hero">
-        <p className="eyebrow">LUNARIA CHARACTER PROFILE</p>
-        <h1>PROFILE</h1>
-        <p className="hero-copy">
-          Halaman identitas personal karakter. Data resmi seperti rank, pathway,
-          currency, dan quest tetap dikontrol admin.
-        </p>
+    <main className="lunaria-shell">
+      <style jsx global>{`
+        * {
+          box-sizing: border-box;
+        }
 
-        <div className="shop-actions">
-          <Link className="admin-secondary" href="/">
-            Back to Home
-          </Link>
-          <Link className="admin-secondary" href="/id-card">
-            ID Card
-          </Link>
+        body {
+          margin: 0;
+          background: #07080d;
+          color: #f5f1e8;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .lunaria-shell {
+          min-height: 100vh;
+          padding: 28px 18px 42px;
+          background:
+            radial-gradient(circle at top left, rgba(214, 178, 91, 0.16), transparent 32%),
+            radial-gradient(circle at top right, rgba(91, 135, 214, 0.10), transparent 28%),
+            linear-gradient(135deg, #090a10 0%, #10131c 46%, #050507 100%);
+        }
+
+        .lunaria-wrap {
+          width: min(1120px, 100%);
+          margin: 0 auto;
+        }
+
+        .hero-card,
+        .profile-card,
+        .form-card,
+        .claim-card,
+        .message-card {
+          border: 1px solid rgba(255, 255, 255, 0.10);
+          background: rgba(255, 255, 255, 0.045);
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+          backdrop-filter: blur(12px);
+        }
+
+        .hero-card {
+          border-radius: 28px;
+          padding: 24px;
+          margin-bottom: 18px;
+        }
+
+        .eyebrow {
+          margin: 0;
+          color: rgba(238, 207, 132, 0.78);
+          font-size: 12px;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+          font-weight: 800;
+        }
+
+        .title {
+          margin: 10px 0 8px;
+          font-size: clamp(30px, 5vw, 48px);
+          line-height: 1.02;
+          letter-spacing: -0.04em;
+          font-weight: 950;
+        }
+
+        .subtitle {
+          max-width: 760px;
+          margin: 0;
+          color: rgba(245, 241, 232, 0.66);
+          font-size: 15px;
+          line-height: 1.7;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: 330px 1fr;
+          gap: 18px;
+          align-items: start;
+        }
+
+        .profile-card,
+        .form-card {
+          border-radius: 28px;
+          padding: 20px;
+        }
+
+        .avatar-box {
+          width: 178px;
+          height: 178px;
+          margin: 0 auto;
+          overflow: hidden;
+          border-radius: 30px;
+          border: 1px solid rgba(238, 207, 132, 0.25);
+          background: rgba(0, 0, 0, 0.38);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: rgba(245, 241, 232, 0.42);
+          font-size: 13px;
+          text-align: center;
+        }
+
+        .avatar-box img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        .profile-name {
+          margin: 16px 0 4px;
+          text-align: center;
+          font-size: 22px;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+        }
+
+        .profile-rank {
+          margin: 0 0 16px;
+          text-align: center;
+          color: rgba(245, 241, 232, 0.45);
+          font-size: 11px;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          font-weight: 800;
+        }
+
+        .claim-card {
+          border-radius: 22px;
+          padding: 15px;
+          background: rgba(0, 0, 0, 0.22);
+        }
+
+        .label {
+          display: block;
+          margin-bottom: 8px;
+          color: rgba(245, 241, 232, 0.52);
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          font-weight: 900;
+        }
+
+        .input,
+        .textarea,
+        .file-input {
+          width: 100%;
+          border: 1px solid rgba(255, 255, 255, 0.11);
+          outline: none;
+          border-radius: 14px;
+          background: rgba(0, 0, 0, 0.34);
+          color: #f5f1e8;
+          padding: 12px 13px;
+          font-size: 14px;
+        }
+
+        .textarea {
+          min-height: 112px;
+          resize: vertical;
+          line-height: 1.6;
+        }
+
+        .input:focus,
+        .textarea:focus {
+          border-color: rgba(238, 207, 132, 0.55);
+          box-shadow: 0 0 0 4px rgba(238, 207, 132, 0.08);
+        }
+
+        .field-grid {
+          display: grid;
+          grid-template-columns: 160px 1fr;
+          gap: 14px;
+          margin-bottom: 14px;
+        }
+
+        .field {
+          margin-bottom: 14px;
+        }
+
+        .hint {
+          margin: 8px 0 0;
+          color: rgba(245, 241, 232, 0.42);
+          font-size: 12px;
+          line-height: 1.5;
+        }
+
+        .btn-row {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin-top: 18px;
+        }
+
+        .btn {
+          border: 0;
+          border-radius: 14px;
+          padding: 12px 16px;
+          font-size: 13px;
+          font-weight: 950;
+          cursor: pointer;
+        }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #f4d98b, #b8862f);
+          color: #100c05;
+        }
+
+        .btn-secondary {
+          border: 1px solid rgba(255, 255, 255, 0.11);
+          background: rgba(255, 255, 255, 0.06);
+          color: #f5f1e8;
+        }
+
+        .btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.55;
+        }
+
+        .message-card {
+          border-radius: 18px;
+          padding: 12px 14px;
+          margin-top: 14px;
+          color: rgba(245, 241, 232, 0.78);
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+
+        .claim-top-card {
+          border: 1px solid rgba(238, 207, 132, 0.18);
+          background: linear-gradient(135deg, rgba(238, 207, 132, 0.10), rgba(255, 255, 255, 0.04));
+          border-radius: 24px;
+          padding: 18px;
+          margin-bottom: 18px;
+          box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+        }
+
+        .claim-row {
+          display: grid;
+          grid-template-columns: 1fr 180px;
+          gap: 12px;
+          align-items: end;
+        }
+
+        .claim-note {
+          margin: 10px 0 0;
+          color: rgba(245, 241, 232, 0.48);
+          font-size: 12px;
+          line-height: 1.55;
+        }
+
+        @media (max-width: 720px) {
+          .claim-row {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 820px) {
+          .lunaria-shell {
+            padding: 18px 12px 34px;
+          }
+
+          .hero-card,
+          .profile-card,
+          .form-card {
+            border-radius: 22px;
+            padding: 16px;
+          }
+
+          .grid {
+            grid-template-columns: 1fr;
+          }
+
+          .field-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .avatar-box {
+            width: 140px;
+            height: 140px;
+            border-radius: 24px;
+          }
+
+          .title {
+            font-size: 32px;
+          }
+
+          .subtitle {
+            font-size: 13px;
+          }
+        }
+      `}</style>
+
+      <section className="lunaria-wrap">
+        <div className="hero-card">
+          <p className="eyebrow">Lunaria Player Portal</p>
+          <h1 className="title">Profile Editor</h1>
+          <p className="subtitle">
+            Simpan avatar, quote, age, backstory, personality, dan appearance secara permanen ke Supabase.
+            Gunakan claim code untuk memuat dan menyimpan profile.
+          </p>
         </div>
-      </section>
 
-      <section className="portal-section">
-        <p className="eyebrow">CHARACTER SELECTOR</p>
-        <h2>Choose Character</h2>
+        <div className="claim-top-card">
+          <div className="claim-row">
+            <div>
+              <label className="label">Claim Code</label>
+              <input
+                value={claimCode}
+                onChange={(event) => setClaimCode(event.target.value)}
+                placeholder="Masukkan claim code, contoh: AEL-8168"
+                className="input"
+              />
+            </div>
 
-        {loading ? (
-          <p className="muted">Memuat character...</p>
-        ) : characters.length ? (
-          <>
-            <label className="shop-label">
-              Character
-              <select
-                value={selectedCharacterId}
-                onChange={(event) => setSelectedCharacterId(event.target.value)}
-              >
-                {characters.map((character) => (
-                  <option key={character.id} value={character.id}>
-                    {character.character_name} — {character.player_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <button
+              type="button"
+              onClick={() => loadProfile()}
+              disabled={loading}
+              className="btn btn-primary"
+              style={{ height: 48 }}
+            >
+              {loading ? "Loading..." : "Load Profile"}
+            </button>
+          </div>
 
-            {selectedCharacter && (
-              <div className={`profile-display-card ${selectedCharacter.equipped_border_class || ""}`}>
-                <div className="profile-avatar-placeholder">
-                  {profile.avatar_url ? (
-                    <img src={profile.avatar_url} alt={selectedCharacter.character_name || "Character Avatar"} />
-                  ) : (
-                    selectedCharacter.character_name?.slice(0, 1) || "L"
-                  )}
-                </div>
+          <p className="claim-note">
+            Claim code dipakai untuk membuka dan menyimpan profile karakter. Admin boleh melihat kode ini; player lain tidak.
+          </p>
 
-                <div>
-                  <p className="eyebrow">Selected Character</p>
-                  <h2 className={selectedCharacter.equipped_effect_class || ""}>
-                    {selectedCharacter.character_name}
-                  </h2>
-                  <p className="muted">
-                    {selectedCharacter.guild_rank || "Unranked"} • {selectedCharacter.race || "-"} • {selectedCharacter.pathway || "-"} • {selectedCharacter.status || "-"}
-                  </p>
-                </div>
+          {message ? <div className="message-card">{message}</div> : null}
+        </div>
+
+        <div className="grid">
+          <aside className="profile-card">
+            <div className="avatar-box">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Avatar Preview" />
+              ) : (
+                <span>No Avatar</span>
+              )}
+            </div>
+
+            <h2 className="profile-name">{displayName}</h2>
+            <p className="profile-rank">
+              {profile?.guild_rank || profile?.rank || "Profile"}
+            </p>
+
+            <div className="claim-card">
+              <label className="label">Claim Code</label>
+              <input
+                value={claimCode}
+                onChange={(event) => setClaimCode(event.target.value)}
+                placeholder="Masukkan claim code"
+                className="input"
+              />
+
+              <div className="btn-row">
+                <button
+                  type="button"
+                  onClick={() => loadProfile()}
+                  disabled={loading}
+                  className="btn btn-primary"
+                  style={{ width: "100%" }}
+                >
+                  {loading ? "Loading..." : "Load Profile"}
+                </button>
               </div>
-            )}
-          </>
-        ) : (
-          <p className="muted">Belum ada character aktif.</p>
-        )}
+            </div>
 
-        {message && <p className="shop-message">{message}</p>}
-      </section>
+            {message ? <div className="message-card">{message}</div> : null}
+          </aside>
 
-      {selectedCharacter && (
-        <section className="portal-section">
-          <p className="eyebrow">PROFILE EDITOR</p>
-          <h2>Character Lore</h2>
-
-          <form className="profile-form" onSubmit={saveProfile}>
-            <label className="shop-label">
-              Character Avatar
+          <form onSubmit={saveProfile} className="form-card">
+            <div className="field">
+              <label className="label">Avatar</label>
               <input
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={uploadAvatar}
-                disabled={uploadingAvatar}
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                disabled
+                className="file-input"
               />
-            </label>
+              <p className="hint">
+                Avatar upload sedang dikunci sementara. Profile text sudah permanen; avatar akan difix di Phase 1B khusus Storage.
+              </p>
+            </div>
 
-            {profile.avatar_url && (
-              <div className="profile-avatar-preview">
-                <img src={profile.avatar_url} alt="Character Avatar Preview" />
+            <div className="field-grid">
+              <div className="field">
+                <label className="label">Age</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  value={form.age}
+                  onChange={(event) => updateField("age", event.target.value)}
+                  placeholder="Contoh: 19"
+                  className="input"
+                />
               </div>
-            )}
 
-            <label className="shop-label">
-              Quote
-              <input
-                value={profile.quote}
-                onChange={(event) => updateProfile("quote", event.target.value)}
-                placeholder="Contoh: I walk where moonlight refuses to follow."
-              />
-            </label>
+              <div className="field">
+                <label className="label">Quote</label>
+                <input
+                  value={form.quote}
+                  onChange={(event) => updateField("quote", event.target.value)}
+                  placeholder="Quote karakter"
+                  maxLength={280}
+                  className="input"
+                />
+              </div>
+            </div>
 
-            <label className="shop-label">
-              Age
-              <input
-                value={profile.age}
-                onChange={(event) => updateProfile("age", event.target.value)}
-                placeholder="Contoh: 19"
-              />
-            </label>
-
-            <label className="shop-label">
-              Bio
+            <div className="field">
+              <label className="label">Personality</label>
               <textarea
-                value={profile.bio}
-                onChange={(event) => updateProfile("bio", event.target.value)}
-                placeholder="Bio singkat karakter."
+                value={form.personality}
+                onChange={(event) => updateField("personality", event.target.value)}
+                placeholder="Sifat, kebiasaan, cara bicara, dan karakter mental."
+                className="textarea"
               />
-            </label>
+            </div>
 
-            <label className="shop-label">
-              Appearance
+            <div className="field">
+              <label className="label">Appearance</label>
               <textarea
-                value={profile.appearance}
-                onChange={(event) => updateProfile("appearance", event.target.value)}
-                placeholder="Deskripsi penampilan karakter."
+                value={form.appearance}
+                onChange={(event) => updateField("appearance", event.target.value)}
+                placeholder="Deskripsi fisik, pakaian, aura, dan ciri visual."
+                className="textarea"
               />
-            </label>
+            </div>
 
-            <label className="shop-label">
-              Personality
+            <div className="field">
+              <label className="label">Backstory</label>
               <textarea
-                value={profile.personality}
-                onChange={(event) => updateProfile("personality", event.target.value)}
-                placeholder="Sifat, cara bicara, kebiasaan."
+                value={form.backstory}
+                onChange={(event) => updateField("backstory", event.target.value)}
+                placeholder="Latar belakang karakter."
+                className="textarea"
+                style={{ minHeight: 150 }}
               />
-            </label>
+            </div>
 
-            <label className="shop-label">
-              Backstory
-              <textarea
-                value={profile.backstory}
-                onChange={(event) => updateProfile("backstory", event.target.value)}
-                placeholder="Backstory ringkas karakter."
-              />
-            </label>
+            <div className="btn-row">
+              <button type="submit" disabled={saving} className="btn btn-primary">
+                {saving ? "Saving..." : "Save Permanent Profile"}
+              </button>
 
-            <button className="admin-primary" disabled={saving}>
-              {saving ? "Saving..." : "Save Profile"}
-            </button>
+              <button
+                type="button"
+                onClick={() => loadProfile()}
+                disabled={loading}
+                className="btn btn-secondary"
+              >
+                Refresh From Supabase
+              </button>
+            </div>
           </form>
-        </section>
-      )}
+        </div>
+      </section>
     </main>
   );
 }

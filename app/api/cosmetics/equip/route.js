@@ -1,79 +1,63 @@
-import { NextResponse } from "next/server";
-import { supabaseAdmin as supabase } from "../../../../lib/supabaseAdmin";
+import { assertOwned, cleanText, findProfileByClaimCode, getCosmetic, jsonError, jsonOk, supabaseFetch } from "../_shared";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request) {
   try {
     const body = await request.json();
 
-    if (!body.character_id || !body.cosmetic_id) {
-      return NextResponse.json({ error: "character_id dan cosmetic_id wajib diisi." }, { status: 400 });
-    }
+    const claimCode = cleanText(body.claim_code, 160);
+    const cosmeticId = cleanText(body.cosmetic_id, 160);
 
-    const { data: cosmetic, error: cosmeticError } = await supabase
-      .from("cosmetics")
-      .select("*")
-      .eq("id", body.cosmetic_id)
-      .single();
+    if (!claimCode) return jsonError("Claim code wajib diisi.", 400);
+    if (!cosmeticId) return jsonError("Cosmetic ID wajib diisi.", 400);
 
-    if (cosmeticError || !cosmetic) {
-      return NextResponse.json({ error: cosmeticError?.message || "Cosmetic tidak ditemukan." }, { status: 404 });
-    }
+    const profile = await findProfileByClaimCode(claimCode);
+    if (!profile) return jsonError("Profile tidak ditemukan atau claim code salah.", 404);
 
-    const { data: owned, error: ownedError } = await supabase
-      .from("character_cosmetics")
-      .select("id")
-      .eq("character_id", body.character_id)
-      .eq("cosmetic_id", body.cosmetic_id)
-      .maybeSingle();
+    const cosmetic = await getCosmetic(cosmeticId);
+    if (!cosmetic) return jsonError("Cosmetic tidak ditemukan atau tidak aktif.", 404);
 
-    if (ownedError) {
-      return NextResponse.json({ error: ownedError.message }, { status: 500 });
-    }
+    const owned = await assertOwned(profile.character_id, cosmetic.id);
+    if (!owned) return jsonError("Cosmetic belum dimiliki. Buy dulu sebelum equip.", 403);
 
-    if (!owned) {
-      return NextResponse.json({ error: "Character belum memiliki cosmetic ini." }, { status: 403 });
-    }
+    const type = String(cosmetic.cosmetic_type || "").toLowerCase();
 
     const payload = {
-      character_id: body.character_id,
+      character_id: profile.character_id,
       updated_at: new Date().toISOString(),
     };
 
-    if (cosmetic.cosmetic_type === "Border") {
-      payload.border_cosmetic_id = body.cosmetic_id;
-
-      await supabase
-        .from("characters")
-        .update({ equipped_border_class: cosmetic.css_class })
-        .eq("id", body.character_id);
+    if (type === "border") {
+      payload.border_cosmetic_id = cosmetic.id;
+    } else if (type === "effect") {
+      payload.effect_cosmetic_id = cosmetic.id;
+    } else {
+      return jsonError(`Tipe cosmetic tidak didukung untuk equip: ${cosmetic.cosmetic_type}`, 400);
     }
 
-    if (cosmetic.cosmetic_type === "Effect") {
-      payload.effect_cosmetic_id = body.cosmetic_id;
+    await supabaseFetch("/rest/v1/character_equipped_cosmetics", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=representation",
+      },
+      body: JSON.stringify(payload),
+    });
 
-      await supabase
-        .from("characters")
-        .update({ equipped_effect_class: cosmetic.css_class })
-        .eq("id", body.character_id);
-    }
+    const equippedRows = await supabaseFetch(
+      `/rest/v1/character_equipped_cosmetics?select=*&character_id=eq.${encodeURIComponent(profile.character_id)}&limit=1`,
+      { method: "GET" }
+    );
 
-    const { data, error } = await supabase
-      .from("character_equipped_cosmetics")
-      .upsert(payload, { onConflict: "character_id" })
-      .select("*")
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({
-      ok: true,
-      message: "Cosmetic berhasil dipasang.",
-      equipped: data,
+    return jsonOk({
+      message: "Cosmetic berhasil di-equip.",
+      profile,
       cosmetic,
+      equipped: Array.isArray(equippedRows) ? equippedRows[0] || null : null,
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return jsonError(error, 500);
   }
 }
