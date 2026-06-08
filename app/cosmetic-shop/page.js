@@ -1,107 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-const CLAIM_KEY = "lunaria_profile_claim_code";
-
-export default function CosmeticShopPage() {
-  const [claimCode, setClaimCode] = useState("");
+export default function CosmeticShopPreviewPage() {
   const [cosmetics, setCosmetics] = useState([]);
-  const [owned, setOwned] = useState([]);
-  const [equipped, setEquipped] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("Loading cosmetic preview...");
 
   useEffect(() => {
-    const saved = localStorage.getItem(CLAIM_KEY) || "";
-    setClaimCode(saved);
-    loadShop(saved);
+    loadPreview();
   }, []);
 
-  const ownedSet = useMemo(() => {
-    return new Set(owned.map((item) => item.cosmetic_id));
-  }, [owned]);
-
-  const borderItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "border");
-  const effectItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "effect");
-
-  async function loadShop(nextCode = claimCode) {
-    setLoading(true);
-    setMessage("");
-
+  async function loadPreview() {
     try {
-      const code = String(nextCode || "").trim();
-      const query = code ? `?claim_code=${encodeURIComponent(code)}` : "";
-
-      const response = await fetch(`/api/cosmetics/list${query}`, {
+      const response = await fetch("/api/cosmetics/list", {
         cache: "no-store",
       });
 
       const payload = await response.json();
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Gagal load cosmetic shop.");
+        throw new Error(payload.error || "Gagal load cosmetic preview.");
       }
-
-      if (code) localStorage.setItem(CLAIM_KEY, code);
 
       setCosmetics(payload.cosmetics || []);
-      setOwned(payload.owned || []);
-      setEquipped(payload.equipped || null);
-      setProfile(payload.profile || null);
-      setMessage(code ? "Cosmetic shop berhasil dimuat." : "Masukkan claim code untuk buy/equip.");
+      setMessage("Preview cosmetic berhasil dimuat.");
     } catch (error) {
-      setMessage(error.message || "Gagal load cosmetic shop.");
-    } finally {
-      setLoading(false);
+      setMessage(error.message || "Gagal load cosmetic preview.");
     }
   }
 
-  async function buyCosmetic(cosmeticId) {
-    await action("/api/cosmetics/buy", cosmeticId, "Buy selesai.");
-  }
-
-  async function equipCosmetic(cosmeticId) {
-    await action("/api/cosmetics/equip", cosmeticId, "Equip selesai.");
-  }
-
-  async function action(url, cosmeticId, successMessage) {
-    setLoading(true);
-    setMessage("");
-
-    try {
-      const code = String(claimCode || "").trim();
-
-      if (!code) {
-        throw new Error("Claim code wajib diisi.");
-      }
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          claim_code: code,
-          cosmetic_id: cosmeticId,
-        }),
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Action gagal.");
-      }
-
-      setMessage(payload.message || successMessage);
-      await loadShop(code);
-    } catch (error) {
-      setMessage(error.message || "Action gagal.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const borderItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "border");
+  const effectItems = cosmetics.filter((item) => String(item.cosmetic_type).toLowerCase() === "effect");
 
   function priceLabel(item) {
     const silver = Number(item.price_silver || 0);
@@ -113,19 +42,7 @@ export default function CosmeticShopPage() {
     return "Free";
   }
 
-  function isEquipped(item) {
-    const type = String(item.cosmetic_type || "").toLowerCase();
-
-    if (type === "border") return equipped?.border_cosmetic_id === item.id;
-    if (type === "effect") return equipped?.effect_cosmetic_id === item.id;
-
-    return false;
-  }
-
   function renderCard(item) {
-    const ownedItem = ownedSet.has(item.id);
-    const equippedItem = isEquipped(item);
-
     return (
       <article key={item.id} className="cos-card">
         <div className="cos-preview">
@@ -146,22 +63,11 @@ export default function CosmeticShopPage() {
           </div>
 
           <div className="btn-row">
-            <button
-              type="button"
-              onClick={() => buyCosmetic(item.id)}
-              disabled={loading || ownedItem}
-              className="btn btn-secondary"
-            >
-              {ownedItem ? "Owned" : "Buy"}
+            <button type="button" disabled className="btn btn-secondary">
+              Buy Soon
             </button>
-
-            <button
-              type="button"
-              onClick={() => equipCosmetic(item.id)}
-              disabled={loading || !ownedItem || equippedItem}
-              className="btn btn-primary"
-            >
-              {equippedItem ? "Equipped" : "Equip"}
+            <button type="button" disabled className="btn btn-primary">
+              Equip Soon
             </button>
           </div>
         </div>
@@ -173,12 +79,14 @@ export default function CosmeticShopPage() {
     <main className="shop-shell">
       <style jsx global>{`
         * { box-sizing: border-box; }
+
         body {
           margin: 0;
           background: #06070b;
           color: #f6f0df;
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
+
         .shop-shell {
           min-height: 100vh;
           padding: 26px 14px 42px;
@@ -187,57 +95,57 @@ export default function CosmeticShopPage() {
             radial-gradient(circle at top right, rgba(104, 137, 211, .12), transparent 30%),
             linear-gradient(135deg, #07080c, #111622 48%, #050508);
         }
-        .shop-wrap { width: min(1180px, 100%); margin: 0 auto; }
-        .panel {
+
+        .shop-wrap {
+          width: min(1180px, 100%);
+          margin: 0 auto;
+        }
+
+        .panel,
+        .cos-card {
           border: 1px solid rgba(255,255,255,.10);
-          border-radius: 26px;
           background: rgba(255,255,255,.045);
           box-shadow: 0 24px 70px rgba(0,0,0,.36);
           backdrop-filter: blur(12px);
         }
-        .hero { padding: 24px; margin-bottom: 16px; }
+
+        .hero {
+          border-radius: 28px;
+          padding: 24px;
+          margin-bottom: 16px;
+        }
+
         .eyebrow {
           margin: 0 0 10px;
-          color: rgba(232, 202, 127, .82);
+          color: rgba(232,202,127,.82);
           letter-spacing: .28em;
           text-transform: uppercase;
           font-size: 12px;
           font-weight: 900;
         }
-        h1 { margin: 0; font-size: clamp(32px, 6vw, 54px); letter-spacing: -.05em; }
-        .sub { color: rgba(246,240,223,.62); line-height: 1.65; max-width: 820px; }
-        .claim-panel { padding: 18px; margin-bottom: 16px; }
-        .claim-row {
-          display: grid;
-          grid-template-columns: 1fr 180px;
-          gap: 12px;
+
+        h1 {
+          margin: 0;
+          font-size: clamp(32px, 6vw, 54px);
+          letter-spacing: -.05em;
         }
-        .label {
-          display: block;
-          margin-bottom: 8px;
-          color: rgba(246,240,223,.50);
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: .20em;
-          font-weight: 900;
+
+        .sub {
+          color: rgba(246,240,223,.62);
+          line-height: 1.65;
+          max-width: 820px;
         }
-        .input {
-          width: 100%;
-          border: 1px solid rgba(255,255,255,.12);
-          border-radius: 14px;
-          background: rgba(0,0,0,.36);
-          color: #f6f0df;
-          padding: 13px 14px;
-          outline: none;
-        }
+
         .message {
-          margin-top: 12px;
+          margin-top: 14px;
           border-radius: 16px;
-          background: rgba(255,255,255,.06);
+          background: rgba(232,202,127,.10);
+          border: 1px solid rgba(232,202,127,.16);
           padding: 12px 14px;
-          color: rgba(246,240,223,.74);
+          color: rgba(246,240,223,.76);
           font-size: 13px;
         }
+
         .section-title {
           margin: 20px 4px 12px;
           color: rgba(246,240,223,.76);
@@ -245,17 +153,18 @@ export default function CosmeticShopPage() {
           text-transform: uppercase;
           font-size: 13px;
         }
+
         .grid {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 14px;
         }
+
         .cos-card {
-          border: 1px solid rgba(255,255,255,.10);
           border-radius: 24px;
           overflow: hidden;
-          background: rgba(255,255,255,.045);
         }
+
         .cos-preview {
           min-height: 96px;
           display: grid;
@@ -265,17 +174,23 @@ export default function CosmeticShopPage() {
           text-align: center;
           font-weight: 950;
         }
-        .cos-body { padding: 16px; }
+
+        .cos-body {
+          padding: 16px;
+        }
+
         .cos-top {
           display: flex;
           justify-content: space-between;
           gap: 10px;
           align-items: start;
         }
+
         .cos-top h3 {
           margin: 0;
           font-size: 16px;
         }
+
         .cos-top span {
           color: rgba(232,202,127,.78);
           font-size: 11px;
@@ -283,12 +198,14 @@ export default function CosmeticShopPage() {
           letter-spacing: .12em;
           font-weight: 900;
         }
+
         .cos-body p {
           color: rgba(246,240,223,.58);
           line-height: 1.55;
           min-height: 48px;
           font-size: 13px;
         }
+
         .cos-meta {
           display: flex;
           justify-content: space-between;
@@ -296,22 +213,38 @@ export default function CosmeticShopPage() {
           color: rgba(246,240,223,.70);
           font-size: 13px;
         }
-        .btn-row { display: flex; gap: 9px; }
+
+        .btn-row {
+          display: flex;
+          gap: 9px;
+        }
+
         .btn {
           border: 0;
           border-radius: 13px;
           padding: 11px 14px;
           font-weight: 950;
-          cursor: pointer;
           width: 100%;
         }
-        .btn-primary { background: linear-gradient(135deg, #f5d77f, #b88933); color: #110d05; }
-        .btn-secondary { background: rgba(255,255,255,.08); color: #f6f0df; border: 1px solid rgba(255,255,255,.10); }
-        .btn:disabled { opacity: .48; cursor: not-allowed; }
+
+        .btn-primary {
+          background: linear-gradient(135deg, #f5d77f, #b88933);
+          color: #110d05;
+        }
+
+        .btn-secondary {
+          background: rgba(255,255,255,.08);
+          color: #f6f0df;
+          border: 1px solid rgba(255,255,255,.10);
+        }
+
+        .btn:disabled {
+          opacity: .55;
+        }
+
         @media (max-width: 880px) {
           .grid { grid-template-columns: 1fr; }
-          .claim-row { grid-template-columns: 1fr; }
-          .hero, .claim-panel { padding: 16px; border-radius: 22px; }
+          .hero { padding: 16px; border-radius: 22px; }
         }
       `}</style>
 
@@ -320,27 +253,9 @@ export default function CosmeticShopPage() {
           <p className="eyebrow">Lunaria Player Portal</p>
           <h1>Cosmetic Shop</h1>
           <p className="sub">
-            Buy dan equip cosmetic memakai claim code. Benefit Top Leader nanti dipisahkan dari shop dan tidak ikut sistem cosmetic biasa.
+            Preview border dan effect cosmetic Lunaria. Buy/Equip sedang dalam finalisasi admin system.
           </p>
-        </div>
-
-        <div className="panel claim-panel">
-          <label className="label">Claim Code</label>
-          <div className="claim-row">
-            <input
-              value={claimCode}
-              onChange={(event) => setClaimCode(event.target.value)}
-              placeholder="Contoh: AEL-8168"
-              className="input"
-            />
-            <button type="button" onClick={() => loadShop()} disabled={loading} className="btn btn-primary">
-              {loading ? "Loading..." : "Load Shop"}
-            </button>
-          </div>
-
-          <div className="message">
-            {profile ? `Loaded: ${profile.display_name || profile.character_id}` : message || "Masukkan claim code untuk mulai."}
-          </div>
+          <div className="message">{message}</div>
         </div>
 
         <h2 className="section-title">Border Cosmetics</h2>
