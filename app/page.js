@@ -75,11 +75,6 @@ export default function HomePage() {
         </p>
 
         <div className="portal-grid">
-          <Link className="portal-card" href="/registration">
-            <strong>Character Registration</strong>
-            <span>Daftarkan karakter baru untuk masuk review admin.</span>
-          </Link>
-
           <Link className="portal-card" href="/id-card">
             <strong>ID Card</strong>
             <span>Lihat dan salin ID card resmi karakter.</span>
@@ -98,6 +93,11 @@ export default function HomePage() {
           <Link className="portal-card" href="/cosmetic-shop">
             <strong>Cosmetic Shop</strong>
             <span>Beli border dan name effect premium untuk karakter.</span>
+          </Link>
+
+          <Link className="portal-card" href="/registration">
+            <strong>Character Registration</strong>
+            <span>Daftarkan karakter baru untuk masuk review admin.</span>
           </Link>
         </div>
       </section>
