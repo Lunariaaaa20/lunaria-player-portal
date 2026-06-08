@@ -5644,3 +5644,101 @@ body::after {
     transform: translateY(0);
   }
 }
+
+/* MVP Admin Cleanup: hide legacy admin module cards */
+.admin-module-card:has(h3:nth-child(1)) {
+  display: block;
+}
+
+.admin-module-card:has(h3) h3 {
+  pointer-events: none;
+}
+
+.admin-module-card:has(h3):has(+ *) {
+  display: block;
+}
+
+.admin-module-card:has(h3) {
+  display: block;
+}
+
+.admin-module-card:has(h3) {
+  visibility: visible;
+}
+
+.admin-module-card:has(h3) h3 {
+  visibility: visible;
+}
+
+.admin-module-card:has(h3)::after {
+  display: none;
+}
+
+/* Hide specific legacy admin cards */
+.admin-module-card:has(h3):has(h3) {
+  display: block;
+}
+
+.admin-module-card:has(h3) {
+  display: block;
+}
+
+.admin-module-card:has(h3:contains("Quest Applications")),
+.admin-module-card:has(h3:contains("Quest Reports")),
+.admin-module-card:has(h3:contains("Quest Management")),
+.admin-module-card:has(h3:contains("Economy Management")),
+.admin-module-card:has(h3:contains("Rules Management")) {
+  display: none;
+}
+
+/* MOBILE MVP CLEANUP — Hide oversized sidebar on phone/tablet */
+@media (max-width: 900px) {
+  aside,
+  .sidebar,
+  .portal-sidebar,
+  .app-sidebar,
+  .admin-sidebar,
+  .side-navigation,
+  .layout-sidebar {
+    display: none !important;
+  }
+
+  main,
+  .main,
+  .portal-main,
+  .admin-main,
+  .page-main,
+  .content,
+  .page-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  .portal-shell,
+  .admin-shell,
+  .app-shell,
+  .layout-shell,
+  .page-shell {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero,
+  .portal-hero,
+  .admin-hero,
+  .registration-hero {
+    margin-top: 16px !important;
+  }
+
+  .portal-card,
+  .admin-panel-card,
+  .registration-form,
+  .registration-panel,
+  .profile-panel,
+  .id-card-panel {
+    border-radius: 22px !important;
+  }
+}
