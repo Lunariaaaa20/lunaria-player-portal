@@ -8,62 +8,32 @@ const ADMIN_PASSWORD = "lunaria-admin";
 const modules = [
   {
     title: "Character Management",
+    description: "Approve, suspend, edit, dan kelola ID Card karakter Lunaria.",
     href: "/admin/characters",
     status: "Active",
-    description: "Approve, suspend, edit, dan kelola ID Card karakter Lunaria.",
     stats: [
-      ["Review", "Pending"],
-      ["Registry", "Active"],
+      { label: "Pending", value: "Review" },
+      { label: "Active", value: "Registry" },
     ],
   },
   {
-    title: "Quest Applications",
+    title: "Registration Applications",
+    description: "Review pendaftaran karakter baru sebelum masuk Adventurer Registry.",
     href: "/admin/applications",
     status: "Active",
-    description: "Approve Take Quest sebelum player menjalankan misi.",
     stats: [
-      ["Take Quest", "Approval"],
-      ["Quest Lock", "Active"],
+      { label: "Review", value: "Pending" },
+      { label: "Approval", value: "Admin" },
     ],
   },
   {
-    title: "Quest Reports",
-    href: "/admin/reports",
-    status: "Active",
-    description: "Review laporan quest dan apply reward distribution ke ID Card.",
+    title: "Portal Preview",
+    description: "Cek tampilan publik Lunaria Player Portal setelah update admin.",
+    href: "/",
+    status: "Ready",
     stats: [
-      ["Reward", "Auto"],
-      ["Party", "Supported"],
-    ],
-  },
-  {
-    title: "Quest Management",
-    href: "/admin/quests",
-    status: "Active",
-    description: "Tambah, edit, hapus, dan kelola status quest Lunaria.",
-    stats: [
-      ["Board", "Public"],
-      ["Status", "Managed"],
-    ],
-  },
-  {
-    title: "Economy Management",
-    href: "/admin/economy",
-    status: "Active",
-    description: "Kelola harga item, makanan, blacksmith, material, dan layanan.",
-    stats: [
-      ["Items", "Managed"],
-      ["Shop", "Ready"],
-    ],
-  },
-  {
-    title: "Rules Management",
-    href: "/admin/rules",
-    status: "Active",
-    description: "Kelola aturan rank, pathway, reward, inventory, combat, dan komunitas.",
-    stats: [
-      ["Rules", "Managed"],
-      ["Guide", "Public"],
+      { label: "Public", value: "Portal" },
+      { label: "MVP", value: "Active" },
     ],
   },
 ];
