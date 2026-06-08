@@ -68,6 +68,22 @@ const modules = [
   },
 ];
 
+const mvpModules = modules
+  .filter((module) =>
+    ["Character Management", "Quest Applications"].includes(module.title)
+  )
+  .map((module) => {
+    if (module.title !== "Quest Applications") return module;
+
+    return {
+      ...module,
+      title: "Registration Applications",
+      description: "Review pendaftaran karakter baru sebelum masuk Adventurer Registry.",
+      href: "/admin/applications",
+    };
+  });
+
+
 export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
@@ -270,7 +286,7 @@ export default function AdminPage() {
               <h2>Management Modules</h2>
 
               <div className="admin-module-grid">
-                {modules.map((module) => (
+                {mvpModules.map((module) => (
                   <Link className="admin-module-card" href={module.href} key={module.title}>
                     <div className="admin-module-header">
                       <h3>{module.title}</h3>

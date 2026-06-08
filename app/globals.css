@@ -5742,3 +5742,39 @@ body::after {
     border-radius: 22px !important;
   }
 }
+
+/* FINAL MOBILE/TABLET CLEANUP — remove oversized left sidebar */
+@media (max-width: 1200px) {
+  aside,
+  .sidebar,
+  .portal-sidebar,
+  .app-sidebar,
+  .admin-sidebar,
+  .side-navigation,
+  .layout-sidebar {
+    display: none !important;
+  }
+
+  main,
+  .main,
+  .portal-main,
+  .admin-main,
+  .page-main,
+  .content,
+  .page-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .portal-shell,
+  .admin-shell,
+  .app-shell,
+  .layout-shell,
+  .page-shell {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+}
